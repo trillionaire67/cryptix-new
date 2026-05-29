@@ -1,5 +1,10 @@
-build/
-.gradle/
-.idea/
-out/
-*.class
+# ignore everything
+*
+
+# but allow these
+!.gitignore
+!src/
+!src/**
+
+# (optional but recommended if you use git)
+!.gitignore
