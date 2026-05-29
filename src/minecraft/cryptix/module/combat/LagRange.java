@@ -208,7 +208,7 @@ extends Module {
 		}
 		if(event instanceof PacketSendEvent) {
 			PacketSendEvent e = (PacketSendEvent) event;
-			if (((C02PacketUseEntity) e.getPacket()).getAction() == C02PacketUseEntity.Action.ATTACK) {
+			if (e.getPacket() instanceof C02PacketUseEntity && ((C02PacketUseEntity) e.getPacket()).getAction() == C02PacketUseEntity.Action.ATTACK) {
 				attack = true;
 			}
 		}

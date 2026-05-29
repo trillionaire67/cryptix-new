@@ -103,7 +103,6 @@ public class CustomFontRenderer extends FontUtil {
         int len=str.length();
         float cx=(float)x;
         float cy=(float)y;
-        GL11.glBegin(GL11.GL_TRIANGLES);
         for(int i=0;i<len;i++){
             char c=str.charAt(i);
             if(c==167){
@@ -128,10 +127,11 @@ public class CustomFontRenderer extends FontUtil {
             if(c>=data.length)continue;
             FontUtil.CharData cd=data[c];
             float cw=cd.width-kerning+this.charOffset;
+            GL11.glBegin(GL11.GL_TRIANGLES);
             this.drawChar(data,c,cx,cy);
+            GL11.glEnd();
             cx+=cw;
         }
-        GL11.glEnd();
         GlStateManager.color(1f, 1f, 1f, 1f);
         GL11.glPopMatrix();
         return cx / 2f;

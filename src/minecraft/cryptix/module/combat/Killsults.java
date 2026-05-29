@@ -12,18 +12,18 @@ public class Killsults extends Module{
 	private Setting mode = new Setting("Mode", this, "Normal", Arrays.asList("Normal", "Islam"));
 	private Setting delay = new Setting("Delay", this, 5, 1, 10, true);
 	private final String[] insultsIslam = {"muhammad was a caravan robber", "muhammad married a 9 year old",
-            "muhammad is a fucking pÃ¦do", "fun fact: aisha used to scrape sÃ¦men stains off the prophets clothes!",
+            "muhammad is a fucking pædo", "fun fact: aisha used to scrape sæmen stains off the prophets clothes!",
             "fuck your moon god!",
             "muhammad is a rtarded false prophet", "allah cant save you from me mwahahaha",
             "islam is a crime against humanity", "not even allah can move as fast as me",
             "go drink some fucking camel urine you rtard", "fuck muhammad", "muhammad piss be upon him",
-            "leave fucking islam", "the quran isnt preserved you rtard", "u need Jesus not some pÃ¦dophile prophet",
-            "astaghfirullah! theres sÃ¦men on my clothes!!!!",
-            "stop idolizing fucking zakir naik and grow a brain rtard", "let me get this straight, muhammad was a pÃ¦do and hes supposed to be the best example for humanity? XD",
+            "leave fucking islam", "the quran isnt preserved you rtard", "u need Jesus not some pædophile prophet",
+            "astaghfirullah! theres sæmen on my clothes!!!!",
+            "stop idolizing fucking zakir naik and grow a brain rtard", "let me get this straight, muhammad was a pædo and hes supposed to be the best example for humanity? XD",
             "bro was doing wudu afk", "i am fighting for the cause of allah for my 72 virgins in paradise!!!!",
             "fuck your religion and fuck your prophet", "muslims kill people in a block game to prepare for jihad",
             "islam was spread by the sword",
-            "your dad prays to a black rock", "the quran is good quality toilet paper - 5 stars", "islam is cancer",
+            "your dad prays to a black rock", "the quran is good quality toilet paper - 5 stars", "islam is cancær",
             "your fucking desert culture is a joke, go back to riding camels", "you fucking muslim teerrorist",
             "ur mom wears a burqa and still cant hide her shame", "the quran says allah sends people to hell for not fasting during ramadan you fatass"};
 	private final String[] insultsNormal = {"your dad should've worn a condom that time", "keep clicking your 6cps d!ck head",

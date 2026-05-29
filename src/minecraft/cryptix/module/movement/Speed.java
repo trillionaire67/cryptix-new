@@ -11,6 +11,7 @@ import cryptix.module.Category;
 import cryptix.module.Module;
 import cryptix.utils.BlinkUtils;
 import cryptix.utils.MovementUtils;
+import cryptix.utils.RotationUtils;
 import cryptix.utils.Utils;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.BlockLiquid;
@@ -40,8 +41,12 @@ public class Speed extends Module{
 	
 	@Override
 	public void onPreMotion() {
-		if(rotate.getBoolean() && !mc.thePlayer.onGround) {
-			mc.thePlayer.rotationYawHead += 45;
+		if(rotate.getBoolean()) {
+			if(!mc.thePlayer.onGround) {
+				mc.thePlayer.rotationYawHead = RotationUtils.getMovementYaw() + 225;
+			}else {
+				mc.thePlayer.rotationYawHead = RotationUtils.getMovementYaw() + 180;
+			}
 		}
 	}
 	

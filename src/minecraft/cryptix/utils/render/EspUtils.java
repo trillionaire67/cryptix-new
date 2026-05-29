@@ -123,7 +123,6 @@ public class EspUtils {
 	            	GL11.glPushMatrix();
 	            	GL11.glTranslated(x, y - 0.2D, z);
 	            	GL11.glRotatef(-rm.playerViewY, 0, 1, 0);
-	            	GL11.glRotatef(rm.playerViewX, 1, 0, 0);
 	            	GL11.glScalef(0.03F, 0.03F, 0.03F);
 	            	GlStateManager.disableDepth();
 	            	drawBar(20f, 0f,23f, barHeight,filled,0xFF323232,color | 0xFF000000,1.0f);
@@ -225,8 +224,6 @@ public class EspUtils {
 	    Tessellator tess = Tessellator.getInstance();
 	    WorldRenderer wr = tess.getWorldRenderer();
 	    GL11.glDisable(GL11.GL_TEXTURE_2D);
-	    GL11.glEnable(GL11.GL_BLEND);
-	    GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 	    float bgA = ((bgColor >> 24) & 255) / 255f;
 	    float bgR = ((bgColor >> 16) & 255) / 255f;
 	    float bgG = ((bgColor >> 8) & 255) / 255f;

@@ -24,7 +24,7 @@ public class NoSlow extends Module {
 
     public NoSlow() {
         super("NoSlow", 0, Category.MOVEMENT);
-        List<String> modes = Arrays.asList("Vanilla", "Post", "Alpha", "Beta", "NoGround");
+        List<String> modes = Arrays.asList("Vanilla", "Post", "Alpha", "NoGround");
         Client.instance.settingsManager.addSetting(mode = new Setting("Mode", this, "Vanilla", modes));
     }
 
@@ -52,18 +52,6 @@ public class NoSlow extends Module {
                 break;
                 
             case "beta":
-            	if (holdingSword) {
-            		if(mc.thePlayer.ticksExisted % 3 == 0 || !blinking) {
-	            		sendPacket(new C08PacketPlayerBlockPlacement(mc.thePlayer.getHeldItem()));
-	            		BlinkUtils.stopBlink();
-	            		BlinkUtils.startBlink();
-	                    sendPacket(new C07PacketPlayerDigging(Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.UP));
-	                    blinking = true;
-            		}
-                }else if(blinking){
-                	BlinkUtils.stopBlink();
-                	blinking = false;
-                }
                 break;
 
             case "noground":
@@ -81,11 +69,14 @@ public class NoSlow extends Module {
 
     @Override
     public void onPreInput() {
-        if (mc.thePlayer.isUsingItem() && MovementUtils.isMoving() && ("Alpha".equalsIgnoreCase(mode.getString()) || "Beta".equalsIgnoreCase(mode.getString()) && !Utils.holdingSword())) {
+        if (mc.thePlayer.isUsingItem() && MovementUtils.isMoving() && ("Alpha".equalsIgnoreCase(mode.getString()))) {
             mc.thePlayer.movementInput.moveForward *= 0.2f;
             mc.thePlayer.movementInput.moveStrafe *= 0.2f;
             mc.gameSettings.keyBindSprint.pressed = true;
         }
+        if(mc.thePlayer.isUsingItem() && MovementUtils.isMoving() && mc.thePlayer.onGround && "Beta".equalsIgnoreCase(mode.getString()) && !Utils.holdingSword()) {
+        	mc.thePlayer.movementInput.jump = true;
+    	}
     }
 
     @Override

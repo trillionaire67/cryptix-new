@@ -374,7 +374,7 @@ extends Module {
         }
         if (this.sprint.getString().equalsIgnoreCase("hypixel") && this.hypixelRots != null) {
 	            if (this.mc.thePlayer.onGround) {
-	            	if((int)mc.thePlayer.posY == keepy_y && Utils.holdingBlock() && mc.theWorld.getBlockState(new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY+ 2, mc.thePlayer.posZ)).getBlock() == Blocks.air && MovementUtils.isMoving()) {
+	            	if(Utils.holdingBlock() && mc.theWorld.getBlockState(new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY+ 2, mc.thePlayer.posZ)).getBlock() == Blocks.air && MovementUtils.isMoving()) {
 		                this.preYaw = yaw = RotationUtils.getMovementYaw() + 179;
 		                this.strictYaw = RotationUtils.getMovementYaw();
 		                blinkTick = 0;
@@ -740,7 +740,6 @@ extends Module {
             if (blinkTick == 0) {
             	forceStrict = false;
                 pitch = 40f;
-                limit = 0;
             } else if (blinkTick == 1) {
                 pitch = 60f;
                 strictPitch = 60f;
@@ -748,15 +747,11 @@ extends Module {
                 limit = (float) (55 + Math.random() * 4);
             }else if (blinkTick >= 3) {
             	BlinkUtils.stopBlink();
-            	if(blinkTick == 3) {
-            		jumpX = mc.thePlayer.posX;
-	            	jumpZ = mc.thePlayer.posZ;
-            	}
             }
             blinkTick++;
             float diffToTarget = MathHelper.wrapAngleTo180_float(targetYaw - changeYaw);
             float diffToTarget2 = MathHelper.wrapAngleTo180_float(pitch - prePitch);
-            if (Math.abs(diffToTarget) < 20f && Math.abs(diffToTarget2) < 10f && MovementUtils.isMoving()) {
+            if (Math.abs(diffToTarget) < 20f && Math.abs(diffToTarget2) < 15f && MovementUtils.isMoving()) {
             	return new float[]{changeYaw, prePitch};
             }
             float diff = MathHelper.wrapAngleTo180_float(yaw - changeYaw);
@@ -765,8 +760,8 @@ extends Module {
             this.changeYaw = changeYaw;
             this.prePitch = pitch;
             float yawError = MathHelper.wrapAngleTo180_float(changeYaw - targetYaw);
-            if (Math.abs(yawError) > 45 && !mc.thePlayer.onGround) {
-                enable = 1;
+            if (Math.abs(yawError) > (blinkTick > 5 ? 40 : 0) && !mc.thePlayer.onGround) {
+                enable = 2;
             }
             return new float[]{changeYaw, pitch};
         }else if (sprintMode.equalsIgnoreCase("blocksmc")) {
