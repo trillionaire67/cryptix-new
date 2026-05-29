@@ -9,6 +9,7 @@ import cryptix.gui.clickgui.Setting;
 import cryptix.module.Category;
 import cryptix.module.Module;
 import cryptix.module.combat.AntiBot;
+import cryptix.utils.FrustumUtils;
 import cryptix.utils.RenderCache;
 import cryptix.utils.render.RenderUtils;
 import net.minecraft.client.gui.Gui;
@@ -35,7 +36,7 @@ public class NameTags extends Module {
 
     @Override
     public void onRender2D() {
-    	long startTime = System.nanoTime();
+    	//long startTime = System.nanoTime();
     	boolean distance = showDistance.getBoolean();
     	boolean back = background.getBoolean();
     	boolean rounded = round.getBoolean();
@@ -47,8 +48,10 @@ public class NameTags extends Module {
     	ScaledResolution sr = RenderCache.getScaledResolution();
     	GlStateManager.pushMatrix();
         GlStateManager.scale(tagScale, tagScale, 1);
+        StringBuilder sb = new StringBuilder();
         for (EntityPlayer player : mc.theWorld.playerEntities) {
-            if (player == null || player == mc.thePlayer || player.isDead) {
+        	AxisAlignedBB bb = player.getEntityBoundingBox();
+            if (player == null || player == mc.thePlayer || player.isDead || !FrustumUtils.isVisible(bb)) {
                 continue;
             }
             double x = interpolate(player.posX, player.lastTickPosX) - viewerX;
@@ -57,17 +60,29 @@ public class NameTags extends Module {
             double ex = x - player.posX;
             double ey = y - player.posY;
             double ez = z - player.posZ;
-            AxisAlignedBB bb = player.getEntityBoundingBox().offset(ex, ey, ez).expand(0.1, 0.1, 0.1);
-            double[] coords = RenderUtils.worldToScreen((bb.minX + bb.maxX) / 2.0,bb.maxY + 0.2,(bb.minZ + bb.maxZ) / 2.0, sr);
+            double expand = 0.1;
+            double minX = bb.minX + ex - expand;
+            double minY = bb.minY + ey - expand;
+            double minZ = bb.minZ + ez - expand;
+            double maxX = bb.maxX + ex + expand;
+            double maxY = bb.maxY + ey + expand;
+            double maxZ = bb.maxZ + ez + expand;
+            double[] coords = RenderUtils.worldToScreen((minX + maxX) / 2.0,maxY + 0.2,(minZ + maxZ) / 2.0, sr);
             if (coords == null) {
                 continue;
             }
             float screenX = (float) coords[0];
             float screenY = (float) coords[1];
-            String text = player.getDisplayName().getFormattedText();
+            sb.setLength(0);
+            sb.append(player.getDisplayName().getFormattedText());
             if (distance) {
-                text += " §7[" + (int) mc.thePlayer.getDistanceToEntity(player) + "m§7]";
+                double dx = mc.thePlayer.posX - player.posX;
+                double dy = mc.thePlayer.posY - player.posY;
+                double dz = mc.thePlayer.posZ - player.posZ;
+                int dist = (int) Math.sqrt(dx * dx + dy * dy + dz * dz);
+                sb.append(" §7[").append(dist).append("m§7]");
             }
+            String text = sb.toString();
             int width = customFont ? (int)Client.instance.sans.getStringWidth(text) : mc.fontRendererObj.getStringWidth(text);
             int height = customFont ? Client.instance.sans.getHeight() : mc.fontRendererObj.FONT_HEIGHT;
             float xPos = (screenX / tagScale) - (width / 2f);
@@ -88,7 +103,7 @@ public class NameTags extends Module {
             }
         }
         GlStateManager.popMatrix();
-        System.out.println("time: " + (System.nanoTime() - startTime));
+        //System.out.println("time: " + (System.nanoTime() - startTime));
     }
 
     private double interpolate(double current, double old) {

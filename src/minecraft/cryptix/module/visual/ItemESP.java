@@ -9,6 +9,7 @@ import org.lwjgl.opengl.GL11;
 import cryptix.gui.clickgui.Setting;
 import cryptix.module.Category;
 import cryptix.module.Module;
+import cryptix.utils.FrustumUtils;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.Tessellator;
@@ -65,10 +66,11 @@ public class ItemESP extends Module{
         	if (!(entity instanceof EntityItem))
         	    continue;
         	EntityItem item = (EntityItem) entity;
+        	AxisAlignedBB bb = item.getEntityBoundingBox();
+        	if(!FrustumUtils.isVisible(bb)) continue;
 	        double x = item.lastTickPosX + (item.posX - item.lastTickPosX) * pt - viewerX;
 	        double y = item.lastTickPosY + (item.posY - item.lastTickPosY) * pt - viewerY;
 	        double z = item.lastTickPosZ + (item.posZ - item.lastTickPosZ) * pt - viewerZ;
-	        AxisAlignedBB bb = item.getEntityBoundingBox();
 	        double minX = x + (bb.minX - item.posX) - expandSize;
 	        double minY = y + (bb.minY - item.posY) - expandSize;
 	        double minZ = z + (bb.minZ - item.posZ) - expandSize;

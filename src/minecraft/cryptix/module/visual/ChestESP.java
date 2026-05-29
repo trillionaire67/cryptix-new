@@ -61,6 +61,7 @@ public class ChestESP extends Module {
                 double x = pos.getX() - viewerX;
                 double y = pos.getY() - viewerY;
                 double z = pos.getZ() - viewerZ;
+                if(!FrustumUtils.isVisible(x + viewerX, y + viewerY, z + viewerZ, x + 1 + viewerX, y + 1 + viewerY, z + 1 + viewerZ)) continue;
                 if (outline) {
                     drawSelectionBoundingBox(x, y, z, x + 1, y + 1, z + 1, renderer);
                 } else {

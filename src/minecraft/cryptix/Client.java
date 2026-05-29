@@ -211,19 +211,22 @@ public class Client {
     		if(!mod.isToggled()) continue;
             if (type == 0) mod.onRender2D();
             if (type == 1) {
-            	FrustumUtils.update(mc.getRenderManager().viewerPosX,mc.getRenderManager().viewerPosY,mc.getRenderManager().viewerPosZ);
             	mod.onRender3D();
             	frameTime = startTime;
             }
         }
         if (type == 0) {
         	instance.scaffold.onRender();
+        }else {
+        	FrustumUtils.update(mc.getRenderManager().viewerPosX,mc.getRenderManager().viewerPosY,mc.getRenderManager().viewerPosZ);
         }
         for(Script script : instance.scriptManager.getScripts()) {
         	if(!script.isEnabled()) continue;
         	if (type == 0) script.onRender2D();
         	if (type == 1) script.onRender3D();
         }
+        if(type == 1)
+        System.out.println("time: " + (System.nanoTime() - startTime));
     }
   
     

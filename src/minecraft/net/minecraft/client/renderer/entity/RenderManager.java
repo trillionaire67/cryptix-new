@@ -1,6 +1,9 @@
 package net.minecraft.client.renderer.entity;
 
 import com.google.common.collect.Maps;
+
+import cryptix.utils.FrustumUtils;
+
 import java.util.Collections;
 import java.util.Map;
 import net.minecraft.block.Block;
@@ -368,6 +371,7 @@ public class RenderManager
 
     public boolean doRenderEntity(Entity entity, double x, double y, double z, float entityYaw, float partialTicks, boolean hideDebugBox)
     {
+    	if(!FrustumUtils.isVisible(entity.boundingBox)) return false;
         Render<Entity> render = null;
 
         try

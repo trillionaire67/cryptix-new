@@ -98,28 +98,25 @@ public class FontUtil {
 
     private void drawQuad(float x, float y, float width, float height,
                           float srcX, float srcY, float srcWidth, float srcHeight) {
-        float u = srcX / IMAGE_SIZE;
-        float v = srcY / IMAGE_SIZE;
-        float uWidth = srcWidth / IMAGE_SIZE;
-        float vHeight = srcHeight / IMAGE_SIZE;
-
-        GL11.glTexCoord2f(u + uWidth, v);
-        GL11.glVertex2d(x + width, y);
-
+    	float inv = 1.0f / IMAGE_SIZE;
+        float u = srcX * inv;
+        float v = srcY * inv;
+        float u2 = (srcX + srcWidth) * inv;
+        float v2 = (srcY + srcHeight) * inv;
+        float x2 = x + width;
+        float y2 = y + height;
+        GL11.glTexCoord2f(u2, v);
+        GL11.glVertex2f(x2, y);
         GL11.glTexCoord2f(u, v);
-        GL11.glVertex2d(x, y);
-
-        GL11.glTexCoord2f(u, v + vHeight);
-        GL11.glVertex2d(x, y + height);
-
-        GL11.glTexCoord2f(u, v + vHeight);
-        GL11.glVertex2d(x, y + height);
-
-        GL11.glTexCoord2f(u + uWidth, v + vHeight);
-        GL11.glVertex2d(x + width, y + height);
-
-        GL11.glTexCoord2f(u + uWidth, v);
-        GL11.glVertex2d(x + width, y);
+        GL11.glVertex2f(x, y);
+        GL11.glTexCoord2f(u, v2);
+        GL11.glVertex2f(x, y2);
+        GL11.glTexCoord2f(u, v2);
+        GL11.glVertex2f(x, y2);
+        GL11.glTexCoord2f(u2, v2);
+        GL11.glVertex2f(x2, y2);
+        GL11.glTexCoord2f(u2, v);
+        GL11.glVertex2f(x2, y);
     }
 
     public void setAntiAlias(boolean antiAlias) {

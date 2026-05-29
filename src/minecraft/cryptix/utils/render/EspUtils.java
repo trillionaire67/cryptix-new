@@ -7,6 +7,7 @@ import org.lwjgl.opengl.GL11;
 
 import cryptix.Client;
 import cryptix.module.combat.AntiBot;
+import cryptix.utils.FrustumUtils;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -57,7 +58,8 @@ public class EspUtils {
 	    }
 	    for (int i = 0; i < entities.size(); i++) {
 	        EntityLivingBase e = entities.get(i);
-	        if (e == null || e.isDead || e == mc.thePlayer || AntiBot.isBot(e)) continue;
+	        AxisAlignedBB bb = e.getEntityBoundingBox();
+	        if (e == null || e.isDead || e == mc.thePlayer || AntiBot.isBot(e) || !FrustumUtils.isVisible(bb)) continue;
 	        double interpX = e.lastTickPosX + (e.posX - e.lastTickPosX) * partialTicks;
 	        double interpY = e.lastTickPosY + (e.posY - e.lastTickPosY) * partialTicks;
 	        double interpZ = e.lastTickPosZ + (e.posZ - e.lastTickPosZ) * partialTicks;
@@ -66,7 +68,6 @@ public class EspUtils {
 	        double z = interpZ - rm.viewerPosZ;
 	        switch (mode) {
 		        case 0: {
-		        	AxisAlignedBB bb = e.getEntityBoundingBox();
 		        	double minX = bb.minX - e.posX + x;
 		        	double minY = bb.minY - e.posY + y;
 		        	double minZ = bb.minZ - e.posZ + z;
@@ -131,7 +132,6 @@ public class EspUtils {
 	                break;
 	            }
 	            case 3: {
-	            	AxisAlignedBB bb = e.getEntityBoundingBox();
 	            	double minX = bb.minX - e.posX + x;
 	            	double minY = bb.minY - e.posY + y;
 	            	double minZ = bb.minZ - e.posZ + z;
