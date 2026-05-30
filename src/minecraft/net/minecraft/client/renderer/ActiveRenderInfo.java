@@ -20,7 +20,7 @@ public class ActiveRenderInfo
     public static final FloatBuffer MODELVIEW = GLAllocation.createDirectFloatBuffer(16);
     public static final FloatBuffer PROJECTION = GLAllocation.createDirectFloatBuffer(16);
     private static final FloatBuffer OBJECTCOORDS = GLAllocation.createDirectFloatBuffer(3);
-    private static Vec3 position = new Vec3(0.0D, 0.0D, 0.0D);
+    private static Vec3 position = new Vec3(0.0D, 0.0D, 0.0D), vec2 = new Vec3(0.0D, 0.0D, 0.0D);
     private static float rotationX;
     private static float rotationXZ;
     private static float rotationZ;
@@ -54,7 +54,7 @@ public class ActiveRenderInfo
         double d3 = d0 + position.xCoord;
         double d4 = d1 + position.yCoord;
         double d5 = d2 + position.zCoord;
-        return new Vec3(d3, d4, d5);
+        return vec2.setPosition(d3, d4, d5);
     }
 
     public static Block getBlockAtEntityViewpoint(World worldIn, Entity p_180786_1_, float p_180786_2_)

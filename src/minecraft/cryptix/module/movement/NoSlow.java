@@ -20,17 +20,18 @@ import net.minecraft.util.EnumFacing;
 public class NoSlow extends Module {
     public Setting mode;
     private int tick;
-    private boolean blinking;
+    private boolean blinking, rotated;
 
     public NoSlow() {
         super("NoSlow", 0, Category.MOVEMENT);
-        List<String> modes = Arrays.asList("Vanilla", "Post", "Alpha", "NoGround");
+        List<String> modes = Arrays.asList("Vanilla", "Post", "Alpha", "Beta", "NoGround");
         Client.instance.settingsManager.addSetting(mode = new Setting("Mode", this, "Vanilla", modes));
     }
 
     @Override
     public void onPreMotion() {
         this.setDisplayName(this.getName() + this.getUppercaseSuffix(mode.getString()));
+        rotated = false;
         if (!mc.thePlayer.isUsingItem()) {
             tick = 0;
             if(blinking){
@@ -52,12 +53,23 @@ public class NoSlow extends Module {
                 break;
                 
             case "beta":
+            	if(!(mc.gameSettings.keyBindJump.isKeyDown() && mc.thePlayer.onGround)) {
+            		mc.thePlayer.rotationYawHead += 45;
+            		rotated = true;
+            	}
                 break;
 
             case "noground":
                 Client.instance.moduleManager.noFall.spoof = false;
                 break;
         }
+    }
+    
+    @Override
+    public void onPreUpdate() {
+    	if (mc.thePlayer.isUsingItem() && mode.getString().equalsIgnoreCase("Beta")) {
+    		Client.movefix = true;
+    	}
     }
 
     @Override
@@ -69,14 +81,14 @@ public class NoSlow extends Module {
 
     @Override
     public void onPreInput() {
-        if (mc.thePlayer.isUsingItem() && MovementUtils.isMoving() && ("Alpha".equalsIgnoreCase(mode.getString()))) {
+        if (mc.thePlayer.isUsingItem() && MovementUtils.isMoving() && ("Alpha".equalsIgnoreCase(mode.getString()) || "Beta".equalsIgnoreCase(mode.getString()))) {
             mc.thePlayer.movementInput.moveForward *= 0.2f;
             mc.thePlayer.movementInput.moveStrafe *= 0.2f;
             mc.gameSettings.keyBindSprint.pressed = true;
         }
-        if(mc.thePlayer.isUsingItem() && MovementUtils.isMoving() && mc.thePlayer.onGround && "Beta".equalsIgnoreCase(mode.getString()) && !Utils.holdingSword()) {
-        	mc.thePlayer.movementInput.jump = true;
-    	}
+        if(rotated) {
+        	mc.thePlayer.movementInput.jump = false;
+        }
     }
 
     @Override

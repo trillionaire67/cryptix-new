@@ -106,7 +106,7 @@ public class BedNuker extends Module{
 		rotating = false;
 		delayTick++;
 		tick++;
-		if(mc.thePlayer.isUsingItem() || Client.instance.moduleManager.scaffold.isToggled()|| (Client.instance.moduleManager.killAura.target != null && Client.instance.moduleManager.killAura.oldTarget != null && !ka.getBoolean()) || BlinkUtils.isBlinking()&& !ka.getBoolean() || mc.currentScreen != null) {
+		if(mc.thePlayer.isUsingItem() || Client.instance.moduleManager.scaffold.isToggled()|| ((Client.instance.moduleManager.killAura.target != null && Client.instance.moduleManager.killAura.oldTarget != null && Client.instance.moduleManager.killAura.swapped) && !ka.getBoolean()) || BlinkUtils.isBlinking()&& !ka.getBoolean() || mc.currentScreen != null) {
 			reset();
 			return;
 		}

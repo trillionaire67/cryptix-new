@@ -46,6 +46,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
  
 public class Client {
+	public static String name = "Cryptix", version = "5.6.1";
 	public static long frameTime;
 	public static String apikey = "";
 	public boolean altFinder = false;
@@ -78,7 +79,7 @@ public class Client {
         sans = new CustomFontRenderer(getFont("sans.ttf", 20), true, true);
         sans12 = new CustomFontRenderer(getFont("sans.ttf", 15), true, true);
         SessionChanger.username = mc.getSession().getUsername();
-        Display.setTitle("Cryptix | 5.6");
+        Display.setTitle(name + " | " + version);
     }
  
     public void stop() {
@@ -225,8 +226,6 @@ public class Client {
         	if (type == 0) script.onRender2D();
         	if (type == 1) script.onRender3D();
         }
-        if(type == 1)
-        System.out.println("time: " + (System.nanoTime() - startTime));
     }
   
     

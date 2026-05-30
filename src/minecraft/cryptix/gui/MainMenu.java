@@ -27,14 +27,14 @@ public class MainMenu extends GuiScreen {
     private double textWidth;
     
     public MainMenu() {
-    	textWidth = Client.instance.apple.getStringWidth("Cryptix") * 3;
+    	textWidth = Client.instance.apple.getStringWidth(Client.name) * 3;
     }
  
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         mc.getTextureManager().bindTexture(BG);
         this.drawModalRectWithCustomSizedTexture(0, 0, 0, 0, this.width, this.height, this.width, this.height);
-        String title = "Cryptix";
+        String title = Client.name;
         double textHeight = Client.instance.apple.getFontHeight() * 3;
         float x = (float) (width / 2f - textWidth / 2f);
         float y = (float) (height / 3f - textHeight / 2f);

@@ -95,6 +95,7 @@ public abstract class World implements IBlockAccess
     private boolean processingLoadedTiles;
     private final WorldBorder worldBorder;
     int[] lightUpdateBlockList;
+    private Vec3 vec3 = new Vec3(0,0,0);
 
     protected World(ISaveHandler saveHandlerIn, WorldInfo info, WorldProvider providerIn, Profiler profilerIn, boolean client)
     {
@@ -914,19 +915,18 @@ public abstract class World implements IBlockAccess
                     if (d3 < d4 && d3 < d5)
                     {
                         enumfacing = i > l ? EnumFacing.WEST : EnumFacing.EAST;
-                        vec31 = new Vec3(d0, vec31.yCoord + d7 * d3, vec31.zCoord + d8 * d3);
+                        vec31.setPosition(d0, vec31.yCoord + d7 * d3, vec31.zCoord + d8 * d3);
                     }
                     else if (d4 < d5)
                     {
                         enumfacing = j > i1 ? EnumFacing.DOWN : EnumFacing.UP;
-                        vec31 = new Vec3(vec31.xCoord + d6 * d4, d1, vec31.zCoord + d8 * d4);
+                        vec31.setPosition(vec31.xCoord + d6 * d4, d1, vec31.zCoord + d8 * d4);
                     }
                     else
                     {
                         enumfacing = k > j1 ? EnumFacing.NORTH : EnumFacing.SOUTH;
-                        vec31 = new Vec3(vec31.xCoord + d6 * d5, vec31.yCoord + d7 * d5, d2);
+                        vec31.setPosition(vec31.xCoord + d6 * d5, vec31.yCoord + d7 * d5, d2);
                     }
-
                     l = MathHelper.floor_double(vec31.xCoord) - (enumfacing == EnumFacing.EAST ? 1 : 0);
                     i1 = MathHelper.floor_double(vec31.yCoord) - (enumfacing == EnumFacing.UP ? 1 : 0);
                     j1 = MathHelper.floor_double(vec31.zCoord) - (enumfacing == EnumFacing.SOUTH ? 1 : 0);
@@ -1905,7 +1905,7 @@ public abstract class World implements IBlockAccess
         else
         {
             boolean flag = false;
-            Vec3 vec3 = new Vec3(0.0D, 0.0D, 0.0D);
+            vec3.setPosition(0, 0, 0);
             BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos();
 
             for (int k1 = i; k1 < j; ++k1)

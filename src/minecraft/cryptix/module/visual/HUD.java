@@ -241,9 +241,9 @@ public class HUD extends Module {
         // credit: chatgpt
         int centerX = sr.getScaledWidth() / 2;
         int yPos = 5;
-        String cryptixText = "Cryptix";
+        String cryptixText = Client.name;
         String serverText = currentServer;
-        String fullServerText = " | " + serverText + " | 5.6";
+        String fullServerText = " | " + serverText + " | " + Client.version;
         
         final boolean useCustomFont = renderer != null;
         int cryptixWidth = useCustomFont ? (int) renderer.getStringWidth(cryptixText) : fr.getStringWidth(cryptixText);

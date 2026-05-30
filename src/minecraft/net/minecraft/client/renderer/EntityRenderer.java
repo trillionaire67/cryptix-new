@@ -175,6 +175,10 @@ public class EntityRenderer implements IResourceManagerReloadListener
     private ShaderGroup[] fxaaShaders = new ShaderGroup[10];
     private boolean loadVisibleChunks = false;
     private BlockPos pos = new BlockPos(0,0,0);
+    private static final Vec3 NEG_X = new Vec3(-1.0D, 0.0D, 0.0D);
+    private static final Vec3 POS_X = new Vec3( 1.0D, 0.0D, 0.0D);
+    private static final Vec3 vec1 = new Vec3(0,0,0);
+    private static final Vec3 vec2 = new Vec3(0,0,0);
 
     public EntityRenderer(Minecraft mcIn, IResourceManager resourceManagerIn)
     {
@@ -716,7 +720,7 @@ public class EntityRenderer implements IResourceManagerReloadListener
                     f3 = f3 * 0.1F;
                     f4 = f4 * 0.1F;
                     f5 = f5 * 0.1F;
-                    MovingObjectPosition movingobjectposition = this.mc.theWorld.rayTraceBlocks(new Vec3(d0 + (double)f3, d1 + (double)f4, d2 + (double)f5), new Vec3(d0 - d4 + (double)f3 + (double)f5, d1 - d6 + (double)f4, d2 - d5 + (double)f5));
+                    MovingObjectPosition movingobjectposition = this.mc.theWorld.rayTraceBlocks(vec1.setPosition(d0 + (double)f3, d1 + (double)f4, d2 + (double)f5), vec2.setPosition(d0 - d4 + (double)f3 + (double)f5, d1 - d6 + (double)f4, d2 - d5 + (double)f5));
 
                     if (movingobjectposition != null)
                     {
@@ -2159,7 +2163,7 @@ public class EntityRenderer implements IResourceManagerReloadListener
         if (this.mc.gameSettings.renderDistanceChunks >= 4)
         {
             double d0 = -1.0D;
-            Vec3 vec32 = MathHelper.sin(world.getCelestialAngleRadians(partialTicks)) > 0.0F ? new Vec3(d0, 0.0D, 0.0D) : new Vec3(1.0D, 0.0D, 0.0D);
+            Vec3 vec32 = MathHelper.sin(world.getCelestialAngleRadians(partialTicks)) > 0.0F ? NEG_X : POS_X;
             float f5 = (float)entity.getLook(partialTicks).dotProduct(vec32);
 
             if (f5 < 0.0F)

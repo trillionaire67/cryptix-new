@@ -296,9 +296,6 @@ extends Module {
                 }else if(!MovementUtils.isMoving()){
                 	this.mc.gameSettings.keyBindJump.pressed = Keyboard.isKeyDown((int)this.mc.gameSettings.keyBindJump.getKeyCode());
                 }
-                if((mc.thePlayer.posY < keepy_y || Keyboard.isKeyDown((int)this.mc.gameSettings.keyBindJump.getKeyCode())) && enable <= -2) {
-                	this.keepy_y = (int)this.mc.thePlayer.posY;
-                }
                 break;
             }
             case "hypixel2": {
@@ -364,7 +361,7 @@ extends Module {
             	break;
             }
         }
-        if (this.sprint.getString().equalsIgnoreCase("Blocksmc") && (this.mc.thePlayer.onGround || this.mc.thePlayer.offGroundTicks < (Keyboard.isKeyDown((int)this.mc.gameSettings.keyBindJump.getKeyCode()) ? 2 : 4))) {
+        if (this.sprint.getString().equalsIgnoreCase("Blocksmc") && this.mc.thePlayer.onGround) {
             this.preYaw = yaw = RotationUtils.getMovementYaw() + 180.0f;
             this.changeYaw = yaw;
             enable = 1;
@@ -374,7 +371,7 @@ extends Module {
         }
         if (this.sprint.getString().equalsIgnoreCase("hypixel") && this.hypixelRots != null) {
 	            if (this.mc.thePlayer.onGround) {
-	            	if(Utils.holdingBlock() && mc.theWorld.getBlockState(new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY+ 2, mc.thePlayer.posZ)).getBlock() == Blocks.air && MovementUtils.isMoving()) {
+	            	if(floatTick < 9 && mc.thePlayer.onGroundTicks > 0 && Utils.holdingBlock() && mc.theWorld.getBlockState(new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY+ 2, mc.thePlayer.posZ)).getBlock() == Blocks.air && MovementUtils.isMoving()) {
 		                this.preYaw = yaw = RotationUtils.getMovementYaw() + 179;
 		                this.strictYaw = RotationUtils.getMovementYaw();
 		                blinkTick = 0;
@@ -387,14 +384,12 @@ extends Module {
 		            	}else {
 		            		diag = 0;
 		            	}
-		                BlinkUtils.startBlink();
 	            	}else {
-	            		BlinkUtils.stopBlink();
 	            		yaw = this.hypixelRots[0];
 	 	                pitch = this.hypixelRots[1];
 	            	}
 	            } else {
-	            	this.mc.gameSettings.keyBindJump.pressed = this.mc.thePlayer.onGround ? true : Keyboard.isKeyDown((int)this.mc.gameSettings.keyBindJump.getKeyCode());
+	            	this.mc.gameSettings.keyBindJump.pressed = false;
 	                yaw = this.hypixelRots[0];
 	                pitch = this.hypixelRots[1];
 	            }
@@ -406,6 +401,7 @@ extends Module {
     }
 
     private BlockPos getTargetBlockPos() {
+    	boolean diagonal = RotationUtils.getMovementYaw() % 90.0f > 10.0f && RotationUtils.getMovementYaw() % 90.0f < 80.0f;
         BlockPos bp;
         if (this.sprint.getString().equalsIgnoreCase("keepy a") || this.sprint.getString().equalsIgnoreCase("keepy b") || this.sprint.getString().equalsIgnoreCase("blocksmc") || this.sprint.getString().equalsIgnoreCase("hypixel") || this.sprint.getString().equalsIgnoreCase("hypixel2")) {
             bp = new BlockPos(this.mc.thePlayer.posX, this.keepy_y - 1.0, this.mc.thePlayer.posZ);
@@ -415,7 +411,7 @@ extends Module {
         }else {
         	bp = new BlockPos(this.mc.thePlayer.posX, this.mc.thePlayer.posY - 1.0, this.mc.thePlayer.posZ);
         }
-        if (Keyboard.isKeyDown(this.mc.gameSettings.keyBindJump.getKeyCode()) && enable <= -2) {
+        if (Keyboard.isKeyDown(this.mc.gameSettings.keyBindJump.getKeyCode()) && (!shouldPlaceBlock() || !diagonal)) {
             this.keepy_y = (int)this.mc.thePlayer.posY;
         }
         return bp;
@@ -444,12 +440,7 @@ extends Module {
 
     @Override
     public void onPreInput() {
-    	boolean diagonal = RotationUtils.getMovementYaw() % 90.0f > 15.0f && RotationUtils.getMovementYaw() % 90.0f < 75.0f;
-    	if(sprint.getString().equalsIgnoreCase("Hypixel") && mc.thePlayer.offGroundTicks > 3 && mc.thePlayer.offGroundTicks < 7) {
-    		//mc.thePlayer.movementInput.sneak = true;
-    		//mc.thePlayer.movementInput.moveStrafe = (float)((double)mc.thePlayer.movementInput.moveStrafe * 0.3D);
-        	//mc.thePlayer.movementInput.moveForward = (float)((double)mc.thePlayer.movementInput.moveForward * 0.3D);
-    	}
+    	
     }
 
     private void placeBlock() {
@@ -739,14 +730,13 @@ extends Module {
             float limit = 39.9f;
             if (blinkTick == 0) {
             	forceStrict = false;
+            	limit = 0;
                 pitch = 40f;
             } else if (blinkTick == 1) {
                 pitch = 60f;
                 strictPitch = 60f;
             } else if (blinkTick == 2) {
-                limit = (float) (55 + Math.random() * 4);
-            }else if (blinkTick >= 3) {
-            	BlinkUtils.stopBlink();
+                limit = (float) (75 + Math.random() * 4);
             }
             blinkTick++;
             float diffToTarget = MathHelper.wrapAngleTo180_float(targetYaw - changeYaw);
@@ -760,14 +750,14 @@ extends Module {
             this.changeYaw = changeYaw;
             this.prePitch = pitch;
             float yawError = MathHelper.wrapAngleTo180_float(changeYaw - targetYaw);
-            if (Math.abs(yawError) > (blinkTick > 5 ? 40 : 0) && !mc.thePlayer.onGround) {
+            if (Math.abs(yawError) > (blinkTick > 4 ? 40 : 0) && !mc.thePlayer.onGround) {
                 enable = 2;
             }
             return new float[]{changeYaw, pitch};
         }else if (sprintMode.equalsIgnoreCase("blocksmc")) {
             float yaw = strictYaw;
             float diff = MathHelper.wrapAngleTo180_float(yaw - changeYaw);
-            if (Math.abs(diff) > 90f) {
+            if (Math.abs(diff) > 1f) {
                 enable = 1;
             }
             this.prePitch = this.strictPitch;
@@ -795,7 +785,7 @@ extends Module {
             diff = MathHelper.clamp_float(diff, -limit, limit);
             changeYaw = MathHelper.wrapAngleTo180_float(changeYaw + diff);
             float err = MathHelper.wrapAngleTo180_float(changeYaw - targetYaw);
-            if (Math.abs(err) > 45f) {
+            if (Math.abs(err) > 0f) {
                 enable = 2;
             }
             this.changeYaw = changeYaw;

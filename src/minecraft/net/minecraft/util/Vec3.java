@@ -26,6 +26,7 @@ public class Vec3
         this.xCoord = x;
         this.yCoord = y;
         this.zCoord = z;
+        //System.out.println("new vec3 x: " + this.xCoord + " y: " + this.yCoord + " z: " + this.zCoord);
     }
 
     public Vec3(Vec3i p_i46377_1_)
@@ -171,7 +172,7 @@ public class Vec3
         return new Vec3(d0, d1, d2);
     }
     
-    public void setPosition(double x, double y, double z) {
+    public Vec3 setPosition(double x, double y, double z) {
     	if (x == -0.0D)
         {
             x = 0.0D;
@@ -190,5 +191,6 @@ public class Vec3
         this.xCoord = x;
         this.yCoord = y;
         this.zCoord = z;
+        return this;
     }
 }

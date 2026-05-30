@@ -65,8 +65,8 @@ public class ModuleManager {
 		modules.add(killAura = new KillAura());
 		modules.add(killsults = new Killsults());
 		modules.add(lagrange = new LagRange());
-		modules.add(velo = new Velocity());
 		modules.add(new SprintReset());
+		modules.add(velo = new Velocity());
 		//Exploit
 		modules.add(new AntiCheat());
 		modules.add(autologin = new AutoLogin());
@@ -98,6 +98,7 @@ public class ModuleManager {
 		modules.add(new FastPlace());
 		modules.add(new InvManager());
 		modules.add(new Jesus());
+		modules.add(new NoClickDelay());
 		modules.add(noFall = new NoFall());
 		modules.add(new NoJumpDelay());
 		modules.add(noRotate = new NoRotate());

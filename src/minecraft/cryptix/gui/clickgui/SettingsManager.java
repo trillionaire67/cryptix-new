@@ -3,6 +3,7 @@ package cryptix.gui.clickgui;
 import java.util.ArrayList;
 import java.util.List;
 
+import cryptix.Client;
 import cryptix.module.Module;
 
 
@@ -47,7 +48,7 @@ public class SettingsManager {
 				return set;
 			}
 		}
-		System.err.println("["+ "Cryptix" + "] Error Setting NOT found: '" + name +"'!");
+		System.err.println("["+ Client.name + "] Error Setting NOT found: '" + name +"'!");
 		return null;
 	}
 	
@@ -57,7 +58,7 @@ public class SettingsManager {
 				return set;
 			}
 		}
-		System.err.println("["+ "Cryptix" + "] Error Setting NOT found: '" + name +"'!");
+		System.err.println("["+ Client.name + "] Error Setting NOT found: '" + name +"'!");
 		return null;
 	}
 

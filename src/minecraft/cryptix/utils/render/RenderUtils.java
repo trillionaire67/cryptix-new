@@ -177,13 +177,6 @@ public class RenderUtils {
 	    wr.pos(aa.maxX - x, aa.minY - y, aa.maxZ - z).endVertex();
 	    tessellator.draw();
 	}
-    
-    public static Vec3 getRenderPos(double x, double y, double z) {
-        x -= mc.getRenderManager().renderPosX;
-        y -= mc.getRenderManager().renderPosY;
-        z -= mc.getRenderManager().renderPosZ;
-        return new Vec3(x, y, z);
-    }
 	
     public static void drawRoundedGradientRect(float x, float y, float x2, float y2,
     	final float radius,

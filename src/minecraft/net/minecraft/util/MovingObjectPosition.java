@@ -39,6 +39,22 @@ public class MovingObjectPosition
         this.entityHit = entityHitIn;
         this.hitVec = hitVecIn;
     }
+    
+    public void set(MovingObjectPosition.MovingObjectType typeOfHitIn, Vec3 hitVecIn, EnumFacing sideHitIn, BlockPos blockPosIn) {
+    	this.typeOfHit = typeOfHitIn;
+        this.blockPos = blockPosIn;
+        this.sideHit = sideHitIn;
+        this.entityHit = null;
+        this.hitVec = new Vec3(hitVecIn.xCoord, hitVecIn.yCoord, hitVecIn.zCoord);
+    }
+    
+    public void set(Entity entityHitIn, Vec3 hitVecIn) {
+    	this.typeOfHit = MovingObjectPosition.MovingObjectType.ENTITY;
+    	this.blockPos = null;
+    	this.sideHit = null;
+        this.entityHit = entityHitIn;
+        this.hitVec = hitVecIn;
+    }
 
     public BlockPos getBlockPos()
     {

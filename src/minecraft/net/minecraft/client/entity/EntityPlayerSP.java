@@ -122,6 +122,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
         		offGroundTicks++;
         		onGroundTicks = 0;
         	}
+        	Client.movefix = false;
         	Client.instance.onPreUpdate();
             super.onUpdate();
 
@@ -676,7 +677,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
         boolean flag = this.movementInput.jump;
         boolean flag1 = this.movementInput.sneak;
         NoSlow noslow = (NoSlow) Client.instance.moduleManager.getModuleByName("NoSlow");
-        float f = noslow.mode.getString().equalsIgnoreCase("Alpha") || noslow.mode.getString().equalsIgnoreCase("Beta") ? 0.1F : 0.8F;
+        float f = (noslow.mode.getString().equalsIgnoreCase("Alpha") || noslow.mode.getString().equalsIgnoreCase("Beta")) && noslow.isToggled() ? 0.1F : 0.8F;
         boolean flag2 = this.movementInput.moveForward >= f;
         this.movementInput.updatePlayerMoveState();
         Client.onInputEvent(0);

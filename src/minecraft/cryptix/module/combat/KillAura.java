@@ -341,7 +341,7 @@ extends Module {
                         		swapped = false;
                         	}
                         	++this.asw;
-                        	break;
+                        	if(!postBlock)break;
                         case 2:
                         	++this.asw;
                         	if(!postBlock)break;
@@ -360,7 +360,7 @@ extends Module {
                         	}
     	                    this.block();
     	                    b2 = true;
-    	                    postBlock = attack % 2 == 0;
+    	                    postBlock = attack % 2 != 0;
                             this.asw = 0;
                             break;
                     }

@@ -124,8 +124,8 @@ public class LongJump extends Module{
 	        	if(this.mc.getNetHandler() == null) continue;
 	        	mc.addScheduledTask(() -> packet.processPacket(mc.getNetHandler()));
 	        }
+	        packets.clear();
         }
-        packets.clear();
     }
 	
 	private int getBall() {
