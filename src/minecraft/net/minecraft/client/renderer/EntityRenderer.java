@@ -616,6 +616,7 @@ public class EntityRenderer implements IResourceManagerReloadListener
 
     private void hurtCameraEffect(float partialTicks)
     {
+    	if(Client.instance.moduleManager.noHurtCam.isToggled()) return;
         if (this.mc.getRenderViewEntity() instanceof EntityLivingBase)
         {
             EntityLivingBase entitylivingbase = (EntityLivingBase)this.mc.getRenderViewEntity();
@@ -1241,8 +1242,9 @@ public class EntityRenderer implements IResourceManagerReloadListener
                 this.smoothCamPitch = 0.0F;
                 this.mc.thePlayer.setAngles(f2, f3 * (float)i);
             }
-            this.mc.thePlayer.fixedRotationYaw = Client.instance.movefix ? this.mc.thePlayer.rotationYawHead : this.mc.thePlayer.rotationYaw;
-        }else if (this.mc.inGameHasFocus && flag) {
+        }
+        if (this.mc.inGameHasFocus && flag) {
+        	this.mc.thePlayer.fixedRotationPitch = Client.instance.movefix ? this.mc.thePlayer.rotationPitchHead : this.mc.thePlayer.rotationPitch;
         	this.mc.thePlayer.fixedRotationYaw = Client.instance.movefix ? this.mc.thePlayer.rotationYawHead : this.mc.thePlayer.rotationYaw;
         }
 

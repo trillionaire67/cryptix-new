@@ -53,6 +53,7 @@ public class ModuleManager {
 	public AntiBot antibot;
 	public AutoRod autorod;
 	public Speed speed;
+	public NoHurtCam noHurtCam;
 	
 	public ModuleManager() {
 		//Modules goes here
@@ -120,7 +121,7 @@ public class ModuleManager {
 		modules.add(new ItemESP());
 		modules.add(killEffects = new KillEffects());
 		modules.add(new NameTags());
-		modules.add(new NoHurtCam());
+		modules.add(noHurtCam = new NoHurtCam());
 		modules.add(new PlayerESP());
 		modules.add(sessionInfo = new SessionInfo());
 		modules.add(new TargetHUD());

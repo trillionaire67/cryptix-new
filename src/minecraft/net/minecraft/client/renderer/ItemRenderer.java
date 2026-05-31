@@ -35,6 +35,7 @@ import org.lwjgl.opengl.GL11;
 import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
 import cryptix.module.Module;
+import cryptix.module.visual.Animations;
 import cryptix.utils.Utils;
 
 public class ItemRenderer
@@ -266,14 +267,19 @@ public class ItemRenderer
 
     private void transformFirstPersonItem(float equipProgress, float swingProgress)
     {
-        GlStateManager.translate(0.56F, -0.52F, -0.71999997F);
+    	Animations anim = Client.instance.moduleManager.aminations;
+    	float scale = (float) (anim.isToggled() ? 0.4f * anim.scale.getValue() : 0.4f);
+    	float x = 0.56F + (float) (anim.isToggled() ? anim.x.getValue() - 1 : 0);
+    	float y = -0.52F + (float) (anim.isToggled() ? anim.y.getValue() - 1 : 0);
+    	float z = -0.71999997F + (float) (anim.isToggled() ? anim.z.getValue() - 1 : 0);
+        GlStateManager.translate(x, y, z);
         GlStateManager.rotate(45.0F, 0.0F, 1.0F, 0.0F);
         float f = MathHelper.sin(swingProgress * swingProgress * (float)Math.PI);
         float f1 = MathHelper.sin(MathHelper.sqrt_float(swingProgress) * (float)Math.PI);
         GlStateManager.rotate(f * -20.0F, 0.0F, 1.0F, 0.0F);
         GlStateManager.rotate(f1 * -20.0F, 0.0F, 0.0F, 1.0F);
         GlStateManager.rotate(f1 * -80.0F, 1.0F, 0.0F, 0.0F);
-        GlStateManager.scale(0.4F, 0.4F, 0.4F);
+        GlStateManager.scale(scale, scale, scale);
     }
 
     private void doBowTransformations(float partialTicks, AbstractClientPlayer clientPlayer)

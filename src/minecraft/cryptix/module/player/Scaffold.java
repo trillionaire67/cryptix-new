@@ -129,7 +129,7 @@ extends Module {
 
     @Override
     public void onPreMotion() {
-    	if(Client.instance.moduleManager.killAura.blocking || Client.instance.moduleManager.killAura.swapped || Client.instance.moduleManager.killAura.b3) return;
+    	if(Client.instance.moduleManager.killAura.blocking || Client.instance.moduleManager.killAura.swapped || Client.instance.moduleManager.killAura.b3 || Client.instance.moduleManager.killAura.target != null) return;
         this.sprint();
         if (this.mc.gameSettings.keyBindJump.isKeyDown()) {
             if (this.mc.thePlayer.onGround && this.mc.thePlayer.posY % 1.0 > (double)0.42f) {
@@ -371,7 +371,7 @@ extends Module {
         }
         if (this.sprint.getString().equalsIgnoreCase("hypixel") && this.hypixelRots != null) {
 	            if (this.mc.thePlayer.onGround) {
-	            	if(floatTick < 9 && mc.thePlayer.onGroundTicks > 0 && Utils.holdingBlock() && mc.theWorld.getBlockState(new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY+ 2, mc.thePlayer.posZ)).getBlock() == Blocks.air && MovementUtils.isMoving()) {
+	            	if(Utils.holdingBlock() && mc.theWorld.getBlockState(new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY+ 2, mc.thePlayer.posZ)).getBlock() == Blocks.air && MovementUtils.isMoving()) {
 		                this.preYaw = yaw = RotationUtils.getMovementYaw() + 179;
 		                this.strictYaw = RotationUtils.getMovementYaw();
 		                blinkTick = 0;
@@ -405,13 +405,13 @@ extends Module {
         BlockPos bp;
         if (this.sprint.getString().equalsIgnoreCase("keepy a") || this.sprint.getString().equalsIgnoreCase("keepy b") || this.sprint.getString().equalsIgnoreCase("blocksmc") || this.sprint.getString().equalsIgnoreCase("hypixel") || this.sprint.getString().equalsIgnoreCase("hypixel2")) {
             bp = new BlockPos(this.mc.thePlayer.posX, this.keepy_y - 1.0, this.mc.thePlayer.posZ);
-            if(this.sprint.getString().equalsIgnoreCase("hypixel") && !mc.thePlayer.onGround && mc.thePlayer.motionY < -0 && (mc.theWorld.getBlockState(new BlockPos(this.mc.thePlayer.posX, this.mc.thePlayer.posY - 0.5, this.mc.thePlayer.posZ)).getBlock() instanceof BlockAir) && !(mc.thePlayer.posY > (double)(keepy_y + 2)) && mc.thePlayer.posY > (double)(keepy_y + 1)) {
-            	//bp = new BlockPos(jumpX, this.mc.thePlayer.posY - 1.0, jumpZ);
+            if(this.sprint.getString().equalsIgnoreCase("hypixel") && !mc.thePlayer.onGround && mc.thePlayer.motionY < 0 && !(mc.theWorld.getBlockState(new BlockPos(this.mc.thePlayer.posX, this.mc.thePlayer.posY - 2, this.mc.thePlayer.posZ)).getBlock() instanceof BlockAir) && !(mc.thePlayer.posY > (double)(keepy_y + 2)) && mc.thePlayer.posY > (double)(keepy_y + 1)) {
+            	bp = new BlockPos(jumpX, this.mc.thePlayer.posY - 1.0, jumpZ);
             }
         }else {
         	bp = new BlockPos(this.mc.thePlayer.posX, this.mc.thePlayer.posY - 1.0, this.mc.thePlayer.posZ);
         }
-        if (Keyboard.isKeyDown(this.mc.gameSettings.keyBindJump.getKeyCode()) && (!shouldPlaceBlock() || !diagonal)) {
+        if (Keyboard.isKeyDown(this.mc.gameSettings.keyBindJump.getKeyCode()) || !MovementUtils.isMoving()) {
             this.keepy_y = (int)this.mc.thePlayer.posY;
         }
         return bp;
@@ -423,7 +423,7 @@ extends Module {
 
     @Override
     public void onPreUpdate() {
-    	if(Client.instance.moduleManager.killAura.blocking || Client.instance.moduleManager.killAura.swapped || Client.instance.moduleManager.killAura.b3) return;
+    	if(Client.instance.moduleManager.killAura.blocking || Client.instance.moduleManager.killAura.swapped || Client.instance.moduleManager.killAura.b3 || Client.instance.moduleManager.killAura.target != null) return;
         if (this.movefix.getBoolean()) {
             Client.movefix = true;
         }
@@ -643,7 +643,7 @@ extends Module {
         for (int s = 0; s < SEARCH_OFFSETS.length; s++) {
             BlockPos searchOffset = SEARCH_OFFSETS[s];
             int sx = baseX + searchOffset.getX();
-            int sy = baseY + searchOffset.getY();
+            int sy = baseY;
             int sz = baseZ + searchOffset.getZ();
             for (int i = 0; i < 5; i++) {
                 int cx = sx + offsets[i].getX();
@@ -730,18 +730,19 @@ extends Module {
             float limit = 39.9f;
             if (blinkTick == 0) {
             	forceStrict = false;
-            	limit = 0;
+            	limit = 129;
                 pitch = 40f;
             } else if (blinkTick == 1) {
                 pitch = 60f;
                 strictPitch = 60f;
-            } else if (blinkTick == 2) {
-                limit = (float) (75 + Math.random() * 4);
+            }else if(blinkTick == 3) {
+            	jumpX = mc.thePlayer.posX;
+                jumpZ = mc.thePlayer.posZ;
             }
             blinkTick++;
             float diffToTarget = MathHelper.wrapAngleTo180_float(targetYaw - changeYaw);
             float diffToTarget2 = MathHelper.wrapAngleTo180_float(pitch - prePitch);
-            if (Math.abs(diffToTarget) < 20f && Math.abs(diffToTarget2) < 15f && MovementUtils.isMoving()) {
+            if (Math.abs(diffToTarget) < 20f && Math.abs(diffToTarget2) < 20f && MovementUtils.isMoving()) {
             	return new float[]{changeYaw, prePitch};
             }
             float diff = MathHelper.wrapAngleTo180_float(yaw - changeYaw);
@@ -750,7 +751,7 @@ extends Module {
             this.changeYaw = changeYaw;
             this.prePitch = pitch;
             float yawError = MathHelper.wrapAngleTo180_float(changeYaw - targetYaw);
-            if (Math.abs(yawError) > (blinkTick > 4 ? 40 : 0) && !mc.thePlayer.onGround) {
+            if (Math.abs(yawError) > (blinkTick > 3 ? 40 : 0) && !mc.thePlayer.onGround) {
                 enable = 2;
             }
             return new float[]{changeYaw, pitch};

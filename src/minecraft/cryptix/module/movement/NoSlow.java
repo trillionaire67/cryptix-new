@@ -9,6 +9,7 @@ import cryptix.module.Category;
 import cryptix.module.Module;
 import cryptix.utils.BlinkUtils;
 import cryptix.utils.MovementUtils;
+import cryptix.utils.RotationUtils;
 import cryptix.utils.Utils;
 import net.minecraft.network.play.client.C07PacketPlayerDigging;
 import net.minecraft.network.play.client.C07PacketPlayerDigging.Action;
@@ -53,8 +54,9 @@ public class NoSlow extends Module {
                 break;
                 
             case "beta":
+            	mc.thePlayer.rotationYawHead = RotationUtils.getMovementYaw() + 180;
             	if(!(mc.gameSettings.keyBindJump.isKeyDown() && mc.thePlayer.onGround)) {
-            		mc.thePlayer.rotationYawHead += 45;
+            		mc.thePlayer.rotationYawHead -= 45;
             		rotated = true;
             	}
                 break;
@@ -77,6 +79,15 @@ public class NoSlow extends Module {
         if (mc.thePlayer.isUsingItem() && "Post".equalsIgnoreCase(mode.getString()) && Utils.holdingSword()) {
             sendPacket(new C08PacketPlayerBlockPlacement(mc.thePlayer.getHeldItem()));
         }
+    }
+    
+    @Override
+    public void onSprint() {
+    	if("Beta".equalsIgnoreCase(mode.getString())) {
+    		if(mc.thePlayer.movementInput.moveForward < 0.05) return;
+            if(mc.thePlayer.isCollidedHorizontally) return;
+            mc.thePlayer.setSprinting(true);
+    	}
     }
 
     @Override

@@ -349,8 +349,8 @@ public class BedNuker extends Module{
 	}
 	
 	private BlockPos findBed() {
-		if (lastPos != null && mc.theWorld.getBlockState(lastPos).getBlock() == Blocks.bed) {
-			return lastPos;
+		if ((lastPos != null || bedPos != null) && mc.theWorld.getBlockState(lastPos != null ? lastPos : bedPos).getBlock() == Blocks.bed) {
+			return lastPos != null ? lastPos : bedPos;
 		}
 		BlockPos pos = new BlockPos(0,0,0);
 	    for (int x = (int) -range.getValue(); x <= range.getValue(); x++) {

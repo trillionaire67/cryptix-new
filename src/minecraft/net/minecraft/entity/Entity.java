@@ -6,6 +6,7 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 
 import cryptix.Client;
+import cryptix.other.event.EventManager;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFence;
 import net.minecraft.block.BlockFenceGate;
@@ -1025,8 +1026,8 @@ public abstract class Entity implements ICommandSender
             f = friction / f;
             strafe = strafe * f;
             forward = forward * f;
-            float f1 = MathHelper.sin((Client.movefix ? Client.mc.thePlayer.fixedRotationYaw : this.rotationYaw) * (float)Math.PI / 180.0F);
-            float f2 = MathHelper.cos((Client.movefix ? Client.mc.thePlayer.fixedRotationYaw : this.rotationYaw) * (float)Math.PI / 180.0F);
+            float f1 = MathHelper.sin(Client.mc.thePlayer.fixedRotationYaw * (float)Math.PI / 180.0F);
+            float f2 = MathHelper.cos(Client.mc.thePlayer.fixedRotationYaw * (float)Math.PI / 180.0F);
             this.motionX += (double)(strafe * f2 - forward * f1);
             this.motionZ += (double)(forward * f2 + strafe * f1);
         }

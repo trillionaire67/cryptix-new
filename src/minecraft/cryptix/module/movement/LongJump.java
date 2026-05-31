@@ -56,7 +56,7 @@ public class LongJump extends Module{
 		int ballSlot = getBall();
 		tic++;
 		if(ballSlot != -1 && mc.thePlayer.onGround) {
-			if(tic <= 3 && !fart) {
+			if(tic <= 5 && !fart) {
 				if(tic == 1) {
 					lastSlot = mc.thePlayer.inventory.currentItem;
 	                mc.thePlayer.inventory.currentItem = ballSlot;
@@ -122,7 +122,7 @@ public class LongJump extends Module{
 	        for(Packet packet : packets) {
 	        	if(packet == null) continue; 
 	        	if(this.mc.getNetHandler() == null) continue;
-	        	mc.addScheduledTask(() -> packet.processPacket(mc.getNetHandler()));
+	        	packet.processPacket(mc.getNetHandler());
 	        }
 	        packets.clear();
         }

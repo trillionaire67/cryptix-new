@@ -1395,6 +1395,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
 
     private void clickMouse()
     {
+    	if(Client.instance.moduleManager.killAura.target != null) return;
         if (this.leftClickCounter <= 0)
         {
             this.thePlayer.swingItem();
@@ -1439,6 +1440,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
     @SuppressWarnings("incomplete-switch")
 	public void rightClickMouse()
     {
+    	if(Client.instance.moduleManager.killAura.target != null) return;
         if (!this.playerController.getIsHittingBlock())
         {
             this.rightClickDelayTimer = 4;

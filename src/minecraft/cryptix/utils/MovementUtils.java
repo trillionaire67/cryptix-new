@@ -3,6 +3,7 @@ package cryptix.utils;
 import org.lwjgl.input.Keyboard;
 
 import cryptix.Client;
+import cryptix.other.event.EventManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;

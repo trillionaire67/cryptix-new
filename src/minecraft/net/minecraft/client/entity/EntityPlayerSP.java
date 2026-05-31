@@ -3,6 +3,7 @@ package net.minecraft.client.entity;
 import cryptix.Client;
 import cryptix.module.Module;
 import cryptix.module.movement.NoSlow;
+import cryptix.other.event.EventManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.MovingSoundMinecartRiding;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -183,9 +184,10 @@ public class EntityPlayerSP extends AbstractClientPlayer
         	double d0 = this.posX - this.lastReportedPosX;
             double d1 = this.getEntityBoundingBox().minY - this.lastReportedPosY;
             double d2 = this.posZ - this.lastReportedPosZ;
-            double currentYaw = Client.instance.movefix ? this.fixedRotationYaw : this.rotationYawHead;
-            double d3 = currentYaw - this.lastReportedYaw;
-            double d4 = (double)(this.rotationPitchHead - this.lastReportedPitch);
+            float currentYaw = mc.thePlayer.fixedRotationYaw;
+            float currentPitch = mc.thePlayer.fixedRotationPitch;
+            double d3 = (double)(currentYaw - this.lastReportedYaw);
+            double d4 = (double)(currentPitch - this.lastReportedPitch);
             boolean flag2 = d0 * d0 + d1 * d1 + d2 * d2 > 9.0E-4D || this.positionUpdateTicks >= 20;
             boolean flag3 = d3 != 0.0D || d4 != 0.0D;
 
@@ -193,7 +195,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
             {
                 if (flag2 && flag3)
                 {
-                    this.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(this.posX, this.getEntityBoundingBox().minY, this.posZ, Client.instance.movefix ? this.fixedRotationYaw : this.rotationYawHead, this.rotationPitchHead, Client.instance.moduleManager.noFall.spoof));
+                    this.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(this.posX, this.getEntityBoundingBox().minY, this.posZ, currentYaw,currentPitch, Client.instance.moduleManager.noFall.spoof));
                 }
                 else if (flag2)
                 {
@@ -201,7 +203,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
                 }
                 else if (flag3)
                 {
-                    this.sendQueue.addToSendQueue(new C03PacketPlayer.C05PacketPlayerLook(Client.instance.movefix ? this.fixedRotationYaw : this.rotationYawHead, this.rotationPitchHead, Client.instance.moduleManager.noFall.spoof));
+                    this.sendQueue.addToSendQueue(new C03PacketPlayer.C05PacketPlayerLook(currentYaw, currentPitch, Client.instance.moduleManager.noFall.spoof));
                 }
                 else
                 {
@@ -210,7 +212,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
             }
             else
             {
-                this.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(this.motionX, -999.0D, this.motionZ, Client.instance.movefix ? this.fixedRotationYaw : this.rotationYawHead, this.rotationPitchHead, Client.instance.moduleManager.noFall.spoof));
+                this.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(this.motionX, -999.0D, this.motionZ, currentYaw, currentPitch, Client.instance.moduleManager.noFall.spoof));
                 flag2 = false;
             }
 
@@ -226,8 +228,8 @@ public class EntityPlayerSP extends AbstractClientPlayer
 
             if (flag3)
             {
-            	this.lastReportedYaw = (float) currentYaw;
-                this.lastReportedPitch = this.rotationPitchHead;
+            	this.lastReportedYaw = currentYaw;
+                this.lastReportedPitch = currentPitch;
             }
         }
         Client.onMotionEvent(1);

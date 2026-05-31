@@ -31,6 +31,7 @@ import cryptix.module.player.BedNuker;
 import cryptix.other.JsonHandler;
 import cryptix.other.ScaffoldBlockCount;
 import cryptix.other.command.CommandManager;
+import cryptix.other.event.EventManager;
 import cryptix.script.Script;
 import cryptix.script.ScriptManager;
 import cryptix.utils.BlinkUtils;

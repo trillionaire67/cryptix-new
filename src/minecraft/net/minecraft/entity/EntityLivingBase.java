@@ -114,7 +114,7 @@ public abstract class EntityLivingBase extends Entity
     public int jumpTicks;
     private float absorptionAmount;
     public float rotationPitchHead, prevRotationPitchHead;
-    public float fixedRotationYaw;
+    public float fixedRotationYaw, fixedRotationPitch;
     public float fakeYaw, fakePitch, prevFakeYaw, prevFakePitch;
 
     public void onKillCommand()
@@ -135,6 +135,7 @@ public abstract class EntityLivingBase extends Entity
         this.rotationYawHead = this.rotationYaw;
         this.rotationPitchHead = this.rotationPitch;
         this.fixedRotationYaw = this.rotationYaw;
+        this.fixedRotationPitch = this.rotationPitch;
         this.stepHeight = 0.6F;
     }
 
