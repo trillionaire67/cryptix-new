@@ -4,8 +4,6 @@ import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
 import cryptix.module.Category;
 import cryptix.module.Module;
-import cryptix.other.event.Event;
-import cryptix.other.event.events.RotationEvent;
 import cryptix.utils.BlinkUtils;
 import cryptix.utils.MovementUtils;
 import cryptix.utils.RotationUtils;
@@ -73,7 +71,7 @@ extends Module {
     public int lastSlot;
     private int diag;
     private float prePitch;
-    private int direction, wrongDirectionTick;
+    private int direction, wrongDirectionTick, placeTick;
     private double jumpX, jumpZ;
     private BlockPos[] offsets = new BlockPos[]{new BlockPos(-1, 0, 0), new BlockPos(1, 0, 0), new BlockPos(0, 0, 1), new BlockPos(0, 0, -1), new BlockPos(0, -1, 0)};
     private static final BlockPos[] SEARCH_OFFSETS = {new BlockPos(0, -1, 0),new BlockPos(0, 1, 0), new BlockPos(-1, 0, 0),new BlockPos(1, 0, 0),new BlockPos(0, 0, -1),new BlockPos(0, 0, 1),new BlockPos(1, 0, 1),new BlockPos(1, 0, -1),new BlockPos(-1, 0, 1),new BlockPos(-1, 0, -1),new BlockPos(1, -1, 0),new BlockPos(-1, -1, 0),new BlockPos(0, -1, 1),new BlockPos(0, -1, -1)};
@@ -129,17 +127,6 @@ extends Module {
         this.placeBlock = null;
         BlinkUtils.stopBlink();
     }
-    
-    @Override
-    public void onEvent(Event e) {
-    	if(e instanceof RotationEvent) {
-            if (this.rotation != null) {
-                this.mc.thePlayer.rotationYawHead = (this.rotation[0] % 360.0f + 360.0f) % 360.0f;
-                this.mc.thePlayer.renderYawOffset = this.rotation[2] == 45.0f ? this.mc.thePlayer.rotationYawHead + 45.0f : this.rotation[2];
-                this.mc.thePlayer.rotationPitchHead = this.rotation[1];
-            }
-    	}
-    }
 
     @Override
     public void onPreMotion() {
@@ -153,6 +140,12 @@ extends Module {
             this.tower();
         } else {
             this.towerTick = 1;
+        }
+        this.rotation = this.getRotations();
+        if (this.rotation != null) {
+            this.mc.thePlayer.rotationYawHead = (this.rotation[0] % 360.0f + 360.0f) % 360.0f;
+            this.mc.thePlayer.renderYawOffset = this.rotation[2] == 45.0f ? this.mc.thePlayer.rotationYawHead + 45.0f : this.rotation[2];
+            this.mc.thePlayer.rotationPitchHead = this.rotation[1];
         }
     }
     
@@ -396,7 +389,7 @@ extends Module {
         }
         if (this.sprint.getString().equalsIgnoreCase("hypixel") && this.hypixelRots != null) {
 	            if (this.mc.thePlayer.onGround) {
-	            	if(Utils.holdingBlock() && mc.theWorld.getBlockState(new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY+ 2, mc.thePlayer.posZ)).getBlock() == Blocks.air && MovementUtils.isMoving()) {
+	            	if(floatTick <= 9 && Utils.holdingBlock() && mc.theWorld.getBlockState(new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY+ 2, mc.thePlayer.posZ)).getBlock() == Blocks.air && MovementUtils.isMoving()) {
 		                this.preYaw = yaw = RotationUtils.getMovementYaw() + 179;
 		                this.strictYaw = RotationUtils.getMovementYaw();
 		                blinkTick = 0;
@@ -462,7 +455,6 @@ extends Module {
         targetPos = getTargetBlockPos();
         blockUnder = mc.theWorld.getBlockState(targetPos).getBlock();
         --this.floatTick;
-        this.rotation = this.getRotations();
         this.placeBlock();
     }
 
@@ -754,7 +746,7 @@ extends Module {
             float targetYaw = yaw;
             yaw = MathHelper.wrapAngleTo180_float(yaw);
             float speed = (float) MovementUtils.getSpeed();
-            float pitch = RotationUtils.clampTo90(this.strictPitch);
+            float pitch = RotationUtils.clampTo90(this.strictPitch - 5);
             float limit = 39.9f;
             if (blinkTick == 0) {
             	limit = 129;
@@ -768,7 +760,7 @@ extends Module {
             float diffToTarget = MathHelper.wrapAngleTo180_float(targetYaw - changeYaw);
             float diffToTarget2 = MathHelper.wrapAngleTo180_float(pitch - prePitch);
             if (Math.abs(diffToTarget) < 20f && Math.abs(diffToTarget2) < 20f && MovementUtils.isMoving() && !mc.thePlayer.onGround) {
-            	//return new float[]{changeYaw, prePitch};
+            	return new float[]{changeYaw, prePitch};
             }
             float diff = MathHelper.wrapAngleTo180_float(yaw - changeYaw);
             diff = MathHelper.clamp_float(diff, -limit, limit);

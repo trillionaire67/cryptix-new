@@ -375,54 +375,43 @@ extends Module {
                     }
                 }
                 if (this.autoblock.getString().equalsIgnoreCase("Hypixel3")) {
-                    switch (this.asw) {
-                        case 0: {
-                            this.b3 = true;
-                            BlinkUtils.startBlink();
-                            ++this.attack;
-                            int slot = Utils.random.nextInt(9);
-                            while (slot == this.mc.thePlayer.inventory.currentItem) {
-                                slot = Utils.random.nextInt(9);
-                            }
-                            if (this.blocking) {
-                                this.unblock();
-                                if (this.postBlock) {
-                                    this.sendPacket(new C09PacketHeldItemChange(slot));
-                                    this.swapped = true;
-                                    this.postBlock = false;
-                                }
-                            }
-                            ++this.asw;
-                            break;
-                        }
-                        case 1: {
-                            ++this.asw;
-                            if (this.swapped) {
-                                this.sendPacket(new C09PacketHeldItemChange(this.mc.thePlayer.inventory.currentItem));
-                                this.swapped = false;
-                                break;
-                            }
-                        }
-                        case 2: {
-                            if (this.isTargetInRange(this.target, this.reach.getBoolean() && this.reached < 3 ? this.reach2.getValue() : this.attackRange.getValue()) && !Client.instance.moduleManager.bedNuker.rotating) {
-                                this.attack(this.target, true);
-                            } else if (this.isTargetInRange(this.target, this.rotationRange.getValue()) && !Client.instance.moduleManager.bedNuker.rotating) {
-                                this.mc.thePlayer.swingItem();
-                            }
-                            ++this.reached;
-                            if (this.reached >= 4) {
-                                this.reached = 0;
-                            }
-                            if (this.attack % 2 != 0) {
-                                this.nextTick = -1;
-                            } else {
-                                this.postBlock = true;
-                            }
-                            this.block();
-                            this.b2 = true;
-                            this.asw = 0;
-                        }
-                    }
+                	switch (this.asw) {
+	                    case 0: {
+	                    	b3 = true;
+	                        ++this.attack;
+	                        int slot = Utils.random.nextInt(9);
+	                        while (slot == this.mc.thePlayer.inventory.currentItem) {
+	                            slot = Utils.random.nextInt(9);
+	                        }
+	                        if (this.blocking) {
+	                            this.unblock();
+	                        }
+	                        this.sendPacket(new C09PacketHeldItemChange(slot));
+	                        this.swapped = true;
+	                        ++this.asw;
+	                        break;
+	                    }
+	                    case 1: {
+	                        if (this.swapped) {
+	                            this.sendPacket(new C09PacketHeldItemChange(this.mc.thePlayer.inventory.currentItem));
+	                            this.swapped = false;
+	                        }
+	                        ++this.asw;
+	                    }
+	                    case 2: {
+	                        if (this.isTargetInRange(this.target, this.reach.getBoolean() && this.reached < 2 ? this.reach2.getValue() : this.attackRange.getValue()) && Client.instance.moduleManager.bedNuker.bedPos == null) {
+	                            this.attack(this.target, true);
+	                        } else if (this.isTargetInRange(this.target, this.rotationRange.getValue()) && Client.instance.moduleManager.bedNuker.bedPos == null) {
+	                            this.mc.thePlayer.swingItem();
+	                        }
+	                        ++this.reached;
+	                        if (this.isTargetInRange(this.target, this.attackRange.getValue())) {
+	                            this.reached = 0;
+	                        }
+	                        this.block();
+	                        this.asw = 0;
+	                    }
+	                }
                 }
                 if (this.autoblock.getString().equalsIgnoreCase("NCP")) {
                     this.unblock();

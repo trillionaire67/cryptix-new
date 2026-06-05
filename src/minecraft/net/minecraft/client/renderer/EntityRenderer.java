@@ -6,6 +6,7 @@ import com.google.gson.JsonSyntaxException;
 
 import cryptix.Client;
 import cryptix.gui.MainMenu;
+import cryptix.other.event.EventManager;
 import cryptix.utils.RenderCache;
 import cryptix.utils.Utils;
 

@@ -1028,8 +1028,8 @@ public abstract class Entity implements ICommandSender
             strafe = strafe * f;
             forward = forward * f;
             EntityPlayer player = Minecraft.getMinecraft().thePlayer;
-            float f1 = MathHelper.sin(player.rotationYawHead * (float)Math.PI / 180.0F);
-            float f2 = MathHelper.cos(player.rotationYawHead * (float)Math.PI / 180.0F);
+            float f1 = MathHelper.sin((player != null && Client.movefix ? player.fixedRotationYaw : this.prevRotationYaw) * (float)Math.PI / 180.0F);
+            float f2 = MathHelper.cos((player != null && Client.movefix ? player.fixedRotationYaw : this.rotationYaw) * (float)Math.PI / 180.0F);
             this.motionX += (double)(strafe * f2 - forward * f1);
             this.motionZ += (double)(forward * f2 + strafe * f1);
         }

@@ -499,7 +499,6 @@ public abstract class EntityPlayer extends EntityLivingBase
         this.updateArmSwingProgress();
         this.rotationYawHead = this.rotationYaw;
         this.rotationPitchHead = this.rotationPitch;
-        EventManager.ROTATION_EVENT.call();
     }
 
     public void onLivingUpdate()
