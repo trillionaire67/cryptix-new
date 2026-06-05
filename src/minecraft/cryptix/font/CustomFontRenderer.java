@@ -76,64 +76,69 @@ public class CustomFontRenderer extends FontUtil {
 
     public float drawString(String text, double x, double y, int color, boolean shadow, float kerning) {
         if (text == null || text.isEmpty()) return 0f;
+        final FontUtil.CharData[] normal = this.charData;
+        final FontUtil.CharData[] bold = this.boldChars;
+        final FontUtil.CharData[] italic = this.italicChars;
+        final int boldTex = this.texBold.getGlTextureId();
+        final int italicTex = this.texItalic.getGlTextureId();
+        final int normalTex = this.texture.getGlTextureId();
+        final float charOffset = this.charOffset;
         x -= 1.0;
         if ((color & 0xFC000000) == 0) color |= 0xFF000000;
         if (shadow) color = ((color & 0xFCFCFC) >> 2) | (color & 0xFF000000);
-        float a = ((color >> 24) & 255) * 0.003921569f;
+        final float a = ((color >> 24) & 255) * 0.003921569f;
         float r = ((color >> 16) & 255) * 0.003921569f;
         float g = ((color >> 8) & 255) * 0.003921569f;
         float b = (color & 255) * 0.003921569f;
-        GlStateManager.color(r, g, b, a);
-        GL11.glPushMatrix();
+        GlStateManager.pushMatrix();
         GlStateManager.scale(0.5, 0.5, 0.5);
         GlStateManager.enableBlend();
         GlStateManager.enableAlpha();
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         GlStateManager.enableTexture2D();
-        FontUtil.CharData[] data=this.charData;
-        FontUtil.CharData[] bold=this.boldChars;
-        FontUtil.CharData[] italic=this.italicChars;
-        int tex=this.texture.getGlTextureId();
-        int boldTex=this.texBold.getGlTextureId();
-        int italicTex=this.texItalic.getGlTextureId();
-        GlStateManager.bindTexture(tex);
-        x*=2;
-        y=(y-3)*2;
-        String str=text;
-        int len=str.length();
-        float cx=(float)x;
-        float cy=(float)y;
-        for(int i=0;i<len;i++){
-            char c=str.charAt(i);
-            if(c==167){
-                int idx=-1;
-                if(i+1<len){
-                    char cc=str.charAt(i+1);
-                    idx="0123456789abcdefklmnor".indexOf(cc);
+        GlStateManager.bindTexture(normalTex);
+        GlStateManager.color(r, g, b, a);
+        final char[] chars = text.toCharArray();
+        final int len = chars.length;
+        float cx = (float) (x * 2);
+        float cy = (float) ((y - 3) * 2);
+        FontUtil.CharData[] data = normal;
+        int tex = normalTex;
+        for (int i = 0; i < len; i++) {
+            char c = chars[i];
+            if (c == 167 && i + 1 < len) {
+                char cc = chars[++i];
+                int idx = "0123456789abcdefklmnor".indexOf(cc);
+                if (idx >= 0 && idx < 16) {
+                    int ccode = this.colorCode[idx];
+                    r = ((ccode >> 16) & 255) * 0.003921569f;
+                    g = ((ccode >> 8) & 255) * 0.003921569f;
+                    b = (ccode & 255) * 0.003921569f;
+                    GlStateManager.color(r, g, b, a);
+                } else if (idx == 17) {
+                    if (tex != boldTex) {
+                        tex = boldTex;
+                        GlStateManager.bindTexture(tex);
+                    }
+                    data = bold;
+                } else if (idx == 20 && italic != null) {
+                    if (tex != italicTex) {
+                        tex = italicTex;
+                        GlStateManager.bindTexture(tex);
+                    }
+                    data = italic;
                 }
-                if(idx>=0&&idx<16){
-                    data=this.charData;
-                    GlStateManager.color((this.colorCode[idx]>>16&255)/255f,(this.colorCode[idx]>>8&255)/255f,(this.colorCode[idx]&255)/255f,a);
-                }else if(idx==17){
-                    if(tex!=boldTex){tex=boldTex;GlStateManager.bindTexture(tex);}
-                    data=bold;
-                }else if(idx==20&&italic!=null){
-                    if(tex!=italicTex){tex=italicTex;GlStateManager.bindTexture(tex);}
-                    data=italic;
-                }
-                i++;
                 continue;
             }
-            if(c>=data.length)continue;
-            FontUtil.CharData cd=data[c];
-            float cw=cd.width-kerning+this.charOffset;
+            if (c >= data.length) continue;
+            FontUtil.CharData cd = data[c];
             GL11.glBegin(GL11.GL_TRIANGLES);
-            this.drawChar(data,c,cx,cy);
+            drawChar(data, c, cx, cy);
             GL11.glEnd();
-            cx+=cw;
+            cx += cd.width - kerning + charOffset;
         }
         GlStateManager.color(1f, 1f, 1f, 1f);
-        GL11.glPopMatrix();
+        GlStateManager.popMatrix();
         return cx / 2f;
     }
     

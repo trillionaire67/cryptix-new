@@ -57,7 +57,7 @@ public class MovementUtils {
     }
 	
 	private static double getDirectionRadians() {
-	    float yaw = mc.thePlayer.fixedRotationYaw;
+	    float yaw = Client.movefix ? mc.thePlayer.fixedRotationYaw : mc.thePlayer.rotationYaw;
 	    float forward = mc.thePlayer.moveForward;
 	    float strafe = mc.thePlayer.moveStrafing;
 

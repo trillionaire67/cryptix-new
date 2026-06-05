@@ -10,17 +10,21 @@ import cryptix.module.Category;
 import cryptix.module.Module;
 import cryptix.other.event.Event;
 import cryptix.other.event.events.PacketReceiveEvent;
+import cryptix.utils.BadPacketsHandler;
 import cryptix.utils.BlinkUtils;
 import cryptix.utils.MovementUtils;
 import cryptix.utils.Utils;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.C02PacketUseEntity;
 import net.minecraft.network.play.client.C03PacketPlayer;
 import net.minecraft.network.play.client.C07PacketPlayerDigging;
 import net.minecraft.network.play.client.C0APacketAnimation;
+import net.minecraft.network.play.client.C02PacketUseEntity.Action;
 import net.minecraft.network.play.server.S00PacketKeepAlive;
+import net.minecraft.network.play.server.S06PacketUpdateHealth;
 import net.minecraft.network.play.server.S08PacketPlayerPosLook;
 import net.minecraft.network.play.server.S12PacketEntityVelocity;
 import net.minecraft.network.play.server.S14PacketEntity;
@@ -38,11 +42,12 @@ public class Velocity extends Module{
 	private Setting mode, jump, chance, kb;
 	private int tick, delayTick;
 	public boolean delaying;
-	public int ticks;
+	public int ticks, reduce;
 	private KillAura aura;
 	public List<Packet> packets = new ArrayList<>();
 	public boolean velocity,dely;
 	private Vec3 position;
+	private boolean trans;
 	public Velocity() {
 		super("Velocity", 0, Category.COMBAT);
 		Client.instance.settingsManager.addSetting(chance = new Setting("Chance", this, 100, 10, 100, true));
@@ -58,7 +63,10 @@ public class Velocity extends Module{
 	
 	@Override
 	public void onPreUpdate() {
-
+		if(reduce > 0) {
+			Utils.sendClientChatMessage("reduce");
+		}
+		reduce--;
 	}
 	
 	@Override
@@ -70,13 +78,14 @@ public class Velocity extends Module{
 			position = null;
 			mc.thePlayer.motionX *= -0.8;
 			mc.thePlayer.motionZ *= -0.8;
+			MovementUtils.strafe();
 		}
 		if(delaying) {
 			delayTick++;
 		}
 		ticks++;
 		if(mode.getString().equalsIgnoreCase("Vulcan")) return;
-		if((mc.thePlayer.onGround || delayTick >= 14) && delaying) {
+		if((mc.thePlayer.onGround || delayTick >= 10) && delaying) {
 			release();
 		}
 	}
@@ -99,7 +108,8 @@ public class Velocity extends Module{
 						return;
 					}
 					if(e.getPacket() instanceof S08PacketPlayerPosLook) delayTick = 20;
-					
+					if(e.getPacket() instanceof S19PacketEntityStatus) return;
+					if(e.getPacket() instanceof S06PacketUpdateHealth) return;
 					if(mode.getString().equalsIgnoreCase("BlocksMC")) {
 						if(e.getPacket() instanceof S32PacketConfirmTransaction || e.getPacket() instanceof S12PacketEntityVelocity) {
 							packets.add(e.getPacket());
@@ -159,14 +169,21 @@ public class Velocity extends Module{
 		                dely = false;
 		            }
 				}
+				if((mode.getString().equalsIgnoreCase("Reduce"))) {
+					final S12PacketEntityVelocity wrapper = (S12PacketEntityVelocity) packet;
+					if (wrapper.getEntityID() == mc.thePlayer.getEntityId()) {
+						reduce = 5;
+					}
+				}
 				if(mode.getString().equalsIgnoreCase("Vulcan") && dely) {
-					if(MovementUtils.getSpeed() < 0.25) {
+					if(MovementUtils.getSpeed() < 0.3 || trans) {
 						ticks = 0;
 						position = mc.thePlayer.getPositionVector();
 						dely = false;
 					}else {
 						e.setCancelled(true);
 					}
+					trans = !trans;
 				}
 				if(packet.getEntityID() == mc.thePlayer.getEntityId() && mc.thePlayer.onGround && packet.getMotionY() > 0 && jump.getBoolean()) {
 					tick = 2;

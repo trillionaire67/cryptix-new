@@ -36,38 +36,32 @@ public class NameTags extends Module {
 
     @Override
     public void onRender2D() {
-    	//long startTime = System.nanoTime();
     	boolean distance = showDistance.getBoolean();
     	boolean back = background.getBoolean();
     	boolean rounded = round.getBoolean();
     	boolean customFont = font.getBoolean();
+    	boolean shadow = textShadow.getBoolean();
+    	double alpha = opacity.getValue();
     	double viewerX = mc.getRenderManager().viewerPosX;
     	double viewerY = mc.getRenderManager().viewerPosY;
     	double viewerZ = mc.getRenderManager().viewerPosZ;
     	float tagScale = (float) scale.getValue();
-    	ScaledResolution sr = RenderCache.getScaledResolution();
+    	int scale = RenderCache.getScaledResolution().getScaleFactor();
     	GlStateManager.pushMatrix();
         GlStateManager.scale(tagScale, tagScale, 1);
         StringBuilder sb = new StringBuilder();
         for (EntityPlayer player : mc.theWorld.playerEntities) {
-        	AxisAlignedBB bb = player.getEntityBoundingBox();
-            if (player == null || player == mc.thePlayer || player.isDead || !FrustumUtils.isVisible(bb)) {
+            if (player == null || player == mc.thePlayer || player.isDead) {
                 continue;
+            }
+            AxisAlignedBB bb = player.getEntityBoundingBox();
+            if(!FrustumUtils.isVisible(bb)) {
+            	continue;
             }
             double x = interpolate(player.posX, player.lastTickPosX) - viewerX;
             double y = interpolate(player.posY, player.lastTickPosY) - viewerY;
             double z = interpolate(player.posZ, player.lastTickPosZ) - viewerZ;
-            double ex = x - player.posX;
-            double ey = y - player.posY;
-            double ez = z - player.posZ;
-            double expand = 0.1;
-            double minX = bb.minX + ex - expand;
-            double minY = bb.minY + ey - expand;
-            double minZ = bb.minZ + ez - expand;
-            double maxX = bb.maxX + ex + expand;
-            double maxY = bb.maxY + ey + expand;
-            double maxZ = bb.maxZ + ez + expand;
-            double[] coords = RenderUtils.worldToScreen((minX + maxX) / 2.0,maxY + 0.2,(minZ + maxZ) / 2.0, sr);
+            double[] coords = RenderUtils.worldToScreen(x,y + player.height + 0.3,z, scale);
             if (coords == null) {
                 continue;
             }
@@ -88,22 +82,22 @@ public class NameTags extends Module {
             float xPos = (screenX / tagScale) - (width / 2f);
             float yPos = screenY / tagScale - height;
             if (back) {
-            	int bg = ((int) opacity.getValue() << 24);
+            	int bg = ((int) alpha << 24);
                 if (rounded) {
                     RenderUtils.drawRoundedRectangle(xPos - 4,yPos - 3,xPos + width + 4,yPos + height + 2,4,bg);
                 } else {
                     Gui.drawRect(xPos - 4,yPos - 3,xPos + width + 4,yPos + height + 2,bg);
                 }
             }
+            final int white = 0xFFFFFFFF;
             if(!customFont) {
-            	mc.fontRendererObj.drawString(text,xPos,yPos,Color.WHITE.getRGB(),textShadow.getBoolean());
+            	mc.fontRendererObj.drawString(text,xPos,yPos,white,shadow);
             }else {
-            	Client.instance.sans.drawString(text,xPos,yPos,Color.WHITE.getRGB());
+            	Client.instance.sans.drawString(text,xPos,yPos,white);
             	GlStateManager.disableBlend();
             }
         }
         GlStateManager.popMatrix();
-        //System.out.println("time: " + (System.nanoTime() - startTime));
     }
 
     private double interpolate(double current, double old) {

@@ -47,14 +47,14 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
  
 public class Client {
-	public static String name = "Cryptix", version = "5.6.1";
+	public static String name = "Cryptix", version = "5.6.2";
 	public static long frameTime;
 	public static String apikey = "";
 	public boolean altFinder = false;
 	public static ServerData lastServerData;
     public boolean blink;
 	public static boolean movefix;
-    public static Minecraft mc = Minecraft.getMinecraft();
+    public static Minecraft mc;
     public ScaffoldBlockCount scaffold;
     public ModuleManager moduleManager;
     public SettingsManager settingsManager;
@@ -67,6 +67,7 @@ public class Client {
     private static String enteredUsername = "";
     private static final Map<String, Font> fontCache = new HashMap<>();
     public void start() {
+    	mc = Minecraft.getMinecraft();
         settingsManager = new SettingsManager();
         moduleManager = new ModuleManager();
         commandManager = new CommandManager();

@@ -15,6 +15,7 @@ import net.minecraft.block.BlockWall;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.block.state.pattern.BlockPattern;
+import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandResultStats;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.crash.CrashReport;
@@ -1026,8 +1027,9 @@ public abstract class Entity implements ICommandSender
             f = friction / f;
             strafe = strafe * f;
             forward = forward * f;
-            float f1 = MathHelper.sin(Client.mc.thePlayer.fixedRotationYaw * (float)Math.PI / 180.0F);
-            float f2 = MathHelper.cos(Client.mc.thePlayer.fixedRotationYaw * (float)Math.PI / 180.0F);
+            EntityPlayer player = Minecraft.getMinecraft().thePlayer;
+            float f1 = MathHelper.sin(player.rotationYawHead * (float)Math.PI / 180.0F);
+            float f2 = MathHelper.cos(player.rotationYawHead * (float)Math.PI / 180.0F);
             this.motionX += (double)(strafe * f2 - forward * f1);
             this.motionZ += (double)(forward * f2 + strafe * f1);
         }

@@ -1244,8 +1244,8 @@ public class EntityRenderer implements IResourceManagerReloadListener
             }
         }
         if (this.mc.inGameHasFocus && flag) {
-        	this.mc.thePlayer.fixedRotationPitch = Client.instance.movefix ? this.mc.thePlayer.rotationPitchHead : this.mc.thePlayer.rotationPitch;
-        	this.mc.thePlayer.fixedRotationYaw = Client.instance.movefix ? this.mc.thePlayer.rotationYawHead : this.mc.thePlayer.rotationYaw;
+        	this.mc.thePlayer.fixedRotationPitch = this.mc.thePlayer.rotationPitchHead;
+        	this.mc.thePlayer.fixedRotationYaw = this.mc.thePlayer.rotationYawHead;
         }
 
         this.mc.mcProfiler.endSection();
@@ -1571,7 +1571,6 @@ public class EntityRenderer implements IResourceManagerReloadListener
         {
             GlStateManager.disableBlend();
         }
-
         this.setupFog(0, partialTicks);
         GlStateManager.shadeModel(7425);
 
@@ -1606,14 +1605,12 @@ public class EntityRenderer implements IResourceManagerReloadListener
 
         this.mc.mcProfiler.endStartSection("terrain");
         Lagometer.timerTerrain.start();
-
         if (this.mc.gameSettings.ofSmoothFps && pass > 0)
         {
             this.mc.mcProfiler.endStartSection("finish");
             GL11.glFinish();
             this.mc.mcProfiler.endStartSection("terrain");
         }
-
         GlStateManager.matrixMode(5888);
         GlStateManager.pushMatrix();
         GlStateManager.disableAlpha();
@@ -1622,10 +1619,8 @@ public class EntityRenderer implements IResourceManagerReloadListener
         {
             ShadersRender.beginTerrainSolid();
         }
-
         renderglobal.renderBlockLayer(EnumWorldBlockLayer.SOLID, (double)partialTicks, pass, entity);
         GlStateManager.enableAlpha();
-
         if (flag)
         {
             ShadersRender.beginTerrainCutoutMipped();

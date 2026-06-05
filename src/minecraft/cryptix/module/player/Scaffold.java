@@ -4,6 +4,8 @@ import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
 import cryptix.module.Category;
 import cryptix.module.Module;
+import cryptix.other.event.Event;
+import cryptix.other.event.events.RotationEvent;
 import cryptix.utils.BlinkUtils;
 import cryptix.utils.MovementUtils;
 import cryptix.utils.RotationUtils;
@@ -14,6 +16,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.settings.KeyBinding;
@@ -66,7 +69,7 @@ extends Module {
     private float[] hypixelRots;
     private int floatTick;
     private int enable;
-    public int setback;
+    private int setback;
     public int lastSlot;
     private int diag;
     private float prePitch;
@@ -83,13 +86,13 @@ extends Module {
         this.addSetting(this.rotations, this.rotationsFake);
         this.sprint = new Setting("Sprint", (Module)this, "None", Arrays.asList("None", "Vanilla", "BlocksMC", "Hypixel", "Hypixel2", "BlocksD", "Vulcan"));
         Client.instance.settingsManager.addSetting(this.sprint);
-        this.tower = new Setting("Tower", (Module)this, "None", Arrays.asList("None", "Old", "Hypixel"));
+        this.tower = new Setting("Tower", (Module)this, "None", Arrays.asList("None", "Old", "NCP", "Hypixel"));
         Client.instance.settingsManager.addSetting(this.tower);
         this.multiPlace = new Setting("Multi Place", this, true);
         Client.instance.settingsManager.addSetting(this.multiPlace);
         this.silentSwing = new Setting("Silent Swing", this, false);
         Client.instance.settingsManager.addSetting(this.silentSwing);
-        this.count = new Setting("Block Count", (Module)this, "None", Arrays.asList("None", "Simple", "Rise"));
+        this.count = new Setting("Block Count", (Module)this, "None", Arrays.asList("None", "Simple", "Rise", "Adjust"));
         Client.instance.settingsManager.addSetting(this.count);
         this.blockOutline = new Setting("Block Outline", this, true);
         Client.instance.settingsManager.addSetting(this.blockOutline);
@@ -106,7 +109,7 @@ extends Module {
     public void onEnable() {
         this.enable = 5;
         this.preYaw = this.mc.thePlayer.rotationYaw % 360.0f;
-        this.keepy_y = (int)this.mc.thePlayer.posY;
+        this.keepy_y = (int) (mc.thePlayer.onGround ? mc.thePlayer.posY : mc.thePlayer.posY - 1);
         this.lastSlot = this.mc.thePlayer.inventory.currentItem;
         this.ground = true;
         strictPitch = 80;
@@ -126,11 +129,23 @@ extends Module {
         this.placeBlock = null;
         BlinkUtils.stopBlink();
     }
+    
+    @Override
+    public void onEvent(Event e) {
+    	if(e instanceof RotationEvent) {
+            if (this.rotation != null) {
+                this.mc.thePlayer.rotationYawHead = (this.rotation[0] % 360.0f + 360.0f) % 360.0f;
+                this.mc.thePlayer.renderYawOffset = this.rotation[2] == 45.0f ? this.mc.thePlayer.rotationYawHead + 45.0f : this.rotation[2];
+                this.mc.thePlayer.rotationPitchHead = this.rotation[1];
+            }
+    	}
+    }
 
     @Override
     public void onPreMotion() {
     	if(Client.instance.moduleManager.killAura.blocking || Client.instance.moduleManager.killAura.swapped || Client.instance.moduleManager.killAura.b3 || Client.instance.moduleManager.killAura.target != null) return;
-        this.sprint();
+    	if(mc.currentScreen != null && mc.currentScreen instanceof GuiInventory) return;
+    	this.sprint();
         if (this.mc.gameSettings.keyBindJump.isKeyDown()) {
             if (this.mc.thePlayer.onGround && this.mc.thePlayer.posY % 1.0 > (double)0.42f) {
                 return;
@@ -138,12 +153,6 @@ extends Module {
             this.tower();
         } else {
             this.towerTick = 1;
-        }
-        this.rotation = this.getRotations();
-        if (this.rotation != null) {
-            this.mc.thePlayer.rotationYawHead = (this.rotation[0] % 360.0f + 360.0f) % 360.0f;
-            this.mc.thePlayer.renderYawOffset = this.rotation[2] == 45.0f ? this.mc.thePlayer.rotationYawHead + 45.0f : this.rotation[2];
-            this.mc.thePlayer.rotationPitchHead = this.rotation[1];
         }
     }
     
@@ -210,11 +219,8 @@ extends Module {
             double yMod;
             boolean snapY = Math.round((yMod = this.mc.thePlayer.posY % 1.0) * 100.0) == 0L || yMod < 0.1 && !this.mc.thePlayer.onGround;
             double speed = 0.3 * (this.mc.thePlayer.isPotionActive(Potion.moveSpeed) ? 1.332 : 1.0);
-            if (this.towerTick > 5 && this.mc.thePlayer.motionY > 0.0 && this.setback < 0) {
+            if (this.towerTick > 5 && this.mc.thePlayer.motionY > 0.0) {
                 speed *= 1.081;
-            }
-            if (this.setback >= 0) {
-                speed *= 0.9;
             }
             if (snapY) {
                 this.mc.thePlayer.setPosition(this.mc.thePlayer.posX, Math.floor(this.mc.thePlayer.posY), this.mc.thePlayer.posZ);
@@ -227,6 +233,25 @@ extends Module {
                 this.towerTick = 0;
                 MovementUtils.strafe(0.0);
             }
+        }
+        if (this.tower.getString().equalsIgnoreCase("NCP")) {
+        	double yMod;
+        	boolean snapY = Math.round((yMod = this.mc.thePlayer.posY % 1.0) * 100.0) == 0L || yMod < 0.1 && !this.mc.thePlayer.onGround;
+        	if(mc.thePlayer.onGround) {
+        		MovementUtils.strafe(0.48);
+        		this.mc.thePlayer.motionY = 0.42f;
+        		this.mc.thePlayer.setPosition(this.mc.thePlayer.posX, Math.floor(this.mc.thePlayer.posY), this.mc.thePlayer.posZ);
+        		if(towerTick > 3) {
+        			towerTick = 0;
+        		}
+        		++this.towerTick;
+        	}else if((mc.thePlayer.offGroundTicks == 2 || mc.thePlayer.offGroundTicks == 5) && blockUnder != Blocks.air){
+        		MovementUtils.strafe(0.3);
+        		this.mc.thePlayer.motionY = 0.42f;
+        		this.mc.thePlayer.setPosition(this.mc.thePlayer.posX, Math.floor(this.mc.thePlayer.posY), this.mc.thePlayer.posZ);
+        	}else if (mc.thePlayer.offGroundTicks == 9) {
+        		this.mc.thePlayer.setPosition(this.mc.thePlayer.posX, Math.floor(this.mc.thePlayer.posY), this.mc.thePlayer.posZ);
+        	}
         }
         if (this.tower.getString().equalsIgnoreCase("Hypixel")) {
             if (this.mc.thePlayer.onGround && MovementUtils.getSpeed() <= 0.02) {
@@ -384,6 +409,7 @@ extends Module {
 		            	}else {
 		            		diag = 0;
 		            	}
+		                forceStrict = !forceStrict;
 	            	}else {
 	            		yaw = this.hypixelRots[0];
 	 	                pitch = this.hypixelRots[1];
@@ -424,7 +450,8 @@ extends Module {
     @Override
     public void onPreUpdate() {
     	if(Client.instance.moduleManager.killAura.blocking || Client.instance.moduleManager.killAura.swapped || Client.instance.moduleManager.killAura.b3 || Client.instance.moduleManager.killAura.target != null) return;
-        if (this.movefix.getBoolean()) {
+    	if(mc.currentScreen != null && mc.currentScreen instanceof GuiInventory) return;
+    	if (this.movefix.getBoolean()) {
             Client.movefix = true;
         }
         this.getBlocks();
@@ -435,6 +462,7 @@ extends Module {
         targetPos = getTargetBlockPos();
         blockUnder = mc.theWorld.getBlockState(targetPos).getBlock();
         --this.floatTick;
+        this.rotation = this.getRotations();
         this.placeBlock();
     }
 
@@ -614,9 +642,6 @@ extends Module {
             } else {
                 this.mc.thePlayer.swingItem();
             }
-            if(this.sprint.getString().equalsIgnoreCase("hypixel") && !mc.thePlayer.onGround && mc.thePlayer.motionY < 0 && (mc.theWorld.getBlockState(new BlockPos(this.mc.thePlayer.posX, this.mc.thePlayer.posY - 0.5, this.mc.thePlayer.posZ)).getBlock() instanceof BlockAir) && !(mc.thePlayer.posY > (double)(keepy_y + 2)) && mc.thePlayer.posY > (double)(keepy_y + 1)) {
-            	forceStrict = true;
-            }
             if(this.sprint.getString().equalsIgnoreCase("hypixel") && !mc.thePlayer.onGround && mc.thePlayer.motionY < -0 && (mc.theWorld.getBlockState(new BlockPos(this.mc.thePlayer.posX, this.mc.thePlayer.posY - 0.5, this.mc.thePlayer.posZ)).getBlock() instanceof BlockAir) && !(mc.thePlayer.posY > (double)(keepy_y + 2)) && mc.thePlayer.posY > (double)(keepy_y + 1)) {
             	blacklistedBlock = mc.theWorld.getBlockState(block.getBlockPos());
             }
@@ -723,27 +748,27 @@ extends Module {
         if (sprintMode.equalsIgnoreCase("Hypixel")) {
             float moveYaw = RotationUtils.getMovementYaw();
             float yaw = simple ? moveYaw : strictYaw;
+            if(Math.abs(MathHelper.wrapAngleTo180_float(moveYaw - strictYaw)) < 40) {
+            	yaw = moveYaw;
+            }
             float targetYaw = yaw;
             yaw = MathHelper.wrapAngleTo180_float(yaw);
             float speed = (float) MovementUtils.getSpeed();
-            float pitch = speed < 0.05f ? 90f : RotationUtils.clampTo90(this.strictPitch);
+            float pitch = RotationUtils.clampTo90(this.strictPitch);
             float limit = 39.9f;
             if (blinkTick == 0) {
-            	forceStrict = false;
             	limit = 129;
-                pitch = 40f;
             } else if (blinkTick == 1) {
-                pitch = 60f;
                 strictPitch = 60f;
-            }else if(blinkTick == 3) {
+            }else if(blinkTick == 4) {
             	jumpX = mc.thePlayer.posX;
                 jumpZ = mc.thePlayer.posZ;
             }
             blinkTick++;
             float diffToTarget = MathHelper.wrapAngleTo180_float(targetYaw - changeYaw);
             float diffToTarget2 = MathHelper.wrapAngleTo180_float(pitch - prePitch);
-            if (Math.abs(diffToTarget) < 20f && Math.abs(diffToTarget2) < 20f && MovementUtils.isMoving()) {
-            	return new float[]{changeYaw, prePitch};
+            if (Math.abs(diffToTarget) < 20f && Math.abs(diffToTarget2) < 20f && MovementUtils.isMoving() && !mc.thePlayer.onGround) {
+            	//return new float[]{changeYaw, prePitch};
             }
             float diff = MathHelper.wrapAngleTo180_float(yaw - changeYaw);
             diff = MathHelper.clamp_float(diff, -limit, limit);
@@ -751,7 +776,7 @@ extends Module {
             this.changeYaw = changeYaw;
             this.prePitch = pitch;
             float yawError = MathHelper.wrapAngleTo180_float(changeYaw - targetYaw);
-            if (Math.abs(yawError) > (blinkTick > 3 ? 40 : 0) && !mc.thePlayer.onGround) {
+            if ((Math.abs(yawError) > (blinkTick > 4 ? 20 : 0)) && !mc.thePlayer.onGround) {
                 enable = 2;
             }
             return new float[]{changeYaw, pitch};

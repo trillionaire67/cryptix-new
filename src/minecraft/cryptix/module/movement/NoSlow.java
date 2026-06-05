@@ -25,7 +25,7 @@ public class NoSlow extends Module {
 
     public NoSlow() {
         super("NoSlow", 0, Category.MOVEMENT);
-        List<String> modes = Arrays.asList("Vanilla", "Post", "Alpha", "Beta", "NoGround");
+        List<String> modes = Arrays.asList("Vanilla", "Post", "Alpha", "Beta", "Gamma", "NoGround");
         Client.instance.settingsManager.addSetting(mode = new Setting("Mode", this, "Vanilla", modes));
     }
 
@@ -49,10 +49,15 @@ public class NoSlow extends Module {
                     sendPacket(new C07PacketPlayerDigging(Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.UP));
                 }
                 break; //retarded objdbgjsdbfsj
-
+            case "gamma":
+            	if(tick == 1 && !Utils.holdingSword()) {
+            		sendPacket(new C09PacketHeldItemChange((mc.thePlayer.inventory.currentItem + 1) % 9));
+                    sendPacket(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem));
+                    sendPacket(new C08PacketPlayerBlockPlacement(new BlockPos(-1, -1, -1), 0, mc.thePlayer.getHeldItem(), 0.0f, 0.0f, 0.0f));
+                }
+                break;
             case "alpha":
                 break;
-                
             case "beta":
             	mc.thePlayer.rotationYawHead = RotationUtils.getMovementYaw() + 180;
             	if(!(mc.gameSettings.keyBindJump.isKeyDown() && mc.thePlayer.onGround)) {
@@ -65,6 +70,7 @@ public class NoSlow extends Module {
                 Client.instance.moduleManager.noFall.spoof = false;
                 break;
         }
+        tick++;
     }
     
     @Override
@@ -86,6 +92,9 @@ public class NoSlow extends Module {
     	if("Beta".equalsIgnoreCase(mode.getString())) {
     		if(mc.thePlayer.movementInput.moveForward < 0.05) return;
             if(mc.thePlayer.isCollidedHorizontally) return;
+            mc.thePlayer.setSprinting(true);
+    	}
+    	if("Gamma".equalsIgnoreCase(mode.getString())) {
             mc.thePlayer.setSprinting(true);
     	}
     }

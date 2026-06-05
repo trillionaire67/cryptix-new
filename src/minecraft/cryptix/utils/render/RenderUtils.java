@@ -30,7 +30,7 @@ public class RenderUtils {
 	private static final ResourceLocation GLOW_TEXTURE = new ResourceLocation("cryptix/glow.png");
 	private static final ResourceLocation GLOW_TEXTURE2 = new ResourceLocation("cryptix/targethud.png");
 	private static final FloatBuffer SCREEN_COORDS = GLAllocation.createDirectFloatBuffer(3);
-	
+	private static final double[] RESULT = new double[2];
 	private static final int step = 3;
 	private static int pointsCount = 180 / step + 1;
 	private static double[] sinValues = new double[pointsCount];
@@ -422,18 +422,18 @@ public class RenderUtils {
         GL11.glPopMatrix();
     }
     
-    public static double[] worldToScreen(double x, double y, double z, ScaledResolution sr) {
+    public static double[] worldToScreen(double x, double y, double z, int scale) {
         boolean result = org.lwjgl.util.glu.Project.gluProject((float) x,(float) y,(float) z,ActiveRenderInfo.MODELVIEW,ActiveRenderInfo.PROJECTION,ActiveRenderInfo.VIEWPORT,SCREEN_COORDS);
         if (!result)
             return null;
-        float screenX = SCREEN_COORDS.get(0);
-        float screenY = SCREEN_COORDS.get(1);
         float screenZ = SCREEN_COORDS.get(2);
         if (screenZ < 0.0F || screenZ > 1.0F)
             return null;
-        screenX /= sr.getScaleFactor();
-        screenY /= sr.getScaleFactor();
-        return new double[]{screenX,(mc.displayHeight / sr.getScaleFactor()) - screenY};
+        float screenX = SCREEN_COORDS.get(0);
+        float screenY = SCREEN_COORDS.get(1);
+        RESULT[0] = screenX / scale;
+        RESULT[1] = (mc.displayHeight / (double) scale) - (screenY / scale);
+        return RESULT;
     }
 
 }

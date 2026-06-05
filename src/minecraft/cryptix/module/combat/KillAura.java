@@ -1,15 +1,18 @@
+// Decompiled with: CFR 0.152
+// Class Version: 8
 package cryptix.module.combat;
+
 import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
 import cryptix.module.Category;
 import cryptix.module.Module;
+import cryptix.module.combat.AntiBot;
 import cryptix.utils.BlinkUtils;
 import cryptix.utils.RotationUtils;
 import cryptix.utils.Utils;
 import cryptix.utils.render.EspUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
@@ -17,7 +20,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.C02PacketUseEntity;
 import net.minecraft.network.play.client.C07PacketPlayerDigging;
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
@@ -31,17 +33,19 @@ import net.minecraft.util.Vec3;
 
 public class KillAura
 extends Module {
-	private ArrayList<EntityLivingBase> validTargets = new ArrayList<EntityLivingBase>();
+    private ArrayList<EntityLivingBase> validTargets = new ArrayList();
     public EntityLivingBase target;
     public EntityLivingBase oldTarget;
     private EntityLivingBase lastTarget = null;
     private long lastSwitchTime = 0L;
     private long lastAttackTime;
     public boolean blocking;
-	public boolean blinking;
+    public boolean blinking;
     public boolean swapped;
-    public boolean b2, unblock;
-    public boolean b3, postBlock;
+    public boolean b2;
+    public boolean unblock;
+    public boolean b3;
+    public boolean postBlock;
     private int blockTick;
     public int rotTick;
     public int asw;
@@ -61,9 +65,11 @@ extends Module {
     private final Setting swordOnly;
     private final Setting delay;
     private final Setting raycast;
-    private final Setting reach, reach2;
+    private final Setting reach;
+    private final Setting reach2;
     public Setting rotation;
     private int reached;
+
     public KillAura() {
         super("KillAura", 0, Category.COMBAT);
         ArrayList<String> autoblocks = new ArrayList<String>(Arrays.asList("None", "Fake", "Vanilla", "BlocksMC", "Hypixel", "Hypixel2", "Hypixel3", "NCP", "Vulcan", "Legit"));
@@ -100,7 +106,7 @@ extends Module {
         Client.instance.settingsManager.addSetting(this.raycast);
         this.reach = new Setting("Hypixel Reach Bypass", this, false);
         Client.instance.settingsManager.addSetting(this.reach);
-        this.reach2 = new Setting("Hypixel Reach", this, 3.1, 3.1, 3.5, 1);
+        this.reach2 = new Setting("Hypixel Reach", (Module)this, 3.1, 3.1, 3.5, 1);
         Client.instance.settingsManager.addSetting(this.reach2);
     }
 
@@ -110,15 +116,17 @@ extends Module {
         this.target = null;
         this.lastTarget = null;
         Client.movefix = false;
-        attack = 10;
+        this.attack = 10;
     }
 
     @Override
     public void onPreMotion() {
         if (this.target != null && this.isTargetInRange(this.target, this.rotationRange.getValue()) && !Client.instance.moduleManager.bedNuker.rotating) {
             ++this.rotTick;
-            if(rotation.getString().equalsIgnoreCase("None")) return;
-            float[] rotations = RotationUtils.getRotations(target, true);
+            if (this.rotation.getString().equalsIgnoreCase("None")) {
+                return;
+            }
+            float[] rotations = RotationUtils.getRotations(this.target, true);
             this.mc.thePlayer.rotationYawHead = rotations[0];
             if (this.rotateBody.getBoolean()) {
                 this.mc.thePlayer.renderYawOffset = this.mc.thePlayer.rotationYawHead - MathHelper.clamp_float(MathHelper.wrapAngleTo180_float(this.mc.thePlayer.rotationYawHead - this.mc.thePlayer.renderYawOffset), -75.0f, 75.0f);
@@ -136,32 +144,31 @@ extends Module {
             this.block();
         }
     }
-    
+
     @Override
     public void onSprint() {
-    	if(b2) {
-    		BlinkUtils.stopBlink();
-    		BlinkUtils.startBlink();
-    		b2 = false;
-    	}
+        if (this.b2) {
+            BlinkUtils.stopBlink();
+            BlinkUtils.startBlink();
+            this.b2 = false;
+        }
     }
-    
+
     public void sprint() {
-    	
     }
 
     @Override
     public void onPreUpdate() {
-        this.setDisplayName(String.valueOf(this.getName()) + this.getUppercaseSuffix(this.autoblock.getString()));
-        if (Client.instance.moduleManager.getModuleByName("Scaffold").isToggled() || mc.currentScreen != null) {
+        this.setDisplayName(String.valueOf(String.valueOf(this.getName())) + this.getUppercaseSuffix(this.autoblock.getString()));
+        if (Client.instance.moduleManager.getModuleByName("Scaffold").isToggled() || this.mc.currentScreen != null) {
             this.target = null;
             this.reset();
             RotationUtils.currentYaw = 0.0f;
             return;
         }
-        float a = (float) this.attackRange.getValue();
-        float b = (float) this.blockRange.getValue();
-        float c = (float) this.rotationRange.getValue();
+        float a = (float)this.attackRange.getValue();
+        float b = (float)this.blockRange.getValue();
+        float c = (float)this.rotationRange.getValue();
         float targetRange = Math.max(a, Math.max(b, c));
         this.target = this.getTarget(targetRange);
         if (this.target == null || Client.instance.moduleManager.bedNuker.rotating) {
@@ -173,11 +180,11 @@ extends Module {
             this.reset();
         }
         if (this.target != null) {
-        	if (this.movefix.getBoolean()) {
-                Client.movefix = true;
-            }
             int maxCPSi;
             int minCPSi;
+            if (this.movefix.getBoolean()) {
+                Client.movefix = true;
+            }
             ++this.nextTick;
             if (this.movefix.getBoolean()) {
                 Client.movefix = true;
@@ -198,7 +205,7 @@ extends Module {
                     this.sendPacket(new C08PacketPlayerBlockPlacement(this.mc.thePlayer.getHeldItem()));
                 }
                 if (this.autoblock.getString().equalsIgnoreCase("Vulcan")) {
-                	b3 = true;
+                    this.b3 = true;
                     if (this.blocking) {
                         ++this.blockTick;
                         BlinkUtils.startBlink();
@@ -217,201 +224,205 @@ extends Module {
                     }
                 }
                 if (this.autoblock.getString().equalsIgnoreCase("Legit")) {
-                	b3 = true;
+                    this.b3 = true;
                     if (this.blocking) {
                         ++this.blockTick;
                         BlinkUtils.startBlink();
-                        if(blocking) {
-                        	this.unblock();
+                        if (this.blocking) {
+                            this.unblock();
                         }
                     } else {
-                    	cps = minCPSi + maxCPSi / 2;
+                        cps = minCPSi + maxCPSi / 2;
                         delay = 1000 / cps;
-                        if(!(currentTime - this.lastAttackTime < (long)delay || !this.isTargetInRange(this.target, this.attackRange.getValue()))) {
-                            if (this.isTargetInRange(this.target, this.attackRange.getValue()) ) {
+                        if (currentTime - this.lastAttackTime >= (long)delay && this.isTargetInRange(this.target, this.attackRange.getValue())) {
+                            if (this.isTargetInRange(this.target, this.attackRange.getValue())) {
                                 this.attack(this.target, true);
                                 this.lastAttackTime = currentTime;
                             }
-                        }else {
-                        	if(BlinkUtils.isBlinking()) {
-                            	return;
-                            }
+                        } else if (BlinkUtils.isBlinking()) {
+                            return;
                         }
-	                    if(!Client.instance.moduleManager.noslow.isToggled()) {
-	                        nextTick = -1;
-	                    }
-	                    this.block();
-                        if(!Client.instance.moduleManager.lagrange.blinking2) {
-                        	BlinkUtils.stopBlink();
+                        if (!Client.instance.moduleManager.noslow.isToggled()) {
+                            this.nextTick = -1;
+                        }
+                        this.block();
+                        if (!Client.instance.moduleManager.lagrange.blinking2) {
+                            BlinkUtils.stopBlink();
                         }
                     }
                 }
                 if (this.autoblock.getString().equalsIgnoreCase("BlocksMC")) {
                     ++this.asw;
                     KeyBinding.setKeyBindState(this.mc.gameSettings.keyBindSprint.getKeyCode(), false);
-                    b3 = true;
+                    this.b3 = true;
                     switch (this.asw) {
                         case 1: {
-                        	attack++;
-                            if (this.isTargetInRange(this.target, this.attackRange.getValue()) && !Client.instance.moduleManager.bedNuker.rotating && rotTick > 0) {
-                            	MovingObjectPosition mop = RotationUtils.rayTrace(target.boundingBox, mc.thePlayer.rotationYawHead, mc.thePlayer.rotationPitchHead, 8.0);
-                            	if(mop != null && attack < 8) {
-	                                this.attack(this.target, false);
-	                                this.sendPacket(new C02PacketUseEntity(target,  new Vec3(mop.hitVec.xCoord-target.posX, mop.hitVec.yCoord-target.posY, mop.hitVec.zCoord-target.posZ)));
-	                            	this.sendPacket(new C02PacketUseEntity(target, C02PacketUseEntity.Action.INTERACT));
-                            	}else {
-                            		attack = 0;
-                            	}
+                            ++this.attack;
+                            if (this.isTargetInRange(this.target, this.attackRange.getValue()) && !Client.instance.moduleManager.bedNuker.rotating && this.rotTick > 0) {
+                                MovingObjectPosition mop = RotationUtils.rayTrace(this.target.boundingBox, this.mc.thePlayer.rotationYawHead, this.mc.thePlayer.rotationPitchHead, 8.0);
+                                if (mop != null && this.attack < 8) {
+                                    this.attack(this.target, false);
+                                    this.sendPacket(new C02PacketUseEntity((Entity)this.target, new Vec3(mop.hitVec.xCoord - this.target.posX, mop.hitVec.yCoord - this.target.posY, mop.hitVec.zCoord - this.target.posZ)));
+                                    this.sendPacket(new C02PacketUseEntity((Entity)this.target, C02PacketUseEntity.Action.INTERACT));
+                                } else {
+                                    this.attack = 0;
+                                }
                             }
-                            block();
+                            this.block();
                             BlinkUtils.stopBlink();
                             break;
                         }
                         case 2: {
-	                    	BlinkUtils.startBlink();
-	                        this.sendPacket(new C09PacketHeldItemChange((this.mc.thePlayer.inventory.currentItem + 1) % 9));
-	                        this.swapped = true;
-	                        break;
-	                    }
-	                    case 3: {
-	                    	BlinkUtils.startBlink();
-	                    	this.sendPacket(new C09PacketHeldItemChange(this.mc.thePlayer.inventory.currentItem));
-	                    	if(blocking) {
-	                    		unblock();
-	                    	}
-	                        this.swapped = false;
-	                        this.asw = 0;
-	                        break;
-	                    }
+                            BlinkUtils.startBlink();
+                            this.sendPacket(new C09PacketHeldItemChange((this.mc.thePlayer.inventory.currentItem + 1) % 9));
+                            this.swapped = true;
+                            break;
+                        }
+                        case 3: {
+                            BlinkUtils.startBlink();
+                            this.sendPacket(new C09PacketHeldItemChange(this.mc.thePlayer.inventory.currentItem));
+                            if (this.blocking) {
+                                this.unblock();
+                            }
+                            this.swapped = false;
+                            this.asw = 0;
+                        }
                     }
                 }
                 if (this.autoblock.getString().equalsIgnoreCase("Hypixel")) {
                     switch (this.asw) {
-                        case 0:
-                        	b3 = true;
-                        	BlinkUtils.startBlink();
-                        	attack++;
-                        	int slot = Utils.random.nextInt(9);
-                        	while(slot == this.mc.thePlayer.inventory.currentItem) {
-                        		slot = Utils.random.nextInt(9);
-                        	}
-                        	if(blocking) {
-                        		unblock();
-                        	}
-                        	++this.asw;
-                        	break;
-                        case 1:
-                            if (this.isTargetInRange(this.target, reach.getBoolean() && reached < 3 ? reach2.getValue() : this.attackRange.getValue()) && !Client.instance.moduleManager.bedNuker.rotating) {
-                            	this.attack(this.target, true);
-                            }else if(this.isTargetInRange(this.target, this.rotationRange.getValue()) && !Client.instance.moduleManager.bedNuker.rotating) {
-                            	mc.thePlayer.swingItem();
+                        case 0: {
+                            this.b3 = true;
+                            BlinkUtils.startBlink();
+                            ++this.attack;
+                            int slot = Utils.random.nextInt(9);
+                            while (slot == this.mc.thePlayer.inventory.currentItem) {
+                                slot = Utils.random.nextInt(9);
                             }
-                            reached++;
-                            if(reached >= 4) {
-                        		reached = 0;
-                        	}
-                            nextTick = -1;
-                            block();
-                            BlinkUtils.stopBlink();
-                    		BlinkUtils.startBlink();
-                            this.asw = 0;
+                            if (this.blocking) {
+                                this.unblock();
+                            }
+                            ++this.asw;
                             break;
+                        }
+                        case 1: {
+                            if (this.isTargetInRange(this.target, this.reach.getBoolean() && this.reached < 3 ? this.reach2.getValue() : this.attackRange.getValue()) && !Client.instance.moduleManager.bedNuker.rotating) {
+                                this.attack(this.target, true);
+                            } else if (this.isTargetInRange(this.target, this.rotationRange.getValue()) && !Client.instance.moduleManager.bedNuker.rotating) {
+                                this.mc.thePlayer.swingItem();
+                            }
+                            ++this.reached;
+                            if (this.reached >= 4) {
+                                this.reached = 0;
+                            }
+                            this.nextTick = -1;
+                            this.block();
+                            BlinkUtils.stopBlink();
+                            BlinkUtils.startBlink();
+                            this.asw = 0;
+                        }
                     }
                 }
                 if (this.autoblock.getString().equalsIgnoreCase("Hypixel2")) {
                     switch (this.asw) {
-                        case 0:
-                        	b3 = true;
-                        	BlinkUtils.startBlink();
-                        	attack++;
-                        	int slot = Utils.random.nextInt(9);
-                        	while(slot == this.mc.thePlayer.inventory.currentItem) {
-                        		slot = Utils.random.nextInt(9);
-                        	}
-                        	if(blocking) {
-                        		unblock();
-                        	}
-                        	sendPacket(new C09PacketHeldItemChange(slot));
-                    		swapped = true;
-                        	++this.asw;
-                        	break;
-                        case 1:
-                        	if(swapped) {
-                        		sendPacket(new C09PacketHeldItemChange(this.mc.thePlayer.inventory.currentItem));
-                        		swapped = false;
-                        	}
-                        	++this.asw;
-                        	if(!postBlock)break;
-                        case 2:
-                        	++this.asw;
-                        	if(!postBlock)break;
-                        case 3:
-                        	++this.asw;
-                        	if(!postBlock)break;
-                        case 4:
-                            if (this.isTargetInRange(this.target, reach.getBoolean() && reached < 2 ? reach2.getValue() : this.attackRange.getValue()) && Client.instance.moduleManager.bedNuker.bedPos == null) {
-                            	this.attack(this.target, true);
-                            }else if(this.isTargetInRange(this.target, this.rotationRange.getValue()) && Client.instance.moduleManager.bedNuker.bedPos == null) {
-                            	mc.thePlayer.swingItem();
+                        case 0: {
+                            this.b3 = true;
+                            BlinkUtils.startBlink();
+                            ++this.attack;
+                            int slot = Utils.random.nextInt(9);
+                            while (slot == this.mc.thePlayer.inventory.currentItem) {
+                                slot = Utils.random.nextInt(9);
                             }
-                            reached++;
-                            if(this.isTargetInRange(this.target, this.attackRange.getValue())) {
-                        		reached = 0;
-                        	}
-    	                    this.block();
-    	                    b2 = true;
-    	                    postBlock = attack % 2 != 0;
-                            this.asw = 0;
+                            if (this.blocking) {
+                                this.unblock();
+                            }
+                            this.sendPacket(new C09PacketHeldItemChange(slot));
+                            this.swapped = true;
+                            ++this.asw;
                             break;
+                        }
+                        case 1: {
+                            if (this.swapped) {
+                                this.sendPacket(new C09PacketHeldItemChange(this.mc.thePlayer.inventory.currentItem));
+                                this.swapped = false;
+                            }
+                            ++this.asw;
+                            break;
+                        }
+                        case 2: {
+                            ++this.asw;
+                            if (!this.postBlock) break;
+                        }
+                        case 3: {
+                            ++this.asw;
+                            if (!this.postBlock) break;
+                        }
+                        case 4: {
+                            if (this.isTargetInRange(this.target, this.reach.getBoolean() && this.reached < 2 ? this.reach2.getValue() : this.attackRange.getValue()) && Client.instance.moduleManager.bedNuker.bedPos == null) {
+                                this.attack(this.target, true);
+                            } else if (this.isTargetInRange(this.target, this.rotationRange.getValue()) && Client.instance.moduleManager.bedNuker.bedPos == null) {
+                                this.mc.thePlayer.swingItem();
+                            }
+                            ++this.reached;
+                            if (this.isTargetInRange(this.target, this.attackRange.getValue())) {
+                                this.reached = 0;
+                            }
+                            this.block();
+                            this.b2 = true;
+                            this.postBlock = this.attack % 2 == 0;
+                            this.asw = 0;
+                        }
                     }
                 }
                 if (this.autoblock.getString().equalsIgnoreCase("Hypixel3")) {
-                	switch (this.asw) {
-                    case 0:
-                    	b3 = true;
-                    	BlinkUtils.startBlink();
-                    	attack++;
-                    	int slot = Utils.random.nextInt(9);
-                    	while(slot == this.mc.thePlayer.inventory.currentItem) {
-                    		slot = Utils.random.nextInt(9);
-                    	}
-                    	if(blocking) {
-                    		unblock();
-                    		if(postBlock) {
-	                    		sendPacket(new C09PacketHeldItemChange(slot));
-	                			swapped = true;
-	                			postBlock = false;
-                    		}
-                    	}
-                    	++this.asw;
-                    	break;
-                    case 1:
-                    	++this.asw;
-                    	if(swapped) {
-                    		sendPacket(new C09PacketHeldItemChange(this.mc.thePlayer.inventory.currentItem));
-                    		swapped = false;
-                    		break;
-                    	}
-                    case 2:
-                        if (this.isTargetInRange(this.target, reach.getBoolean() && reached < 3 ? reach2.getValue() : this.attackRange.getValue()) && !Client.instance.moduleManager.bedNuker.rotating) {
-                            this.attack(this.target, true);
-                        }else if(this.isTargetInRange(this.target, this.rotationRange.getValue()) && !Client.instance.moduleManager.bedNuker.rotating) {
-                        	mc.thePlayer.swingItem();
+                    switch (this.asw) {
+                        case 0: {
+                            this.b3 = true;
+                            BlinkUtils.startBlink();
+                            ++this.attack;
+                            int slot = Utils.random.nextInt(9);
+                            while (slot == this.mc.thePlayer.inventory.currentItem) {
+                                slot = Utils.random.nextInt(9);
+                            }
+                            if (this.blocking) {
+                                this.unblock();
+                                if (this.postBlock) {
+                                    this.sendPacket(new C09PacketHeldItemChange(slot));
+                                    this.swapped = true;
+                                    this.postBlock = false;
+                                }
+                            }
+                            ++this.asw;
+                            break;
                         }
-                        reached++;
-                        if(reached >= 4) {
-                    		reached = 0;
-                    	}
-                		if(attack % 2 != 0) {
-                			nextTick = -1;
-                		}else {
-                			postBlock = true;
-                		}
-                        block();
-                        b2 = true;
-                        this.asw = 0;
-                        break;
-                	}
+                        case 1: {
+                            ++this.asw;
+                            if (this.swapped) {
+                                this.sendPacket(new C09PacketHeldItemChange(this.mc.thePlayer.inventory.currentItem));
+                                this.swapped = false;
+                                break;
+                            }
+                        }
+                        case 2: {
+                            if (this.isTargetInRange(this.target, this.reach.getBoolean() && this.reached < 3 ? this.reach2.getValue() : this.attackRange.getValue()) && !Client.instance.moduleManager.bedNuker.rotating) {
+                                this.attack(this.target, true);
+                            } else if (this.isTargetInRange(this.target, this.rotationRange.getValue()) && !Client.instance.moduleManager.bedNuker.rotating) {
+                                this.mc.thePlayer.swingItem();
+                            }
+                            ++this.reached;
+                            if (this.reached >= 4) {
+                                this.reached = 0;
+                            }
+                            if (this.attack % 2 != 0) {
+                                this.nextTick = -1;
+                            } else {
+                                this.postBlock = true;
+                            }
+                            this.block();
+                            this.b2 = true;
+                            this.asw = 0;
+                        }
+                    }
                 }
                 if (this.autoblock.getString().equalsIgnoreCase("NCP")) {
                     this.unblock();
@@ -419,7 +430,7 @@ extends Module {
             } else {
                 this.reset();
             }
-            if (!(!this.isTargetInRange(this.target, reach.getBoolean() && reached < 3 ? reach2.getValue(): this.attackRange.getValue()) || currentTime - this.lastAttackTime < (long)delay && this.minCPS.getValue() + this.maxCPS.getValue() != 40.0 || this.autoblock.getString().equalsIgnoreCase("BlocksMC") || this.autoblock.getString().equalsIgnoreCase("BlocksMC2") || this.autoblock.getString().equalsIgnoreCase("Legit") || this.autoblock.getString().equalsIgnoreCase("Vulcan") || this.autoblock.getString().equalsIgnoreCase("Hypixel") || this.autoblock.getString().equalsIgnoreCase("Hypixel2") || this.autoblock.getString().equalsIgnoreCase("Hypixel3"))) {
+            if (!(!this.isTargetInRange(this.target, this.reach.getBoolean() && this.reached < 3 ? this.reach2.getValue() : this.attackRange.getValue()) || currentTime - this.lastAttackTime < (long)delay && this.minCPS.getValue() + this.maxCPS.getValue() != 40.0 || this.autoblock.getString().equalsIgnoreCase("BlocksMC") || this.autoblock.getString().equalsIgnoreCase("BlocksMC2") || this.autoblock.getString().equalsIgnoreCase("Legit") || this.autoblock.getString().equalsIgnoreCase("Vulcan") || this.autoblock.getString().equalsIgnoreCase("Hypixel") || this.autoblock.getString().equalsIgnoreCase("Hypixel2") || this.autoblock.getString().equalsIgnoreCase("Hypixel3"))) {
                 this.attack(this.target, false);
                 this.lastAttackTime = currentTime;
             }
@@ -459,17 +470,21 @@ extends Module {
     }
 
     public void attack(EntityLivingBase e, boolean interact) {
-    	if(Client.instance.moduleManager.velo.delaying && !delay.getBoolean()) return;
-    	if(Client.instance.moduleManager.bedNuker.bedPos != null) return;
-    	MovingObjectPosition mop = RotationUtils.rayCastEntity(8, mc.thePlayer.rotationYawHead, mc.thePlayer.rotationPitchHead);
-    	if (!raycast.getBoolean() || (mop != null && mop.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY)) {
-    	    mc.thePlayer.swingItem();
-    	    mc.playerController.attackEntity(mc.thePlayer, e);
-    	    if (interact) {
-    	    	sendPacket(new C02PacketUseEntity(e, new Vec3(0,0,0)));
-    	        sendPacket(new C02PacketUseEntity(e, C02PacketUseEntity.Action.INTERACT));
-    	    }
-    	}
+        if (Client.instance.moduleManager.velo.delaying && !this.delay.getBoolean()) {
+            return;
+        }
+        if (Client.instance.moduleManager.bedNuker.bedPos != null) {
+            return;
+        }
+        MovingObjectPosition mop = RotationUtils.rayCastEntity(8.0, this.mc.thePlayer.rotationYawHead, this.mc.thePlayer.rotationPitchHead);
+        if (!this.raycast.getBoolean() || mop != null && mop.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY) {
+            this.mc.thePlayer.swingItem();
+            this.mc.playerController.attackEntity(this.mc.thePlayer, e);
+            if (interact) {
+                this.sendPacket(new C02PacketUseEntity((Entity)e, new Vec3(0.0, 0.0, 0.0)));
+                this.sendPacket(new C02PacketUseEntity((Entity)e, C02PacketUseEntity.Action.INTERACT));
+            }
+        }
     }
 
     private boolean isTargetInRange(EntityLivingBase target, double range) {
@@ -487,32 +502,30 @@ extends Module {
     }
 
     private EntityLivingBase getTarget(double range) {
-        double currentDist;
-        EntityLivingBase entity;
         EntityLivingBase extendedRangeTarget = null;
-        validTargets.clear();
+        this.validTargets.clear();
         for (Entity object : this.mc.theWorld.loadedEntityList) {
+            EntityLivingBase entity;
             if (!(object instanceof EntityLivingBase) || (entity = (EntityLivingBase)object) == this.mc.thePlayer || AntiBot.isBot(entity) || Utils.teamMate(entity) && this.team.getBoolean() || this.mc.currentScreen instanceof GuiInventory || this.swordOnly.getBoolean() && !Utils.holdingSword() || Client.instance.commandManager.friend.isFriend(entity.getName()) || !(entity instanceof EntityPlayer) && !(entity instanceof EntityMob) && !(entity instanceof EntityAnimal)) continue;
-            
-            currentDist = (double)this.mc.thePlayer.getDistanceToEntity(entity);
-            
+            double currentDist = this.mc.thePlayer.getDistanceToEntity(entity);
             if (currentDist <= this.attackRange.getValue()) {
-                validTargets.add(entity);
-            } else if (currentDist <= range && extendedRangeTarget == null) {
-                extendedRangeTarget = entity;
+                this.validTargets.add(entity);
+                continue;
             }
+            if (!(currentDist <= range) || extendedRangeTarget != null) continue;
+            extendedRangeTarget = entity;
         }
-        if (validTargets.isEmpty()) {
+        if (this.validTargets.isEmpty()) {
             return extendedRangeTarget;
         }
         long currentTime = System.currentTimeMillis();
-        if (this.lastTarget == null || (double)(currentTime - this.lastSwitchTime) > this.switchDelay.getValue() || !validTargets.contains(this.lastTarget) || this.lastTarget.isDead) {
+        if (this.lastTarget == null || (double)(currentTime - this.lastSwitchTime) > this.switchDelay.getValue() || !this.validTargets.contains(this.lastTarget) || this.lastTarget.isDead) {
             EntityLivingBase newTarget;
-            if (validTargets.size() > 1 && this.lastTarget != null) {
-                validTargets.remove(this.lastTarget);
+            if (this.validTargets.size() > 1 && this.lastTarget != null) {
+                this.validTargets.remove(this.lastTarget);
             }
-            int index = Utils.random.nextInt(validTargets.size());
-            this.lastTarget = newTarget = (EntityLivingBase)validTargets.get(index);
+            int index = Utils.random.nextInt(this.validTargets.size());
+            this.lastTarget = newTarget = this.validTargets.get(index);
             this.lastSwitchTime = currentTime;
         }
         return this.lastTarget;
@@ -534,21 +547,21 @@ extends Module {
                 slot = Utils.random.nextInt(9);
             }
             this.sendPacket(new C09PacketHeldItemChange(slot));
-            swapped = true;
+            this.swapped = true;
             this.unblock();
             ++this.asw;
         } else {
-        	if (this.b3) {
-        		BlinkUtils.stopBlink();
+            if (this.b3) {
+                BlinkUtils.stopBlink();
                 this.b3 = false;
             }
             this.asw = 0;
         }
-        if(blocking) {
-        	unblock();
+        if (this.blocking) {
+            this.unblock();
         }
-        if(swapped) {
-        	target = lastTarget;
+        if (this.swapped) {
+            this.target = this.lastTarget;
         }
         this.rotTick = 0;
     }
@@ -559,7 +572,7 @@ extends Module {
     }
 
     private void unblock() {
-    	this.sendPacket(new C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
-    	blocking = false;
+        this.sendPacket(new C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
+        this.blocking = false;
     }
 }

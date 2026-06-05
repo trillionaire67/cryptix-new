@@ -73,7 +73,10 @@ public class Fly extends Module {
     public void onPreMotion() {
         switch(mode.getString().toLowerCase()) {
             case "vanilla":
-                mc.thePlayer.motionY = 0;
+            	i++;
+            	if(mc.thePlayer.motionY < 0) {
+            		mc.thePlayer.motionY += 0.026;
+            	}
                 break;
 			case "blocksmc":
 				if(!this.isToggled()) return;
@@ -129,9 +132,8 @@ public class Fly extends Module {
 		if(event instanceof PacketReceiveEvent) {
 			PacketReceiveEvent e = (PacketReceiveEvent) event;
 	    	if(e.getPacket() instanceof S08PacketPlayerPosLook) {
-	    		e.setCancelled(true);
+	    		//e.setCancelled(true);
 	    		if(chargeTicks == 0) {
-		    		BlinkUtils.startBlink();
 		    		chargeTicks++;
 	    		}
 	    	}
@@ -140,14 +142,6 @@ public class Fly extends Module {
     
     @Override
     public void onRender2D() {
-    	double progress = (double) (i * 0.10);
-        Module hud = Client.instance.moduleManager.hud;
-		Setting c1r = Client.instance.moduleManager.hud.color1red, c1g = Client.instance.moduleManager.hud.color1green, c1b = Client.instance.moduleManager.hud.color1blue;
-		Setting c2r = Client.instance.moduleManager.hud.color2red, c2g = Client.instance.moduleManager.hud.color2green, c2b = Client.instance.moduleManager.hud.color2blue;
-		int color1 = (255) | ((int)c1r.getValue() << 16) | ((int)c1g.getValue() << 8) | (int)c1b.getValue();
-	    int color2 = (255) | ((int)c2r.getValue() << 16) | ((int)c2g.getValue() << 8) | (int)c2b.getValue();
-	    int bg     = (100);
-	    System.out.println(progress);
-        RenderUtils.drawProgressBar(1, color1, color2, bg);
+    	
     }
 }

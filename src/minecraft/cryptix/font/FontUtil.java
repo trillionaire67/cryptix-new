@@ -96,8 +96,7 @@ public class FontUtil {
         }
     }
 
-    private void drawQuad(float x, float y, float width, float height,
-                          float srcX, float srcY, float srcWidth, float srcHeight) {
+    private void drawQuad(float x, float y, float width, float height, float srcX, float srcY, float srcWidth, float srcHeight) {
     	float inv = 1.0f / IMAGE_SIZE;
         float u = srcX * inv;
         float v = srcY * inv;

@@ -15,6 +15,7 @@ public class BlinkUtils {
 	public static boolean blinking = false;
 	
 	public static void startBlink() {
+		if(mc.getCurrentServerData() == null) return;
 		blinking = true;
 	}
 	

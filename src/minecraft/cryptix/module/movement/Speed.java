@@ -90,22 +90,24 @@ public class Speed extends Module{
 					}
 					MovementUtils.strafe(0.483);
 				}
-				switch(mc.thePlayer.offGroundTicks) {
-					case 1:
-						mc.thePlayer.motionX *= 1.01;
-						mc.thePlayer.motionZ *= 1.01;
-						MovementUtils.strafe();
-					case 2:
-						break;
-					case 5:
-						mc.thePlayer.motionY -= 0.20;
-						break;
-					case 6:
-						mc.thePlayer.motionY -= 0.10;
-						break;
-					case 8:
-						MovementUtils.strafe();
-						break;
+				if(mc.thePlayer.motionY < 0.15) {
+					switch(mc.thePlayer.offGroundTicks) {
+						case 1:
+							mc.thePlayer.motionX *= 1.01;
+							mc.thePlayer.motionZ *= 1.01;
+							MovementUtils.strafe();
+						case 2:
+							break;
+						case 5:
+							mc.thePlayer.motionY -= 0.20;
+							break;
+						case 6:
+							mc.thePlayer.motionY -= 0.10;
+							break;
+						case 8:
+							MovementUtils.strafe();
+							break;
+					}
 				}
 				if(MovementUtils.getSpeed() < 0.222) {
 					MovementUtils.strafe(0.222 + Math.random() * 0.001);

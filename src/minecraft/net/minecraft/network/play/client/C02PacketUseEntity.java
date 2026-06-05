@@ -23,6 +23,12 @@ public class C02PacketUseEntity implements Packet<INetHandlerPlayServer>
         this.entityId = entity.getEntityId();
         this.action = action;
     }
+    
+    public C02PacketUseEntity(int id, C02PacketUseEntity.Action action)
+    {
+        this.entityId = id;
+        this.action = action;
+    }
 
     public C02PacketUseEntity(Entity entity, Vec3 hitVec)
     {

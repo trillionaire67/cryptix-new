@@ -563,13 +563,12 @@ public class EspUtils {
 	    float red   = ((colorInt >> 16) & 0xFF) * (1f / 255f);
 	    float green = ((colorInt >> 8) & 0xFF) * (1f / 255f);
 	    float blue  = (colorInt & 0xFF) * (1f / 255f);
-	    final int points = 72;
+	    final int points = 64;
 	    final float angleStep = (float) (Math.PI * 2.0 / points);
 	    float sinStep = (float) Math.sin(angleStep);
 	    float cosStep = (float) Math.cos(angleStep);
 	    float sin = 0f;
 	    float cos = 1f;
-	    GL11.glPushMatrix();
 	    GL11.glDisable(GL11.GL_TEXTURE_2D);
 	    GL11.glEnable(GL11.GL_BLEND);
 	    GL11.glDisable(GL11.GL_DEPTH_TEST);
@@ -578,22 +577,15 @@ public class EspUtils {
 	    GL11.glShadeModel(GL11.GL_SMOOTH);
 	    Tessellator tess = Tessellator.getInstance();
 	    WorldRenderer wr = tess.getWorldRenderer();
-	    wr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
+	    wr.begin(GL11.GL_TRIANGLE_STRIP, DefaultVertexFormats.POSITION_COLOR);
 	    double yBottom = y + yOffset - bounce;
-        double yTop = y + yOffset;
-	    for (int i = 0; i < points; i++) {
-	        float nextSin = sin * cosStep + cos * sinStep;
-	        float nextCos = cos * cosStep - sin * sinStep;
-	        double x1 = x - sin * radius;
-	        double z1 = z + cos * radius;
-	        double x2 = x - nextSin * radius;
-	        double z2 = z + nextCos * radius;
-	        wr.pos(x1, yBottom, z1).color(red, green, blue, 0f).endVertex();
-	        wr.pos(x2, yBottom, z2).color(red, green, blue, 0f).endVertex();
-	        wr.pos(x2, yTop, z2).color(red, green, blue, 1f).endVertex();
-	        wr.pos(x1, yTop, z1).color(red, green, blue, 1f).endVertex();
-	        sin = nextSin;
-	        cos = nextCos;
+	    double yTop = y + yOffset;
+	    for (int i = 0; i <= points; i++) {
+	        double angle = (Math.PI * 2.0 * i) / points;
+	        double px = x - Math.sin(angle) * radius;
+	        double pz = z + Math.cos(angle) * radius;
+	        wr.pos(px, yBottom, pz).color(red, green, blue, 0f).endVertex();
+	        wr.pos(px, yTop, pz).color(red, green, blue, 1f).endVertex();
 	    }
 	    tess.draw();
 	    GL11.glShadeModel(GL11.GL_FLAT);
@@ -602,7 +594,6 @@ public class EspUtils {
 	    GL11.glDisable(GL11.GL_BLEND);
 	    GL11.glEnable(GL11.GL_TEXTURE_2D);
 	    GL11.glColor4f(1f, 1f, 1f, 1f);
-	    GL11.glPopMatrix();
 	}
 	
 	private static void drawLine(double x1, double y1, double z1, double x2, double y2, double z2) {

@@ -74,6 +74,14 @@ public class ScaffoldBlockCount {
             GlStateManager.disableBlend();
             Client.instance.sans.drawString("Amount: ",rx - 2,ry + 1,alpha > 150 ? -1 : colorWhite);
             Client.instance.sans.drawString(String.valueOf(hotbarCount),rx + Client.instance.sans.getStringWidth("Amount: ") - 2,ry + 1,colorHud);
+        } else if (scaffold.count.getString().equalsIgnoreCase("Adjust")) {
+            int rx = mc.displayWidth / 4 - 18;
+            int ry = mc.displayHeight / 2 - 80;
+            int bgAlpha = alpha / 2;
+            int bgColor = (bgAlpha << 24);
+            GlStateManager.disableBlend();
+            Client.instance.sans.drawString(hotbarCount + "", mc.displayWidth / 4 - (Client.instance.sans.getStringWidth(hotbarCount + " blocks") / 2), y, colorHud);
+            Client.instance.sans.drawString(" blocks",mc.displayWidth / 4 + Client.instance.sans.getStringWidth(hotbarCount + "") - (Client.instance.sans.getStringWidth(hotbarCount + " blocks") / 2), y,alpha > 150 ? -1 : colorWhite);
         }
     }
 

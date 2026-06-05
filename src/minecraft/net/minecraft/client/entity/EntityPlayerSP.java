@@ -184,8 +184,8 @@ public class EntityPlayerSP extends AbstractClientPlayer
         	double d0 = this.posX - this.lastReportedPosX;
             double d1 = this.getEntityBoundingBox().minY - this.lastReportedPosY;
             double d2 = this.posZ - this.lastReportedPosZ;
-            float currentYaw = mc.thePlayer.fixedRotationYaw;
-            float currentPitch = mc.thePlayer.fixedRotationPitch;
+            float currentYaw = mc.thePlayer.rotationYawHead;
+            float currentPitch = mc.thePlayer.rotationPitchHead;
             double d3 = (double)(currentYaw - this.lastReportedYaw);
             double d4 = (double)(currentPitch - this.lastReportedPitch);
             boolean flag2 = d0 * d0 + d1 * d1 + d2 * d2 > 9.0E-4D || this.positionUpdateTicks >= 20;

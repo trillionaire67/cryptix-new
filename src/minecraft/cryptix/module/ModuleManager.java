@@ -90,6 +90,7 @@ public class ModuleManager {
 		//Player
 		modules.add(new AntiFireBall());
 		modules.add(antiVoid = new AntiVoid());
+		//modules.add(new AutoBlockIn());
 		modules.add(new AutoFish());
 		modules.add(autoPlay = new AutoPlay());
 		modules.add(new AutoTool());
