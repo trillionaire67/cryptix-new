@@ -70,7 +70,13 @@ public class Panel {
 		if (this.extended && (!Elements.isEmpty() || !scriptElements.isEmpty())) {
 		    int epanelcolor = 0xFF232424;
 		    double totalHeight = 0;
+		    ClickGUI gui = (ClickGUI) Client.mc.currentScreen;
 		    for (ModuleButton et : Elements) {
+		    	if (!gui.searchText.isEmpty()) {
+			        if (!et.mod.getName().toLowerCase().contains(gui.searchText.toLowerCase())) {
+			            continue;
+			        }
+			    }
 		        totalHeight += et.height + 3.8 + et.settHeight;
 		    }
 		    for (ScriptButton et : scriptElements) {
@@ -95,21 +101,26 @@ public class Panel {
 		    RenderUtils.drawRoundedRectangleNoRender(x, y - 2, x + width, y + height, Client.instance.moduleManager.clickGUI.square.getBoolean() ? 0 : 12, 0xFF121212);
 		    RenderUtils.stopRoundedRectangle();
 		    for (ModuleButton et : Elements) {
-		        int etheight = (int) et.height;
-		        int startYI = (int) startY;
+		        if (!gui.searchText.isEmpty() && !et.mod.getName().toLowerCase().contains(gui.searchText.toLowerCase())) {
+		            continue;
+		        }
 		        et.x = x + 2;
 		        et.y = startY;
 		        et.width = width - 4;
 		        double offset = 0;
-		        if(et.extended && et.menuelements != null && !et.menuelements.isEmpty()) {
-	                for (Element element : et.menuelements) {
-	                    element.offset = offset;
-	                    element.update();
-	                    element.drawScreen(mouseX, mouseY, partialTicks);
-	                    offset += element.height;
-	                }
+		        if (et.extended && et.menuelements != null && !et.menuelements.isEmpty()) {
+		            for (Element element : et.menuelements) {
+		                element.offset = offset;
+		                element.update();
+		                offset += element.height;
+		            }
 		        }
 		        et.drawScreen(mouseX, mouseY, partialTicks);
+		        if (et.extended) {
+		            for (Element element : et.menuelements) {
+		                element.drawScreen(mouseX, mouseY, partialTicks);
+		            }
+		        }
 		        startY += et.height + 4 + et.settHeight;
 		    }
 		    for (ScriptButton et : scriptElements) {
@@ -151,11 +162,15 @@ public class Panel {
 			extended = !extended;
 			return true;
 		} else if (extended) {
-			for (ModuleButton et : Elements) {
-				if (et.mouseClicked(mouseX, mouseY, mouseButton)) {
-					return true;
-				}
-			}
+			ClickGUI gui = (ClickGUI) Client.mc.currentScreen;
+		    for (ModuleButton et : Elements) {
+		        if (!gui.searchText.isEmpty() && !et.mod.getName().toLowerCase().contains(gui.searchText.toLowerCase())) {
+		            continue;
+		        }
+		        if (et.mouseClicked(mouseX, mouseY, mouseButton)) {
+		            return true;
+		        }
+		    }
 			for (ScriptButton et : scriptElements) {
 				if (et.mouseClicked(mouseX, mouseY, mouseButton)) {
 					return true;

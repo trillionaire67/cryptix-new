@@ -1,5 +1,6 @@
 package cryptix.utils;
 
+import cryptix.Client;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.C07PacketPlayerDigging;
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
@@ -12,7 +13,7 @@ public class BadPacketsHandler {
 	public static boolean handle(Packet packet) {
 		if(packet instanceof C09PacketHeldItemChange) {
 			C09PacketHeldItemChange ev = (C09PacketHeldItemChange) packet;
-			if(ev.getSlotId() == lastSlot) {
+			if(ev.getSlotId() == lastSlot && Client.mc.thePlayer.ticksExisted > 2) {
 				return false;
 			}
 			lastSlot = ev.getSlotId();

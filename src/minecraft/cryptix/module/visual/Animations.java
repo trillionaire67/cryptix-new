@@ -10,7 +10,7 @@ import cryptix.module.Module;
 
 public class Animations extends Module{
 	public Setting mode = new Setting("Mode", this, "None",Arrays.asList("None", "1.7", "Exhibition", "Spin", "Swing", "Slide"));
-	public Setting speed = new Setting("Swing Speed", this, 0, -50, 50 ,true);
+	public Setting speed = new Setting("Swing Speed", this, 0, -20, 4 ,true);
 	public Setting scale = new Setting("Scale", this, 1, 0.1, 2 ,1);
 	public Setting x = new Setting("X", this, 1, -1, 2 ,1);
 	public Setting y = new Setting("Y", this, 1, -1, 2 ,1);

@@ -16,11 +16,13 @@ public class CommandManager {
 	public Config config;
 	public Script script;
 	public Bind bind;
+	public Toggle toggle;
 	public CommandManager() {
 		friend = new Friend();
 		config = new Config();
 		script = new Script();
 		bind = new Bind();
+		toggle = new Toggle();
 	}
 	
 	public void onChatMessage(String m) {
@@ -36,6 +38,10 @@ public class CommandManager {
 		if(m.startsWith(".bind")) {
 			String[] args = m.substring(".bind".length()).trim().split("\\s+");
 			bind.onCommand(args);
+		}
+		if(m.startsWith(".toggle")) {
+			String[] args = m.substring(".toggle".length()).trim().split("\\s+");
+			toggle.onCommand(args);
 		}
 		if(m.startsWith(".friend")) {
 			String[] args = m.substring(".friend".length()).trim().split("\\s+");

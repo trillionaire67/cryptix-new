@@ -11,6 +11,7 @@ import cryptix.module.Module;
 import cryptix.other.event.Event;
 import cryptix.other.event.events.PacketReceiveEvent;
 import cryptix.utils.MovementUtils;
+import cryptix.utils.RotationUtils;
 import cryptix.utils.Utils;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
@@ -25,17 +26,19 @@ import net.minecraft.util.BlockPos;
 
 public class LongJump extends Module{
 	private boolean fart, send, delaying;
-	private int tic, lastSlot = -1, dela;
+	private int tic, lastSlot = -1, dela, fakeY;
 	private List<Packet> packets = new ArrayList<>();
 	private Setting mode = new Setting("Mode", this, "Standard", Arrays.asList("Standard", "High"));
+	private Setting spoofY = new Setting("Spoof Y", this, false);
 	public LongJump() {
 		super("LongJump", 0, Category.MOVEMENT);
-		this.addSetting(mode);
+		this.addSetting(mode, spoofY);
 	}
 	
 	@Override
 	public void onDisable() {
 		release();
+		mc.timer.timerSpeed = 1F;
 	}
 	
 	@Override
@@ -48,11 +51,15 @@ public class LongJump extends Module{
 			Utils.sendClientChatMessage("Couldnt find Fireball");
 			this.toggle();
 		}
+		fakeY = (int) mc.thePlayer.posY;
 		dela = 0;
 	}
 	
 	@Override
 	public void onPreMotion() {
+		if((mc.thePlayer.posY >= fakeY || delaying) && spoofY.getBoolean()) {
+			mc.thePlayer.posY = fakeY;
+		}
 		int ballSlot = getBall();
 		tic++;
 		if(ballSlot != -1 && mc.thePlayer.onGround) {
@@ -62,23 +69,31 @@ public class LongJump extends Module{
 	                mc.thePlayer.inventory.currentItem = ballSlot;
 				}
 				if(tic == 2) {
-					delaying = true;
+					if(!mode.getString().equalsIgnoreCase("High")) {
+						delaying = true;
+					}
 					mc.thePlayer.sendQueue.addToSendQueue(new C0APacketAnimation());
 					this.sendPacket(new C08PacketPlayerBlockPlacement(mc.thePlayer.getHeldItem()));
 					send = true;
 				}
-				if(tic == 3) {
+				if(tic == 5) {
 	    			mc.thePlayer.inventory.currentItem = lastSlot;
 	    		}
-			}
-			if(!fart) {
-				rotate();
 			}
 			if(tic == 10 && !fart) {
 				this.toggle();
 				Utils.sendClientChatMessage("Fireball timed out");
 			}
 		}
+		if(tic > 10 && mc.thePlayer.onGround) {
+			this.toggle();
+		}
+		rotate();
+	}
+	
+	@Override
+	public void onPreUpdate() {
+		Client.movefix = true;
 	}
 	
 	@Override
@@ -86,7 +101,6 @@ public class LongJump extends Module{
 		if(fart) {
 			if(mc.thePlayer.offGroundTicks >= 11) {
 				release();
-				this.toggle();
 			}
 		}
 	}
@@ -99,7 +113,11 @@ public class LongJump extends Module{
 	    		if(send) {
 		    		fart = true;
 		    		send = false;
-		    		delaying = true;
+		    		if(!mode.getString().equalsIgnoreCase("High")) {
+		    			delaying = true;
+		    		}else {
+		    			MovementUtils.strafe(1.8);
+		    		}
 	    		}
 	    	}
 			if(delaying) {
@@ -140,6 +158,7 @@ public class LongJump extends Module{
 	
 	private void rotate() {
 		mc.thePlayer.rotationPitchHead = 90;
+		mc.thePlayer.rotationYawHead = RotationUtils.getMovementYaw() + (tic == 4 ? 180 : 135);
 	}
 
 }

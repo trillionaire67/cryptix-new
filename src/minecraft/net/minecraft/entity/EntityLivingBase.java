@@ -5,6 +5,7 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.Maps;
 
 import cryptix.Client;
+import cryptix.module.visual.Animations;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -1141,9 +1142,17 @@ public abstract class EntityLivingBase extends Entity
         this.dataWatcher.updateObject(9, Byte.valueOf((byte)count));
     }
 
-    private int getArmSwingAnimationEnd()
-    {
-        return this.isPotionActive(Potion.digSpeed) ? 6 - (1 + this.getActivePotionEffect(Potion.digSpeed).getAmplifier()) * 1 : (this.isPotionActive(Potion.digSlowdown) ? 6 + (1 + this.getActivePotionEffect(Potion.digSlowdown).getAmplifier()) * 2 : 6);
+    private int getArmSwingAnimationEnd() {
+    	Animations anim = Client.instance.moduleManager.aminations;
+        int speed = 6 - (anim.isToggled() ? (int)anim.speed.getValue() : 0);
+
+        if (this.isPotionActive(Potion.digSpeed)) {
+            speed -= (1 + this.getActivePotionEffect(Potion.digSpeed).getAmplifier());
+        } else if (this.isPotionActive(Potion.digSlowdown)) {
+            speed += (1 + this.getActivePotionEffect(Potion.digSlowdown).getAmplifier()) * 2;
+        }
+
+        return Math.max(1, speed);
     }
 
     public void swingItem()

@@ -59,7 +59,7 @@ public class TargetHUD extends Module{
 	public TargetHUD() {
 		super("TargetHUD", 0, Category.VISUAL);
 		Client.instance.settingsManager.addSetting(opacity = new Setting("Opacity", this, 100, 0, 155, true));
-		Client.instance.settingsManager.addSetting(mode = new Setting("Mode", this, "Modern", Arrays.asList("Modern", "Novoline", "Zeroday", "Raven")));
+		Client.instance.settingsManager.addSetting(mode = new Setting("Mode", this, "Modern", Arrays.asList("Modern", "Old Modern", "Novoline", "Zeroday", "Raven")));
 		Client.instance.settingsManager.addSetting(font = new Setting("Font", this, "Minecraft", Arrays.asList("Minecraft", "Apple", "Arial", "Product Sans")));
 	}
 	
@@ -120,14 +120,14 @@ public class TargetHUD extends Module{
 	
 	private void render(EntityLivingBase target) {
 	    if (target == null) return;
-	    boolean modern = mode.getString().equalsIgnoreCase("Modern");
+	    boolean modern = mode.getString().equalsIgnoreCase("Modern") || mode.getString().equalsIgnoreCase("Old Modern");
 	    ScaledResolution sr = RenderCache.getScaledResolution();
 	    String name = target.getDisplayName().getFormattedText();
 	    String fontName = font.getString().toLowerCase();
 	    int textWidth;
-	    if ("apple".equals(fontName)) textWidth = (int) Client.instance.apple.getStringWidth(name);
-	    else if ("arial".equals(fontName)) textWidth = (int) Client.instance.arial.getStringWidth(name);
-	    else if ("product sans".equals(fontName)) textWidth = (int) Client.instance.sans.getStringWidth(name);
+	    if ("apple".equals(fontName)) textWidth = (int) Client.instance.apple.getStringWidth(name) + 5;
+	    else if ("arial".equals(fontName)) textWidth = (int) Client.instance.arial.getStringWidth(name) + 5;
+	    else if ("product sans".equals(fontName)) textWidth = (int) Client.instance.sans.getStringWidth(name) + 5;
 	    else textWidth = mc.fontRendererObj.getStringWidth(name);
 	    int height = modern ? 40 : 32;
 	    int width = 37 + textWidth;
@@ -162,7 +162,12 @@ public class TargetHUD extends Module{
 	        modern ? color2 : color3,
 	        modern ? color2 : color3
 	    );
-	    if (modern) drawOutline(x, y, height, width, color1, color2);
+	    if (mode.getString().equalsIgnoreCase("Modern")) {
+	    	drawOutline(x, y, height, width, color1, color2);
+	    }
+	    if(mode.getString().equalsIgnoreCase("Old Modern")) {
+	    	RenderUtils.drawOutline(x, y, x + width, y + height, 10.0f, color1, color2);
+	    }
 	    float scale = "minecraft".equalsIgnoreCase(fontName) ? 0.9f : 1.0f;
 	    int nameColor = (adjustedAlpha << 24) | (255 << 16) | (255 << 8) | 255;
 	    float scaledX = (x + 33) / scale;
@@ -234,7 +239,6 @@ public class TargetHUD extends Module{
 	    float healthPercentage = health / maxHealth;
 	    int x = screenX + offsetX;
 	    int y = screenY + offsetY;
-	    handleDragging(x, y, 0, 0);
 	    int moduleOpacity = (int) opacity.getValue();
 	    int adjustedAlpha = (moduleOpacity < alpha) ? moduleOpacity : alpha;
 	    int r, g, b;
@@ -258,6 +262,7 @@ public class TargetHUD extends Module{
 	    }
 	    int width = textWidth + 12;
 	    int height = 35;
+	    handleDragging(x, y, width, height);
 	    RenderUtils.drawRoundedRectangle(x, y, x + width, y + height, 8, backColor);
 	    RenderUtils.drawRoundedRectangle(x + 5,y + height - 13,x - 1 + (int)((width - 4) * healthPercentage),y + height - 8,4.5f,healthColorInt);
 	    if (renderer != null) {

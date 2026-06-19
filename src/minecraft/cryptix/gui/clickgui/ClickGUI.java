@@ -7,6 +7,7 @@ import java.util.Collections;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.util.ChatAllowedCharacters;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -23,6 +24,7 @@ import cryptix.module.Module;
 import cryptix.script.Script;
 import cryptix.utils.RenderCache;
 import cryptix.utils.Utils;
+import cryptix.utils.render.RenderUtils;
 
 public class ClickGUI extends GuiScreen {
     public static ArrayList<Panel> panels;
@@ -33,6 +35,14 @@ public class ClickGUI extends GuiScreen {
     private long lastTime = System.currentTimeMillis();
     public long startTime;
     private static final float DURATION = 0.15f;
+	
+	String searchText = "";
+	private boolean searching = false;
+	
+	private int searchX = 120;
+	private int searchY = 10;
+	private final int searchWidth = 120;
+	private final int searchHeight = 16;
 
     public ClickGUI() {
         FontUtil.setupFontUtils();
@@ -86,8 +96,15 @@ public class ClickGUI extends GuiScreen {
     	progress = progress * progress * (3f - 2f * progress);
     	alpha = (int)(progress * 150);
         final ScaledResolution sr = RenderCache.getScaledResolution();
+        searchX = (sr.getScaledWidth() / 2) - (searchWidth / 2);
+        searchY = 10;
         int backColor = (alpha << 24);
         drawRect(0, 0, sr.getScaledWidth(), sr.getScaledHeight(), backColor);
+        int searchColor = searching ? 0xFFFFFFFF : 0x80FFFFFF;
+        RenderUtils.drawRoundedRectangle(searchX,searchY,searchX + searchWidth,searchY + searchHeight,12,0xFF121212);
+        RenderUtils.drawOutline(searchX,searchY,searchX + searchWidth,searchY + searchHeight,12,searchColor, searchColor);
+        String text = searchText.isEmpty() ? "Search..." : searchText;
+        mc.fontRendererObj.drawString(text,searchX + 4,searchY + 4,searchText.isEmpty() ? 0x888888 : 0xFFFFFF);
         for (int i = 0; i < panels.size(); i++) {
             panels.get(i).drawScreen(mouseX, mouseY, partialTicks);
         }
@@ -159,6 +176,11 @@ public class ClickGUI extends GuiScreen {
 
     @Override
     public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
+    	if (mouseX >= searchX && mouseX <= searchX + searchWidth && mouseY >= searchY && mouseY <= searchY + searchHeight) {
+    	    searching = true;
+    	    return;
+    	}
+    	searching = false;
         if (moduleButton != null) return;
         for (int i = 0; i < reversedPanels.size(); i++) {
             Panel panel = reversedPanels.get(i);
@@ -199,6 +221,22 @@ public class ClickGUI extends GuiScreen {
 
     @Override
     protected void keyTyped(char typedChar, int keyCode) {
+    	if (searching) {
+    	    if (keyCode == Keyboard.KEY_ESCAPE) {
+    	        searching = false;
+    	        return;
+    	    }
+    	    if (keyCode == Keyboard.KEY_BACK) {
+    	        if (!searchText.isEmpty()) {
+    	            searchText = searchText.substring(0, searchText.length() - 1);
+    	        }
+    	        return;
+    	    }
+    	    if (ChatAllowedCharacters.isAllowedCharacter(typedChar)) {
+    	        searchText += typedChar;
+    	    }
+    	    return;
+    	}
         for (int i = 0; i < reversedPanels.size(); i++) {
             Panel panel = reversedPanels.get(i);
             if (!panel.visible || !panel.extended) continue;

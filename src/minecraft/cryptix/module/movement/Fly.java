@@ -38,7 +38,7 @@ public class Fly extends Module {
     private int chargeTicks = 0, lastSlot;
     private float silentPitch = 0.0f;
     
-    public Setting mode = new Setting("Mode", this, "Vanilla", Arrays.asList("Vanilla", "BlocksMC", "Experimental", "Verus", "Vulcan"));
+    public Setting mode = new Setting("Mode", this, "Vanilla", Arrays.asList("Vanilla", "BlocksMC", "Experimental", "Verus", "Vulcan", "OldNCP"));
     private Setting jump = new Setting("Jump on Edge", this, false);
 
     public Fly() {
@@ -67,6 +67,7 @@ public class Fly extends Module {
         if(!mc.thePlayer.onGround && mode.getString().equalsIgnoreCase("BlocksMC")) {
             Utils.sendClientChatMessage("Start on ground");
         }
+        mc.timer.timerSpeed = 1.0f;
     }
     
     @Override
@@ -75,7 +76,30 @@ public class Fly extends Module {
             case "vanilla":
             	i++;
             	if(mc.thePlayer.motionY < 0) {
-            		mc.thePlayer.motionY += 0.026;
+            		mc.thePlayer.motionY = 0;
+            	}
+                break;
+            case "oldncp":
+            	if(mc.thePlayer.onGround) {
+            		mc.thePlayer.jump();
+            		MovementUtils.strafe(0.5);
+            	}else {
+            		mc.thePlayer.motionY = 0;
+            		i++;
+            		mc.timer.timerSpeed = 1.05f;
+            		switch(i) {
+            		case 1:
+            			mc.thePlayer.setPosition(mc.thePlayer.posX, mc.thePlayer.posY + 1.0E-12D, mc.thePlayer.posZ);
+            			break;
+            		case 2:
+            			mc.thePlayer.setPosition(mc.thePlayer.posX, mc.thePlayer.posY - 1.0E-12D, mc.thePlayer.posZ);
+            			break;
+            		case 3:
+            			mc.thePlayer.setPosition(mc.thePlayer.posX, mc.thePlayer.posY + 1.0E-12D, mc.thePlayer.posZ);
+            			i = 0;
+            			break;
+            		}
+            		MovementUtils.strafe(0.26);
             	}
                 break;
 			case "blocksmc":

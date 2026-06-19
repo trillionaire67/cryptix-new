@@ -24,7 +24,7 @@ import net.minecraft.util.EnumFacing;
 
 public class Speed extends Module{
 	private float groundY;
-	private Setting mode = new Setting("Mode", this, "Vanilla", Arrays.asList("Vanilla", "NCP", "Vulcan", "Vulcan New", "Timer"));
+	private Setting mode = new Setting("Mode", this, "Vanilla", Arrays.asList("Vanilla", "NCP", "OldNCP", "Vulcan", "Vulcan New", "Timer"));
 	private Setting rotate = new Setting("Rotate", this, false);
 	public Speed() {
 		super("Speed", 0, Category.MOVEMENT);
@@ -47,6 +47,9 @@ public class Speed extends Module{
 			}else {
 				mc.thePlayer.rotationYawHead = RotationUtils.getMovementYaw() + 180;
 			}
+		}
+		if(this.mode.getString().equalsIgnoreCase("oldncp") && !mc.thePlayer.onGround) {
+			mc.thePlayer.posY = mc.thePlayer.lastTickPosY;
 		}
 	}
 	
@@ -130,24 +133,35 @@ public class Speed extends Module{
 				}
 				break;
 			case "ncp":
+				boolean potion = mc.thePlayer.isPotionActive(Potion.moveSpeed);
 				switch(mc.thePlayer.offGroundTicks) {
 					case 0:
 						mc.thePlayer.motionY = 0.42F;
-						MovementUtils.strafe(0.49);
+						MovementUtils.strafe(potion ? 0.7 : 0.49);
 						break;
 					case 1:
-						MovementUtils.strafe(0.34);
+						MovementUtils.strafe(0.33);
 						break;
 					case 3:
 						mc.thePlayer.motionY -= 0.05;
-						MovementUtils.strafe(0.32);
 						break;
 					case 5:
 						mc.thePlayer.motionY -= 0.17;
-						MovementUtils.strafe(0.3);
+						MovementUtils.strafe();
 						break;
 				}
 				break;
+			case "oldncp":
+				if(mc.thePlayer.onGround) {
+					mc.thePlayer.motionY = 0.42F;
+					MovementUtils.strafe(0.85);
+				}else {
+					mc.thePlayer.motionY = -0.5F;
+					MovementUtils.strafe(0.4353);
+				}
+				mc.timer.timerSpeed = 1.05f;
+				break;
+				
 		}
 	}
 	

@@ -54,7 +54,7 @@ public class HUD extends Module {
     private CustomFontRenderer cachedFontRenderer;
     private String cachedFontName;
     private Setting background,watermark, animation, removeVisuals, removeScripts, outline, dynamicIsland, xOffset, offset, removeIP;
-    public Setting color1red, color1green, color1blue, color2red, color2green, color2blue;
+    public Setting color1red, color1green, color1blue, color2red, color2green, color2blue, hideBoss;
     public Setting lowercase, font, tablistHeight;
     private float islandWidth, islandHeight;
     private int cachedBlockCount = -1;
@@ -83,9 +83,9 @@ public class HUD extends Module {
         Client.instance.settingsManager.addSetting(removeVisuals = new Setting("Remove Visuals", this, false));
         Client.instance.settingsManager.addSetting(removeScripts = new Setting("Remove Scripts", this, false));
         Client.instance.settingsManager.addSetting(removeIP = new Setting("Hide IP", this, false));
+        Client.instance.settingsManager.addSetting(hideBoss = new Setting("Hide Boss", this, false));
         Client.instance.settingsManager.addSetting(xOffset = new Setting("X Offset", this, 10, 0, 10, 1));
         Client.instance.settingsManager.addSetting(offset = new Setting("Y Offset", this, 10, 0, 50, 1));
-        Client.instance.settingsManager.addSetting(tablistHeight = new Setting("Tablist Height", this, 0, -40, 20, true));
         try {
             InputStream inputStream = getClass().getResourceAsStream("/assets/minecraft/cryptix/cryptixlogo.png");
             if (inputStream != null) {
@@ -193,13 +193,13 @@ public class HUD extends Module {
         }
         for (Script s : scripts) {
             if (!s.isEnabled() || removeScr) continue;
-            String displayName = s.getDisplayName();
+            String displayName = s.getName();
             String name = lower ? displayName.toLowerCase() : displayName;
             float textWidth = (float) (useCustomFont ? fontRenderer.getStringWidth(name) + 2f : fr.getStringWidth(name) + 2f);
             int boxWidth = (int) textWidth + 8;
             int yPos = (int) (yOffset * boxHeight + 1 + yOffsetBase);
             int xPos = (int) (screenWidth - boxWidth - xOffsetVal);
-            float alpha = animate ? (float) Math.min(textWidth, (time - s.getToggleTimestamp()) * 0.5f) : 0f;
+            float alpha = animate ? (float) Math.min(textWidth, (time - 1) * 0.5f) : 0f;
             int color = getColorInt(yOffset * 200_000_000L, 1.0f);
             int animatedTextX = animate ? (int) (xPos + 7 - alpha + textWidth) : xPos + 7;
             int animatedBgX = animate ? (int) (xPos + 5 - alpha + textWidth) : xPos + 5;

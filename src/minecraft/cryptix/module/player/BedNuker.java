@@ -11,6 +11,7 @@ import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
 import cryptix.module.Category;
 import cryptix.module.Module;
+import cryptix.module.combat.KillAura;
 import cryptix.utils.BlinkUtils;
 import cryptix.utils.RotationUtils;
 import cryptix.utils.Utils;
@@ -65,6 +66,7 @@ public class BedNuker extends Module{
 		BlockPos pos = surroundingPos != null ? surroundingPos : bedPos;
 		if(breakProgress > 0 && pos != null) {
 			EnumFacing facing = getFacingFromYaw(mc.thePlayer.rotationYawHead, mc.thePlayer.rotationPitchHead).getOpposite();
+			mc.thePlayer.swingItem();
 			mc.thePlayer.sendQueue.addToSendQueue(new C07PacketPlayerDigging(C07PacketPlayerDigging.Action.ABORT_DESTROY_BLOCK, pos, facing));
 		}
 		breakProgress = 0;
@@ -106,9 +108,16 @@ public class BedNuker extends Module{
 		rotating = false;
 		delayTick++;
 		tick++;
-		if(mc.thePlayer.isUsingItem() || Client.instance.moduleManager.scaffold.isToggled()|| ((Client.instance.moduleManager.killAura.target != null && Client.instance.moduleManager.killAura.oldTarget != null && Client.instance.moduleManager.killAura.swapped) && !ka.getBoolean()) || BlinkUtils.isBlinking()&& !ka.getBoolean() || mc.currentScreen != null) {
+		if(mc.thePlayer.isUsingItem() || Client.instance.moduleManager.scaffold.isToggled() || mc.currentScreen != null) {
 			reset();
 			return;
+		}
+		if(!ka.getBoolean()) {
+			KillAura aura = Client.instance.moduleManager.killAura;
+			if(aura.blocking || aura.swapped || aura.b3 || aura.target != null) {
+				reset();
+				return;
+			}
 		}
 		if(tick < 10) {
 			if(tick == 1 && lastPos != null && !rotate.getBoolean()) {

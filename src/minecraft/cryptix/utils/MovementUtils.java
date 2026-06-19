@@ -5,6 +5,7 @@ import org.lwjgl.input.Keyboard;
 import cryptix.Client;
 import cryptix.other.event.EventManager;
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
@@ -23,7 +24,11 @@ public class MovementUtils {
 	}
 	
 	public static double getSpeed() {
-		return Math.sqrt(mc.thePlayer.motionX * mc.thePlayer.motionX + mc.thePlayer.motionZ * mc.thePlayer.motionZ);
+		return getSpeed(mc.thePlayer);
+	}
+	
+	public static double getSpeed(Entity e) {
+		return Math.sqrt(e.motionX * e.motionX + e.motionZ * e.motionZ);
 	}
 	
 	public static void strafe() {

@@ -5,7 +5,9 @@ import com.google.common.collect.Lists;
 import com.mojang.authlib.GameProfile;
 
 import cryptix.Client;
+import cryptix.module.movement.KeepSprint;
 import cryptix.other.event.EventManager;
+import cryptix.utils.Utils;
 
 import java.util.Collection;
 import java.util.List;
@@ -112,7 +114,7 @@ public abstract class EntityPlayer extends EntityLivingBase
     public float experience;
     private int xpSeed;
     private ItemStack itemInUse;
-    private int itemInUseCount;
+    public int itemInUseCount;
     protected float speedOnGround = 0.1F;
     protected float speedInAir = 0.02F;
     private int lastXPSound;
@@ -1191,7 +1193,8 @@ public abstract class EntityPlayer extends EntityLivingBase
                         if (i > 0)
                         {
                             targetEntity.addVelocity((double)(-MathHelper.sin(this.rotationYaw * (float)Math.PI / 180.0F) * (float)i * 0.5F), 0.1D, (double)(MathHelper.cos(this.rotationYaw * (float)Math.PI / 180.0F) * (float)i * 0.5F));
-                            if(!Client.instance.moduleManager.getModuleByName("KeepSprint").isToggled()) {
+                            KeepSprint keepsprint = (KeepSprint) Client.instance.moduleManager.getModuleByName("KeepSprint");
+                            if(!keepsprint.isToggled()) {
                             	this.motionX *= 0.6D;
                             	this.motionZ *= 0.6D;
                             	this.setSprinting(false);

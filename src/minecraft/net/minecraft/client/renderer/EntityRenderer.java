@@ -7,6 +7,7 @@ import com.google.gson.JsonSyntaxException;
 import cryptix.Client;
 import cryptix.gui.MainMenu;
 import cryptix.other.event.EventManager;
+import cryptix.other.event.events.RotationEvent;
 import cryptix.utils.RenderCache;
 import cryptix.utils.Utils;
 
@@ -1245,8 +1246,7 @@ public class EntityRenderer implements IResourceManagerReloadListener
             }
         }
         if (this.mc.inGameHasFocus && flag) {
-        	this.mc.thePlayer.fixedRotationPitch = this.mc.thePlayer.rotationPitchHead;
-        	this.mc.thePlayer.fixedRotationYaw = this.mc.thePlayer.rotationYawHead;
+        	
         }
 
         this.mc.mcProfiler.endSection();

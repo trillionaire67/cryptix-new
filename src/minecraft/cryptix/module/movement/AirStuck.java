@@ -29,14 +29,15 @@ public class AirStuck extends Module{
 	
 	@Override
 	public void onRender2D() {
-		if(!rotate.getBoolean()) {
-			mc.thePlayer.rotationYaw = yaw;
-			mc.thePlayer.rotationPitch = pitch;
-		}
+		
 	}
 	
 	@Override
 	public void onPreMotion() {
+		if(!rotate.getBoolean()) {
+			mc.thePlayer.rotationYaw = yaw;
+			mc.thePlayer.rotationPitch = pitch;
+		}
 		ticks++;
 		if(ticks >= 15) {
         	ticks = 0;
@@ -55,8 +56,10 @@ public class AirStuck extends Module{
 	public void onEvent(Event event) {
 		if(event instanceof PacketSendEvent) {
 			PacketSendEvent e = (PacketSendEvent) event;
-			if (e.getPacket() instanceof C03PacketPlayer && ticks != 0) {
-	            e.setCancelled(true);
+			if (e.getPacket() instanceof C03PacketPlayer) {
+				if(ticks != 0) {
+					e.setCancelled(true);
+				}
 	        }
 		}
 	}

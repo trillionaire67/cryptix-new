@@ -7,6 +7,8 @@ import cryptix.gui.clickgui.Setting;
 import cryptix.module.Category;
 import cryptix.module.Module;
 import cryptix.module.combat.AntiBot;
+import cryptix.other.event.Event;
+import cryptix.other.event.events.PacketReceiveEvent;
 import cryptix.utils.BlinkUtils;
 import cryptix.utils.RotationUtils;
 import cryptix.utils.Utils;
@@ -24,6 +26,7 @@ import net.minecraft.network.play.client.C02PacketUseEntity;
 import net.minecraft.network.play.client.C07PacketPlayerDigging;
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
 import net.minecraft.network.play.client.C09PacketHeldItemChange;
+import net.minecraft.network.play.server.S12PacketEntityVelocity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
@@ -66,9 +69,9 @@ extends Module {
     private final Setting delay;
     private final Setting raycast;
     private final Setting reach;
-    private final Setting reach2;
+    private final Setting reach2, switchAttack;
     public Setting rotation;
-    private int reached;
+    private int reached, reduce;
 
     public KillAura() {
         super("KillAura", 0, Category.COMBAT);
@@ -104,6 +107,8 @@ extends Module {
         Client.instance.settingsManager.addSetting(this.delay);
         this.raycast = new Setting("Raycast", this, false);
         Client.instance.settingsManager.addSetting(this.raycast);
+        this.switchAttack = new Setting("Switch On Attack", this, false);
+        Client.instance.settingsManager.addSetting(this.switchAttack);
         this.reach = new Setting("Hypixel Reach Bypass", this, false);
         Client.instance.settingsManager.addSetting(this.reach);
         this.reach2 = new Setting("Hypixel Reach", (Module)this, 3.1, 3.1, 3.5, 1);
@@ -148,18 +153,34 @@ extends Module {
     @Override
     public void onSprint() {
         if (this.b2) {
-            BlinkUtils.stopBlink();
-            BlinkUtils.startBlink();
+            if(this.autoblock.getString().equalsIgnoreCase("Hypixel3")) {
+            	block();
+            }
+            //if(!Client.instance.moduleManager.lagrange.blinking2) {
+	            BlinkUtils.stopBlink();
+	            BlinkUtils.startBlink();
+            //}
             this.b2 = false;
         }
     }
 
-    public void sprint() {
+    @Override
+    public void onEvent(Event e) {
+    	if(e instanceof PacketReceiveEvent) {
+    		PacketReceiveEvent ev = (PacketReceiveEvent) e;
+    		if(ev.getPacket() instanceof S12PacketEntityVelocity) {
+    			S12PacketEntityVelocity packet = (S12PacketEntityVelocity) ev.getPacket();
+    			if(packet.getEntityID() == mc.thePlayer.getEntityId()) {
+    				reduce = 3;
+    			}
+        	}
+    	}
     }
 
     @Override
     public void onPreUpdate() {
         this.setDisplayName(String.valueOf(String.valueOf(this.getName())) + this.getUppercaseSuffix(this.autoblock.getString()));
+        reduce--;
         if (Client.instance.moduleManager.getModuleByName("Scaffold").isToggled() || this.mc.currentScreen != null) {
             this.target = null;
             this.reset();
@@ -234,14 +255,13 @@ extends Module {
                     } else {
                         cps = minCPSi + maxCPSi / 2;
                         delay = 1000 / cps;
-                        if (currentTime - this.lastAttackTime >= (long)delay && this.isTargetInRange(this.target, this.attackRange.getValue())) {
-                            if (this.isTargetInRange(this.target, this.attackRange.getValue())) {
-                                this.attack(this.target, true);
-                                this.lastAttackTime = currentTime;
-                            }
-                        } else if (BlinkUtils.isBlinking()) {
-                            return;
+                        if (currentTime - this.lastAttackTime < (long)delay) {
+                        	return;
                         }
+                        if (this.isTargetInRange(this.target, this.attackRange.getValue())) {
+                            this.attack(this.target, true);
+                        }
+                        this.lastAttackTime = currentTime;
                         if (!Client.instance.moduleManager.noslow.isToggled()) {
                             this.nextTick = -1;
                         }
@@ -333,10 +353,10 @@ extends Module {
                             while (slot == this.mc.thePlayer.inventory.currentItem) {
                                 slot = Utils.random.nextInt(9);
                             }
+                            this.sendPacket(new C09PacketHeldItemChange(slot));
                             if (this.blocking) {
                                 this.unblock();
                             }
-                            this.sendPacket(new C09PacketHeldItemChange(slot));
                             this.swapped = true;
                             ++this.asw;
                             break;
@@ -378,25 +398,24 @@ extends Module {
                 	switch (this.asw) {
 	                    case 0: {
 	                    	b3 = true;
+	                    	if(postBlock) {
+	                    		block();
+		                        BlinkUtils.stopBlink();
+	                    	}
+	                    	BlinkUtils.startBlink();
 	                        ++this.attack;
-	                        int slot = Utils.random.nextInt(9);
-	                        while (slot == this.mc.thePlayer.inventory.currentItem) {
-	                            slot = Utils.random.nextInt(9);
-	                        }
-	                        if (this.blocking) {
+	                        if (this.blocking && !postBlock) {
 	                            this.unblock();
 	                        }
-	                        this.sendPacket(new C09PacketHeldItemChange(slot));
-	                        this.swapped = true;
 	                        ++this.asw;
 	                        break;
 	                    }
 	                    case 1: {
-	                        if (this.swapped) {
-	                            this.sendPacket(new C09PacketHeldItemChange(this.mc.thePlayer.inventory.currentItem));
-	                            this.swapped = false;
+	                    	if (this.blocking) {
+	                            this.unblock();
 	                        }
 	                        ++this.asw;
+	                        break;
 	                    }
 	                    case 2: {
 	                        if (this.isTargetInRange(this.target, this.reach.getBoolean() && this.reached < 2 ? this.reach2.getValue() : this.attackRange.getValue()) && Client.instance.moduleManager.bedNuker.bedPos == null) {
@@ -408,7 +427,14 @@ extends Module {
 	                        if (this.isTargetInRange(this.target, this.attackRange.getValue())) {
 	                            this.reached = 0;
 	                        }
-	                        this.block();
+	                        postBlock = false;
+	                        if(!postBlock) {
+	                        	nextTick = -1;
+		                        block();
+		                        if(!Client.instance.moduleManager.lagrange.blinking2) {
+			                        b2 = true;
+		                        }
+	                        }
 	                        this.asw = 0;
 	                    }
 	                }
@@ -474,6 +500,16 @@ extends Module {
                 this.sendPacket(new C02PacketUseEntity((Entity)e, C02PacketUseEntity.Action.INTERACT));
             }
         }
+        long currentTime = System.currentTimeMillis();
+        if(this.switchAttack.getBoolean()) {
+        	EntityLivingBase newTarget;
+            if (this.validTargets.size() > 1 && this.lastTarget != null) {
+                this.validTargets.remove(this.lastTarget);
+            }
+            int index = Utils.random.nextInt(this.validTargets.size());
+            this.lastTarget = newTarget = this.validTargets.get(index);
+            this.lastSwitchTime = currentTime;
+        }
     }
 
     private boolean isTargetInRange(EntityLivingBase target, double range) {
@@ -508,7 +544,7 @@ extends Module {
             return extendedRangeTarget;
         }
         long currentTime = System.currentTimeMillis();
-        if (this.lastTarget == null || (double)(currentTime - this.lastSwitchTime) > this.switchDelay.getValue() || !this.validTargets.contains(this.lastTarget) || this.lastTarget.isDead) {
+        if (this.lastTarget == null || (double)(currentTime - this.lastSwitchTime) > this.switchDelay.getValue() && !this.switchAttack.getBoolean() || !this.validTargets.contains(this.lastTarget) || this.lastTarget.isDead) {
             EntityLivingBase newTarget;
             if (this.validTargets.size() > 1 && this.lastTarget != null) {
                 this.validTargets.remove(this.lastTarget);
@@ -529,7 +565,7 @@ extends Module {
             this.sendPacket(new C09PacketHeldItemChange(this.mc.thePlayer.inventory.currentItem));
             releasing = true;
         }
-        if ((this.autoblock.getString().equalsIgnoreCase("Hypixel") || this.autoblock.getString().equalsIgnoreCase("Hypixel2") || this.autoblock.getString().equalsIgnoreCase("Hypixel3")) && this.asw == 0 && this.blocking) {
+        if ((this.autoblock.getString().equalsIgnoreCase("Hypixel") || this.autoblock.getString().equalsIgnoreCase("Hypixel2")) && this.blocking) {
             BlinkUtils.startBlink();
             int slot = Utils.random.nextInt(9);
             while (slot == this.mc.thePlayer.inventory.currentItem) {

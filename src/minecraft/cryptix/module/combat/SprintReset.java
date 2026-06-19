@@ -26,6 +26,9 @@ public class SprintReset extends Module{
 	@Override
 	public void onPreMotion() {
 		delay++;
+		if(!mc.thePlayer.isSprinting()) {
+			delay = 0;
+		}
 		if(mode.getString().equalsIgnoreCase("WTap/Legit")) {
 			switch(tick) {
 				case 1:
@@ -54,7 +57,7 @@ public class SprintReset extends Module{
 		if(event instanceof PacketSendEvent) {
 			PacketSendEvent e = (PacketSendEvent) event;
 			if(e.getPacket() instanceof C02PacketUseEntity) {
-				if (((C02PacketUseEntity) e.getPacket()).getAction() == C02PacketUseEntity.Action.ATTACK) {
+				if (((C02PacketUseEntity) e.getPacket()).getAction() == C02PacketUseEntity.Action.ATTACK && mc.thePlayer.isSprinting()) {
 					attack();
 				}
 			}

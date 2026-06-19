@@ -123,14 +123,21 @@ public class InvManager extends Module{
     }
     
     private void getBestGap() {
-        int selectedSlot = (int)gappleSlot.getValue();
+        int selectedSlot = (int) gappleSlot.getValue();
+        int target = selectedSlot - 1;
+
+        if (mc.thePlayer.inventoryContainer.getSlot(target + 36).getHasStack()) {
+        	System.out.println("has");
+            return;
+        }
         int i = 9;
         while (i < 45) {
             ItemStack is;
-            if (mc.thePlayer.inventoryContainer.getSlot(i).getHasStack() && (is = mc.thePlayer.inventoryContainer.getSlot(i).getStack()).getItem() instanceof ItemAppleGold && !mc.thePlayer.inventoryContainer.getSlot(selectedSlot - 1).getHasStack()) {
-                this.swap(i, selectedSlot - 1);
+            if (mc.thePlayer.inventoryContainer.getSlot(i).getHasStack() && (is = mc.thePlayer.inventoryContainer.getSlot(i).getStack()).getItem() instanceof ItemAppleGold) {
+                this.swap(i, target);
                 break;
             }
+
             ++i;
         }
     }

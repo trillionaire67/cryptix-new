@@ -1,5 +1,6 @@
 package cryptix.module.player;
 
+import cryptix.Client;
 import cryptix.module.Category;
 import cryptix.module.Module;
 import net.minecraft.block.Block;
@@ -20,19 +21,24 @@ public class AutoBlockIn extends Module {
 
     @Override
     public void onPreUpdate() {
+    	mc.thePlayer.rotationYawHead = rotations[0];
+    	mc.thePlayer.rotationPitchHead = rotations[1];
         BlockPos base = new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ);
-        if(place(base.add(1, 0, 0))) {
-        	return;
-        }
-        if(place(base.add(-1, 0, 0))) {
-        	return;
-        }
-        if(place(base.add(0, 0, 1))) {
-        	return;
-        }
-        if(place(base.add(0, 0, -1))) {
-        	return;
-        }
+        Client.movefix = true;
+        // 1
+        if(place(base.add(1, 0, 0))) return;
+        if(place(base.add(-1, 0, 0))) return;
+        if(place(base.add(0, 0, 1))) return;
+        if(place(base.add(0, 0, -1))) return;
+
+        // 2
+        if(place(base.add(1, 1, 0))) return;
+        if(place(base.add(-1, 1, 0))) return;
+        if(place(base.add(0, 1, 1))) return;
+        if(place(base.add(0, 1, -1))) return;
+        
+        //head
+        if(place(base.add(0, 2, 0))) return;
     }
     
     @Override
@@ -54,7 +60,7 @@ public class AutoBlockIn extends Module {
             if (side == null) continue;
             float oldYaw = rotations[0], oldPitch = rotations[1];
             faceBlock(neighbor, side);
-            if(rotationTick < 2 || !shouldPlace(oldYaw, oldPitch)) return false;
+            //if(!shouldPlace(oldYaw, oldPitch)) return false;
             Vec3 hitVec = new Vec3(neighbor.getX() + 0.5 + side.getFrontOffsetX() * 0.5,neighbor.getY() + 0.5 + side.getFrontOffsetY() * 0.5,neighbor.getZ() + 0.5 + side.getFrontOffsetZ() * 0.5);
             int old = mc.thePlayer.inventory.currentItem;
             ItemStack stack = mc.thePlayer.inventory.getStackInSlot(slot);
@@ -95,7 +101,7 @@ public class AutoBlockIn extends Module {
     }
     
     private boolean shouldPlace(float oldYaw, float oldPitch) {
-    	if(MathHelper.wrapAngleTo180_double(oldYaw - rotations[0]) < 0.1 && MathHelper.wrapAngleTo180_double(oldPitch - rotations[1]) < 0.1) return true;
+    	if(Math.abs(MathHelper.wrapAngleTo180_double(oldYaw - rotations[0])) < 5 && Math.abs(MathHelper.wrapAngleTo180_double(oldPitch - rotations[1])) < 5) return true;
     	return false;
     }
     
@@ -111,6 +117,5 @@ public class AutoBlockIn extends Module {
         float pitch = (float) -Math.toDegrees(Math.atan2(dy, dist));
 	    rotations[0] = yaw;
 	    rotations[1] = pitch;
-        System.out.println(rotationTick);
     }
 }

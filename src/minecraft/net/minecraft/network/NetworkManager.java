@@ -243,7 +243,6 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
     	PacketSendEvent event = EventManager.PACKET_SEND_EVENT.innit(packetIn);
     	event.call();
     	if (event.isCancelled()) return;
-    	if(!BadPacketsHandler.handle(packetIn)) return;
 	    if(BlinkUtils.isBlinking()) {
 		    BlinkUtils.packets.add(packetIn);
 		    return;
@@ -252,6 +251,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
     		Client.instance.moduleManager.phase.blinkedPackets.clear();
     		BlinkUtils.packets.clear();
     	}
+    	if(!BadPacketsHandler.handle(packetIn)) return;
         if (this.isChannelOpen())
         {
             this.flushOutboundQueue();

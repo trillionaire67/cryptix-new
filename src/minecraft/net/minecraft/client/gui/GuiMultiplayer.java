@@ -16,6 +16,7 @@ import org.lwjgl.input.Keyboard;
 
 public class GuiMultiplayer extends GuiScreen implements GuiYesNoCallback
 {
+	public static ServerData currentServer;
     private static final Logger logger = LogManager.getLogger();
     private final OldServerPinger oldServerPinger = new OldServerPinger();
     private GuiScreen parentScreen;
@@ -369,6 +370,7 @@ public class GuiMultiplayer extends GuiScreen implements GuiYesNoCallback
 
     private void connectToServer(ServerData server)
     {
+    	currentServer = server;
         this.mc.displayGuiScreen(new GuiConnecting(this, this.mc, server));
     }
 

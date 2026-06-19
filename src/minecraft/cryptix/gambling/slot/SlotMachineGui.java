@@ -8,20 +8,22 @@ import net.minecraft.client.renderer.GlStateManager;
 
 import java.io.IOException;
 
-public class SlotMachineGui extends GuiScreen {
+import cryptix.utils.render.RenderUtils;
 
+public class SlotMachineGui extends GuiScreen {
+	private long lastTime;
     private final SlotMachine machine = new SlotMachine();
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         this.drawDefaultBackground();
-
-        machine.update();
-
+        long curr = System.currentTimeMillis();
+        if(curr - lastTime > 20) {
+        	machine.update();
+        	lastTime = curr;
+        }
         drawCenteredString(this.fontRendererObj, "Slot Machine", this.width / 2, 40, 0xFFFFFF);
-
         SlotReel[] reels = machine.getReels();
-
         for (int i = 0; i < reels.length; i++) {
             float x = this.width / 2 - 60 + (i * 40);
             float y = this.height / 2;
@@ -33,18 +35,17 @@ public class SlotMachineGui extends GuiScreen {
             drawCenteredString(this.fontRendererObj,
                 "Won: " + machine.getPayout(),
                 this.width / 2,
-                this.height / 2 + 40,
+                this.height / 2 + 120,
                 0x00FF00
             );
         } else {
             drawCenteredString(this.fontRendererObj,
                 "Spinning...",
                 this.width / 2,
-                this.height / 2 + 40,
+                this.height / 2 + 120,
                 0xAAAAAA
             );
         }
-
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
 

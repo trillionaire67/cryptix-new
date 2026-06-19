@@ -126,6 +126,54 @@ public class RenderUtils {
 	    GL11.glEnd();
 	}
 	
+	public static void drawOutline(float x1, float y1, float x2, float y2, float radius, int color1, int color2) {
+	    x1 *= 2F;
+	    y1 *= 2F;
+	    x2 *= 2F;
+	    y2 *= 2F;
+	    final double r = radius;
+	    final double left   = x1 + r;
+	    final double right  = x2 - r;
+	    final double top    = y1 + r;
+	    final double bottom = y2 - r;
+	    GL11.glPushAttrib(GL11.GL_ENABLE_BIT);
+	    GL11.glPushMatrix();
+	    GL11.glScaled(0.5, 0.5, 0.5);
+	    GL11.glEnable(GL11.GL_BLEND);
+	    GL11.glDisable(GL11.GL_TEXTURE_2D);
+	    GL11.glEnable(GL11.GL_LINE_SMOOTH);
+	    GL11.glShadeModel(GL11.GL_SMOOTH);
+	    GL11.glLineWidth(2.0F);
+	    GL11.glBegin(GL11.GL_LINE_LOOP);
+	    if (color1 != 0) {
+	        GL11.glColor4ub((byte) (color1 >> 16),(byte) (color1 >> 8),(byte) color1,(byte) (color1 >> 24));
+	    }
+	    for (int i = 0; i <= 30; i++) {
+	        GL11.glVertex2d(left - sinValues[i] * r,top - cosValues[i] * r);
+	    }
+	    for (int i = 30; i <= 60; i++) {
+	        GL11.glVertex2d(left - sinValues[i] * r,bottom - cosValues[i] * r);
+	    }
+	    if (color2 != 0) {
+	        GL11.glColor4ub((byte) (color2 >> 16),(byte) (color2 >> 8),(byte) color2,(byte) (color2 >> 24));
+	    }
+	    for (int i = 0; i <= 30; i++) {
+	        GL11.glVertex2d(right + sinValues[i] * r,bottom + cosValues[i] * r);
+	    }
+	    for (int i = 30; i <= 60; i++) {
+	        GL11.glVertex2d(right + sinValues[i] * r,top + cosValues[i] * r);
+	    }
+	    GL11.glEnd();
+	    GL11.glLineWidth(1.0F);
+	    GL11.glShadeModel(GL11.GL_FLAT);
+	    GL11.glDisable(GL11.GL_LINE_SMOOTH);
+	    GL11.glEnable(GL11.GL_TEXTURE_2D);
+	    GL11.glDisable(GL11.GL_BLEND);
+	    GL11.glPopMatrix();
+	    GL11.glPopAttrib();
+	    GlStateManager.color(1F, 1F, 1F, 1F);
+	}
+	
 	public static void startRoundedRectangle() {
 		GL11.glPushMatrix();
 	    GL11.glScaled(0.5, 0.5, 1.0);

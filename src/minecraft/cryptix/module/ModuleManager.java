@@ -54,7 +54,7 @@ public class ModuleManager {
 	public AutoRod autorod;
 	public Speed speed;
 	public NoHurtCam noHurtCam;
-	
+	public Scoreboard scoreboard;
 	public ModuleManager() {
 		//Modules goes here
 		//Combat
@@ -66,6 +66,7 @@ public class ModuleManager {
 		modules.add(killAura = new KillAura());
 		modules.add(killsults = new Killsults());
 		modules.add(lagrange = new LagRange());
+		//modules.add(new Reach());
 		modules.add(new SprintReset());
 		modules.add(velo = new Velocity());
 		//Exploit
@@ -90,7 +91,7 @@ public class ModuleManager {
 		//Player
 		modules.add(new AntiFireBall());
 		modules.add(antiVoid = new AntiVoid());
-		//modules.add(new AutoBlockIn());
+		modules.add(new AutoBlockIn());
 		modules.add(new AutoFish());
 		modules.add(autoPlay = new AutoPlay());
 		modules.add(new AutoTool());
@@ -124,6 +125,7 @@ public class ModuleManager {
 		modules.add(new NameTags());
 		modules.add(noHurtCam = new NoHurtCam());
 		modules.add(new PlayerESP());
+		modules.add(scoreboard = new Scoreboard());
 		modules.add(sessionInfo = new SessionInfo());
 		modules.add(new TargetHUD());
 		modules.add(new Weather());

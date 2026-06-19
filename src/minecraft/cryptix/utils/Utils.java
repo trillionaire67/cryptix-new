@@ -11,7 +11,10 @@ import java.util.Random;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
+
+import com.google.gson.JsonObject;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
@@ -45,6 +48,7 @@ import net.minecraft.scoreboard.ScorePlayerTeam;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3;
 import net.minecraft.network.play.client.C01PacketChatMessage;
 
@@ -133,13 +137,69 @@ public class Utils {
         return getStrVsBlock;
     }
 	
+	public static <E extends Enum<E>> E getEnum(Class<E> enumClass, String value) {
+        for (E enumConstant : enumClass.getEnumConstants()) {
+            if (enumConstant.name().equals(value)) {
+                return enumConstant;
+            }
+        }
+        return null;
+    }
+	
 	public static boolean isInteractable(Block block) {
         return block instanceof BlockFurnace || block instanceof BlockFenceGate || block instanceof BlockChest || block instanceof BlockEnderChest || block instanceof BlockEnchantmentTable || block instanceof BlockBrewingStand || block instanceof BlockBed || block instanceof BlockDropper || block instanceof BlockDispenser || block instanceof BlockHopper || block instanceof BlockAnvil || block == Blocks.crafting_table;
+    }
+	
+	public static boolean onEdge(Entity entity) {
+        return mc.theWorld.getCollidingBoundingBoxes(entity, entity.getEntityBoundingBox().offset(entity.motionX / 3.0D, -1.0D, entity.motionZ / 3.0D)).isEmpty();
     }
 	
 	public static int randomInt(int min, int max) {
 	    return random.nextInt(max - min) + min;
 	}
+	
+	public static boolean inBetween(double min, double max, double value) {
+        return value >= min && value <= max;
+    }
+	
+	public static boolean isDiagonal(boolean strict) {
+        float yaw = ((mc.thePlayer.rotationYaw % 360) + 360) % 360;
+        yaw = yaw > 180 ? yaw - 360 : yaw;
+        boolean isYawDiagonal = inBetween(-170, 170, yaw) && !inBetween(-10, 10, yaw) && !inBetween(80, 100, yaw) && !inBetween(-100, -80, yaw);
+       if (strict) {
+           isYawDiagonal = inBetween(-178.5, 178.5, yaw) && !inBetween(-1.5, 1.5, yaw) && !inBetween(88.5, 91.5, yaw) && !inBetween(-91.5, -88.5, yaw);
+       }
+        boolean isStrafing = Keyboard.isKeyDown(mc.gameSettings.keyBindLeft.getKeyCode()) || Keyboard.isKeyDown(mc.gameSettings.keyBindRight.getKeyCode());
+        return isYawDiagonal || isStrafing;
+    }
+	
+	public static String extractFileName(String name) {
+        int firstIndex = name.indexOf("_");
+        int lastIndex = name.lastIndexOf("_");
+
+        if (firstIndex != -1 && lastIndex != -1 && lastIndex > firstIndex) {
+            return name.substring(firstIndex + 1, lastIndex);
+        } else {
+            return name;
+        }
+    }
+	
+	public static String getString(final JsonObject type, final String member) {
+        try {
+            return type.get(member).getAsString();
+        }
+        catch (Exception er) {
+            return "";
+        }
+    }
+	
+	public static net.minecraft.block.Block getBlockFromName(String name) {
+        return net.minecraft.block.Block.blockRegistry.getObject(new ResourceLocation("minecraft:" + name));
+    }
+	
+	public static double distanceToGround(Entity entity) {
+        return mc.thePlayer.fallDistance;
+    }
 	
 	public static boolean isLookingAtBlock() {
         Vec3 start = new Vec3(mc.thePlayer.posX, mc.thePlayer.posY + (double)mc.thePlayer.getEyeHeight(), mc.thePlayer.posZ);
@@ -159,6 +219,10 @@ public class Utils {
 	
 	public static void sendClientChatMessage(String msg) {
 		mc.ingameGUI.getChatGUI().printChatMessage(new ChatComponentText("§f["+"§aCryptix"+"§f] "+msg));
+	}
+	
+	public static void sendRawMessage(String msg) {
+		mc.ingameGUI.getChatGUI().printChatMessage(new ChatComponentText(msg));
 	}
 	
 	public static void sendServerChatMessage(String msg) {

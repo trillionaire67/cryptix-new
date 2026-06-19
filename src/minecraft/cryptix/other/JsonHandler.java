@@ -229,7 +229,7 @@ public class JsonHandler {
                  if (jsonSettings != null && Client.instance.settingsManager.getSettings() != null) {
                      for (Setting setting : Client.instance.settingsManager.getSettingsByMod(mod)) {
                          if (jsonSettings.has(setting.getName())) {
-                             if (setting.isModeBox()) {
+                        	 if (setting.isModeBox()) {
                                  String value = jsonSettings.get(setting.getName()).getAsString();
                                  Client.instance.settingsManager.getSettingByName(mod, setting.getName()).setString(value);
                              } else if (setting.isCheckBox()) {

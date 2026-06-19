@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 
 import cryptix.Client;
 import cryptix.utils.RenderCache;
+import cryptix.utils.render.RenderUtils;
 
 import java.util.Collection;
 import java.util.List;
@@ -59,7 +60,7 @@ public class GuiIngame extends Gui
     private final GuiNewChat persistantChatGUI;
     private final GuiStreamIndicator streamIndicator;
     private int updateCounter;
-    private String recordPlaying = "";
+    public String recordPlaying = "";
     private int recordPlayingUpFor;
     private boolean recordIsPlaying;
     public float prevVignetteBrightness = 1.0F;
@@ -69,8 +70,8 @@ public class GuiIngame extends Gui
     private final GuiSpectator spectatorGui;
     private final GuiPlayerTabOverlay overlayPlayerList;
     private int titlesTimer;
-    private String displayedTitle = "";
-    private String displayedSubTitle = "";
+    public String displayedTitle = "";
+    public String displayedSubTitle = "";
     private int titleFadeIn;
     private int titleDisplayTime;
     private int titleFadeOut;
@@ -563,11 +564,20 @@ public class GuiIngame extends Gui
         }
 
         int i1 = collection.size() * this.getFontRenderer().FONT_HEIGHT;
-        int j1 = scaledRes.getScaledHeight() / 2 + i1 / 3;
+        cryptix.module.visual.Scoreboard board = Client.instance.moduleManager.scoreboard;
+        boolean toggled = board.isToggled();
+        int round = toggled ? (int) board.round.getValue() : 0;
+        int height = toggled ? (int) board.height.getValue() : 0;
+        int j1 = scaledRes.getScaledHeight() / 2 + i1 / 3 - (height * 5);
         int k1 = 3;
         int l1 = scaledRes.getScaledWidth() - i - k1;
         int j = 0;
-
+        int top = j1 - collection.size() * this.getFontRenderer().FONT_HEIGHT - this.getFontRenderer().FONT_HEIGHT - 2;
+        int right = scaledRes.getScaledWidth() - k1 + 3;
+        int bottom = j1 + 1;
+        if(toggled) {
+        	RenderUtils.drawRoundedRectangle(l1 - 3,top,right,bottom,round,1342177280);
+        }
         for (Score score1 : collection)
         {
             ++j;
@@ -576,15 +586,18 @@ public class GuiIngame extends Gui
             String s2 = EnumChatFormatting.RED + "" + score1.getScorePoints();
             int k = j1 - j * this.getFontRenderer().FONT_HEIGHT;
             int l = scaledRes.getScaledWidth() - k1 + 2;
-            drawRect(l1 - 2, k, l, k + this.getFontRenderer().FONT_HEIGHT, 1342177280);
+            if(!toggled) {
+            	drawRect(l1 - 2, k, l, k + this.getFontRenderer().FONT_HEIGHT, 1342177280);
+            }
             this.getFontRenderer().drawString(s1, l1, k, 553648127);
             this.getFontRenderer().drawString(s2, l - this.getFontRenderer().getStringWidth(s2), k, 553648127);
 
             if (j == collection.size())
             {
                 String s3 = objective.getDisplayName();
-                drawRect(l1 - 2, k - this.getFontRenderer().FONT_HEIGHT - 1, l, k - 1, 1610612736);
-                drawRect(l1 - 2, k - 1, l, k, 1342177280);
+                if(!toggled) {
+                	drawRect(l1 - 2, k - this.getFontRenderer().FONT_HEIGHT - 1, l, k, 1610612736);
+                }
                 this.getFontRenderer().drawString(s3, l1 + i / 2 - this.getFontRenderer().getStringWidth(s3) / 2, k - this.getFontRenderer().FONT_HEIGHT, 553648127);
             }
         }
@@ -881,6 +894,7 @@ public class GuiIngame extends Gui
 
     private void renderBossHealth()
     {
+    	if(Client.instance.moduleManager.hud.isToggled() && Client.instance.moduleManager.hud.hideBoss.getBoolean()) return;
         if (BossStatus.bossName != null && BossStatus.statusBarTime > 0)
         {
             --BossStatus.statusBarTime;

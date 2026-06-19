@@ -11,7 +11,10 @@ import cryptix.gui.clickgui.Setting;
 import cryptix.module.Category;
 import cryptix.module.Module;
 import cryptix.utils.FrustumUtils;
+import cryptix.utils.RenderCache;
+import cryptix.utils.render.RenderUtils;
 import net.minecraft.block.Block;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.Tessellator;
@@ -28,7 +31,7 @@ import net.minecraft.util.EnumFacing;
 public class ChestESP extends Module {
 	private BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
 	private final EnumFacing[] FACINGS = EnumFacing.values();
-	private Setting mode = new Setting("Mode", this, "Outline", Arrays.asList("Outline", "Box"));
+	private Setting mode = new Setting("Mode", this, "Outline", Arrays.asList("Outline", "Box", "2D"));
 	private Setting enderchest = new Setting("Ender Chest", this, false);
 	private Setting r = new Setting("Red", this, 255, 0, 255, true);
 	private Setting g = new Setting("Green", this, 255, 0, 255, true);
@@ -41,6 +44,9 @@ public class ChestESP extends Module {
 
     @Override
     public void onRender3D() {
+    	if (mode.getString().equalsIgnoreCase("2D")) {
+            return;
+        }
     	boolean outline = mode.getString().equalsIgnoreCase("outline");
     	GlStateManager.enableBlend();
     	GlStateManager.disableTexture2D();
@@ -74,6 +80,98 @@ public class ChestESP extends Module {
         GlStateManager.enableTexture2D();
         GlStateManager.disableBlend();
     }
+    
+    @Override
+    public void onRender2D() {
+    	if (!mode.getString().equalsIgnoreCase("2D")) {
+            return;
+        }
+    	ScaledResolution sr = RenderCache.getScaledResolution();
+    	int scale = sr.getScaleFactor();
+    	double viewerX = mc.getRenderManager().viewerPosX;
+        double viewerY = mc.getRenderManager().viewerPosY;
+        double viewerZ = mc.getRenderManager().viewerPosZ;
+        Tessellator tess = Tessellator.getInstance();
+        WorldRenderer wr = tess.getWorldRenderer();
+        GlStateManager.disableTexture2D();
+        GlStateManager.enableBlend();
+        GL11.glColor4f((float) (r.getValue() / 255.0),(float) (g.getValue() / 255.0),(float) (b.getValue() / 255.0),1.0F);
+        wr.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
+    	for (TileEntity tileEntity : mc.theWorld.loadedTileEntityList) {
+            if (tileEntity instanceof TileEntityChest || (tileEntity instanceof TileEntityEnderChest && enderchest.getBoolean())) {
+            	BlockPos pos = tileEntity.getPos();
+                double x = pos.getX() - viewerX;
+                double y = pos.getY() - viewerY;
+                double z = pos.getZ() - viewerZ;
+                if(!FrustumUtils.isVisible(x + viewerX, y + viewerY, z + viewerZ, x + 1 + viewerX, y + 1 + viewerY, z + 1 + viewerZ)) continue;
+                draw2DESP(x,y,z,x+1,y+1,z+1, scale, wr);
+            }
+    	}
+
+    	tess.draw();
+    	GlStateManager.disableBlend();
+    	GlStateManager.enableTexture2D();
+    }
+    
+    private void draw2DESP(double minX, double minY, double minZ, double maxX, double maxY, double maxZ, int scale, WorldRenderer wr) {
+    	float screenMinX = Float.MAX_VALUE;
+        float screenMinY = Float.MAX_VALUE;
+        float screenMaxX = -Float.MAX_VALUE;
+        float screenMaxY = -Float.MAX_VALUE;
+        for (int i = 0; i < 8; i++) {
+        	double x = (i & 1) == 0 ? minX : maxX;
+            double y = (i & 2) == 0 ? minY : maxY;
+            double z = (i & 4) == 0 ? minZ : maxZ;
+            double[] screen = RenderUtils.worldToScreen(x, y, z, scale);
+            if (screen == null)
+                continue;
+            float px = (float) screen[0];
+            float py = (float) screen[1];
+            if (px < screenMinX) screenMinX = px;
+            if (py < screenMinY) screenMinY = py;
+            if (px > screenMaxX) screenMaxX = px;
+            if (py > screenMaxY) screenMaxY = py;
+        }
+        if (minX == Float.MAX_VALUE)
+            return;
+        float left = screenMinX;
+        float right = screenMaxX;
+        float top = screenMinY;
+        float bottom = screenMaxY;
+
+        draw2DBox(left, top, right, bottom, 0xFFFFFFFF);
+    }
+    
+    private void draw2DBox(double left, double top, double right, double bottom, int color) {
+	    if (left < right) {
+	        double i = left;
+	        left = right;
+	        right = i;
+	    }
+	    if (top < bottom) {
+	        double j = top;
+	        top = bottom;
+	        bottom = j;
+	    }
+	    Tessellator tess = Tessellator.getInstance();
+	    WorldRenderer wr = tess.getWorldRenderer();
+	    wr.pos(left, top, 0).endVertex();
+	    wr.pos(right, top, 0).endVertex();
+	    wr.pos(right, top + 1, 0).endVertex();
+	    wr.pos(left, top + 1, 0).endVertex();
+	    wr.pos(left, bottom, 0).endVertex();
+	    wr.pos(right, bottom, 0).endVertex();
+	    wr.pos(right, bottom + 1, 0).endVertex();
+	    wr.pos(left, bottom + 1, 0).endVertex();
+	    wr.pos(left, top, 0).endVertex();
+	    wr.pos(left + 1, top, 0).endVertex();
+	    wr.pos(left + 1, bottom, 0).endVertex();
+	    wr.pos(left, bottom, 0).endVertex();
+	    wr.pos(right, top, 0).endVertex();
+	    wr.pos(right + 1, top, 0).endVertex();
+	    wr.pos(right + 1, bottom, 0).endVertex();
+	    wr.pos(right, bottom, 0).endVertex();
+	}
     
     private void drawFilledBox(double minX, double minY, double minZ, double maxX, double maxY, double maxZ, WorldRenderer renderer, BlockPos chest, TileEntity tileEntity) {
     	for (int i = 0; i < 2; i++) {

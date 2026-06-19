@@ -7,6 +7,7 @@ import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
 import cryptix.other.JsonHandler;
 import cryptix.other.event.Event;
+import cryptix.script.Script;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.ISound;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -15,7 +16,7 @@ import net.minecraft.util.ResourceLocation;
 
 public abstract class Module {
 	private static ResourceLocation iSound = new ResourceLocation("gui.button.press");
-	protected final Minecraft mc = Minecraft.getMinecraft();
+	protected static final Minecraft mc = Minecraft.getMinecraft();
 	private String name, displayName, displayNameLower;
 	private int key;
 	private final Category category;

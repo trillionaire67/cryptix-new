@@ -47,7 +47,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
  
 public class Client {
-	public static String name = "Cryptix", version = "5.7";
+	public static String name = "Cryptix", version = "5.7.4";
 	public static long frameTime;
 	public static String apikey = "";
 	public boolean altFinder = false;

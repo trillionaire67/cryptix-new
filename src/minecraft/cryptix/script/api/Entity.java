@@ -133,6 +133,12 @@ public class Entity extends LuaTable {
                 return LuaValue.valueOf(entity.fallDistance);
             }
         });
+        set("getNoClip", new ZeroArgFunction() {
+            @Override
+            public LuaValue call() {
+                return LuaValue.valueOf(entity.noClip);
+            }
+        });
     }
     
     public net.minecraft.entity.Entity getEntity() {
