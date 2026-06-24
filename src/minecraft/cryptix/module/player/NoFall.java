@@ -6,6 +6,7 @@ import java.util.List;
 
 import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.ModeSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
 import cryptix.utils.MovementUtils;
@@ -19,13 +20,12 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Vec3;
 
 public class NoFall extends Module{
-	private Setting mode;
+	private ModeSetting mode = new ModeSetting("Mode", this, "Packet", Arrays.asList("Packet", "Clip", "Timer", "Ground", "NoGround"));
 	private float fallDist;
 	public boolean spoof, timer, blinking;
 	public NoFall() {
 		super("NoFall", 0, Category.PLAYER);
-		ArrayList<String> modes = new ArrayList<String>(Arrays.asList("Packet", "Clip", "Timer"));
-		Client.instance.settingsManager.addSetting(mode = new Setting("Mode", this, "Packet", modes));
+		this.addSetting(mode);
 	}
 	
 	@Override
@@ -52,6 +52,12 @@ public class NoFall extends Module{
 				mc.timer.timerSpeed = 1.0F;
 				timer = false;
 			}
+		}
+		if(mode.getString().equalsIgnoreCase("Ground")) {
+			spoof = true;
+		}
+		if(mode.getString().equalsIgnoreCase("NoGround")) {
+			spoof = false;
 		}
 	}
 

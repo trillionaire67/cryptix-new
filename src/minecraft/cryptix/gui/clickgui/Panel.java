@@ -96,8 +96,10 @@ public class Panel {
 		            currentHeight = 0;
 		        }
 		    }
+		    int alphaSet = (int) Client.instance.moduleManager.clickGUI.alphaSetting.getValue();
+		    int color = (alphaSet << 24) | 0x001A1A1A;
 		    RenderUtils.startRoundedRectangle();
-		    RenderUtils.drawRoundedRectangleNoRender(x, y, x + width, (float) (startY + currentHeight + 6), Client.instance.moduleManager.clickGUI.square.getBoolean() ? 0 : 12, 0xFF1A1A1A);
+		    RenderUtils.drawRoundedRectangleNoRender(x, y, x + width, (float) (startY + currentHeight + 6), Client.instance.moduleManager.clickGUI.square.getBoolean() ? 0 : 12, color);
 		    RenderUtils.drawRoundedRectangleNoRender(x, y - 2, x + width, y + height, Client.instance.moduleManager.clickGUI.square.getBoolean() ? 0 : 12, 0xFF121212);
 		    RenderUtils.stopRoundedRectangle();
 		    for (ModuleButton et : Elements) {

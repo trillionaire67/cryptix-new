@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.ModeSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
 import cryptix.utils.BlinkUtils;
@@ -11,7 +12,7 @@ import cryptix.utils.RenderCache;
 import net.minecraft.client.gui.ScaledResolution;
 
 public class Blink extends Module{
-	private Setting mode = new Setting("Mode", this, "Normal", Arrays.asList("Normal", "Hypixel"));
+	private ModeSetting mode = new ModeSetting("Mode", this, "Normal", Arrays.asList("Normal", "Hypixel"));
 	private int ticks;
 	
 	public Blink() {

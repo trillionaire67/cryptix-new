@@ -8,6 +8,7 @@ import org.lwjgl.opengl.GL11;
 import cryptix.Client;
 import cryptix.font.CustomFontRenderer;
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.BooleanSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
 import cryptix.utils.RenderCache;
@@ -21,7 +22,7 @@ public class SessionInfo extends Module{
 	private long startTime;
 	public int kills, offsetX = -200, offsetY, lastMouseX, lastMouseY;
 	private boolean isDragging = false;
-	private Setting glow = new Setting("Glow", this, false);
+	private BooleanSetting glow = new BooleanSetting("Glow", this, false);
 	public SessionInfo() {
 		super("SessionInfo", 0, Category.VISUAL);
 		this.addSetting(glow);

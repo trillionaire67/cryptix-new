@@ -6,6 +6,9 @@ import java.util.List;
 
 import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.BooleanSetting;
+import cryptix.gui.clickgui.settings.DoubleSetting;
+import cryptix.gui.clickgui.settings.ModeSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
 import cryptix.other.event.Event;
@@ -42,7 +45,9 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 
 public class Velocity extends Module{
-	private Setting mode, jump, chance, kb;
+	private DoubleSetting chance;
+	private BooleanSetting jump, kb;
+	private ModeSetting mode = new ModeSetting("Mode", this, "None", Arrays.asList("None", "Delay", "BlocksMC", "Vulcan", "Cancel"));
 	private int tick, delayTick;
 	public boolean delaying;
 	public int ticks, sent;
@@ -53,10 +58,10 @@ public class Velocity extends Module{
 	private boolean trans;
 	public Velocity() {
 		super("Velocity", 0, Category.COMBAT);
-		Client.instance.settingsManager.addSetting(chance = new Setting("Chance", this, 100, 10, 100, true));
-		Client.instance.settingsManager.addSetting(jump = new Setting("Jump Reset", this, true));
-		Client.instance.settingsManager.addSetting(kb = new Setting("Delay with Large KB", this, true));
-		Client.instance.settingsManager.addSetting(mode = new Setting("Mode", this, "None", Arrays.asList("None", "Delay", "BlocksMC", "Vulcan")));
+		Client.instance.settingsManager.addSetting(chance = new DoubleSetting("Chance", this, 100, 10, 100, true));
+		Client.instance.settingsManager.addSetting(jump = new BooleanSetting("Jump Reset", this, true));
+		Client.instance.settingsManager.addSetting(kb = new BooleanSetting("Delay with Large KB", this, true));
+		Client.instance.settingsManager.addSetting(mode);
 	}
 	
 	@Override
@@ -95,7 +100,7 @@ public class Velocity extends Module{
 	public void onPreInput() {
 		if(tick == 2 && mc.thePlayer.onGround && mc.thePlayer.isSprinting() && !mc.thePlayer.isPotionActive(Potion.jump)) {
 			mc.thePlayer.movementInput.jump = true;
-			Utils.sendClientChatMessage("jump");
+			//Utils.sendClientChatMessage("jump");
 		}
 	}
 	
@@ -157,6 +162,9 @@ public class Velocity extends Module{
 		                dely = false;
 		                return;
 		            }
+				}
+				if(mode.getString().equalsIgnoreCase("Cancel")) {
+					e.setCancelled(true);
 				}
 				if((mode.getString().equalsIgnoreCase("BlocksMC"))) {
 					final S12PacketEntityVelocity wrapper = (S12PacketEntityVelocity) packet;

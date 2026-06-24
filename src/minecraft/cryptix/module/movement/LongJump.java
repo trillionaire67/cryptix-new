@@ -6,10 +6,13 @@ import java.util.List;
 
 import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.BooleanSetting;
+import cryptix.gui.clickgui.settings.ModeSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
 import cryptix.other.event.Event;
 import cryptix.other.event.events.PacketReceiveEvent;
+import cryptix.other.event.events.RotationEvent;
 import cryptix.utils.MovementUtils;
 import cryptix.utils.RotationUtils;
 import cryptix.utils.Utils;
@@ -28,8 +31,8 @@ public class LongJump extends Module{
 	private boolean fart, send, delaying;
 	private int tic, lastSlot = -1, dela, fakeY;
 	private List<Packet> packets = new ArrayList<>();
-	private Setting mode = new Setting("Mode", this, "Standard", Arrays.asList("Standard", "High"));
-	private Setting spoofY = new Setting("Spoof Y", this, false);
+	private ModeSetting mode = new ModeSetting("Mode", this, "Standard", Arrays.asList("Standard", "High"));
+	private BooleanSetting spoofY = new BooleanSetting("Spoof Y", this, false);
 	public LongJump() {
 		super("LongJump", 0, Category.MOVEMENT);
 		this.addSetting(mode, spoofY);
@@ -88,7 +91,6 @@ public class LongJump extends Module{
 		if(tic > 10 && mc.thePlayer.onGround) {
 			this.toggle();
 		}
-		rotate();
 	}
 	
 	@Override
@@ -124,6 +126,13 @@ public class LongJump extends Module{
 				e.setCancelled(true);
 				packets.add(e.getPacket());
 			}
+			if(e.getPacket() instanceof C0APacketAnimation) {
+				System.out.println("wrong packet");
+			}
+		}
+		if(event instanceof RotationEvent) {
+			((RotationEvent) event).setYaw(RotationUtils.getMovementYaw() + (tic == 4 ? 180 : 135));
+			((RotationEvent) event).setPitch(90);
 		}
 	}
 	
@@ -154,11 +163,6 @@ public class LongJump extends Module{
 	        }
 	    }
 	    return -1;
-	}
-	
-	private void rotate() {
-		mc.thePlayer.rotationPitchHead = 90;
-		mc.thePlayer.rotationYawHead = RotationUtils.getMovementYaw() + (tic == 4 ? 180 : 135);
 	}
 
 }

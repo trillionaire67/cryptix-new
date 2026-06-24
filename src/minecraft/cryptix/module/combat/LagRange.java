@@ -2,6 +2,8 @@ package cryptix.module.combat;
 
 import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.BooleanSetting;
+import cryptix.gui.clickgui.settings.DoubleSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
 import cryptix.other.event.Event;
@@ -43,16 +45,16 @@ import org.lwjgl.opengl.GL11;
 
 public class LagRange
 extends Module {
-	private Setting delay = new Setting("Delay", this, true);
-    private Setting blinkLimit = new Setting("Delay (far)", (Module)this, 200.0, 50.0, 1000.0, true);
-    private Setting blinkLimit2 = new Setting("Delay (close)", (Module)this, 200.0, 50.0, 1000.0, true);
-    private Setting buffer = new Setting("Buffer Abuse", this, true);
-    private Setting show = new Setting("Show Position", this, true);
-    private Setting blink = new Setting("Blink", this, true);
-    private Setting blinkDelay = new Setting("Blink Delay", (Module)this, 10.0, 1.0, 20.0, true);
-    private Setting attackDelay = new Setting("Blink Attack Delay", (Module)this, 10.0, 5.0, 20.0, true);
-    private Setting kaonly = new Setting("KillAura Only", this, true);
-    private Setting wponly = new Setting("Weapon Only", this, true);
+	private BooleanSetting delay = new BooleanSetting("Delay", this, true);
+    private DoubleSetting blinkLimit = new DoubleSetting("Delay (far)", (Module)this, 200.0, 50.0, 1000.0, true);
+    private DoubleSetting blinkLimit2 = new DoubleSetting("Delay (close)", (Module)this, 200.0, 50.0, 1000.0, true);
+    private BooleanSetting buffer = new BooleanSetting("Buffer Abuse", this, true);
+    private BooleanSetting show = new BooleanSetting("Show Position", this, true);
+    private BooleanSetting blink = new BooleanSetting("Blink", this, true);
+    private DoubleSetting blinkDelay = new DoubleSetting("Blink Delay", (Module)this, 10.0, 1.0, 20.0, true);
+    private DoubleSetting attackDelay = new DoubleSetting("Blink Attack Delay", (Module)this, 10.0, 5.0, 20.0, true);
+    private BooleanSetting kaonly = new BooleanSetting("KillAura Only", this, true);
+    private BooleanSetting wponly = new BooleanSetting("Weapon Only", this, true);
     public List<DelayedPacket> packets = new CopyOnWriteArrayList<>();
     private Vec3 pos = new Vec3(0,0,0), pos2 = new Vec3(0,0,0);
     public boolean blinking, blinking2;

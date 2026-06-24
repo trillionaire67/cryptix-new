@@ -9,6 +9,7 @@ import org.luaj.vm2.lib.jse.JsePlatform;
 import cryptix.Client;
 import cryptix.other.JsonHandler;
 import cryptix.script.api.*;
+import net.minecraft.util.ChatComponentText;
 
 public class Script {
 	private String name, displayName;
@@ -33,12 +34,13 @@ public class Script {
     }
 
     public void load() {
+    	this.globals.set("player", new Player(Client.mc.thePlayer));
         try {
             LuaValue chunk = globals.loadfile(file.getAbsolutePath());
             chunk.call();
         } catch (Exception e) {
-            System.out.println("[Lua] Failed to load " + file.getName());
-            e.printStackTrace();
+        	if(Client.mc.thePlayer != null)
+        	Client.mc.thePlayer.addChatMessage(new ChatComponentText("§c[Lua Error] §7" + e.getMessage()));
         }
     }
 
@@ -99,8 +101,9 @@ public class Script {
             try {
                 func.call();
             } catch (Exception e) {
-                System.out.println("[Lua] Error in " + file.getName() + ":" + event);
-                e.printStackTrace();
+            	if(Client.mc.thePlayer != null)
+            	Client.mc.thePlayer.addChatMessage(new ChatComponentText("§c[Lua Error] §7" + e.getMessage()));
+
             }
         }
     }
@@ -111,8 +114,8 @@ public class Script {
             try {
                 func.call(arg);
             } catch (Exception e) {
-                System.out.println("[Lua] Error in " + file.getName() + ":" + event);
-                e.printStackTrace();
+            	if(Client.mc.thePlayer != null)
+            	Client.mc.thePlayer.addChatMessage(new ChatComponentText("§c[Lua Error] §7" + e.getMessage()));
             }
         }
     }

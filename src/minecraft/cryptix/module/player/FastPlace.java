@@ -2,6 +2,8 @@ package cryptix.module.player;
 
 import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.BooleanSetting;
+import cryptix.gui.clickgui.settings.DoubleSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
 import cryptix.utils.Utils;
@@ -9,11 +11,11 @@ import net.minecraft.item.ItemBlock;
 
 public class FastPlace extends Module{
 	private short ticks;
-	private Setting delay, blocksOnly;
+	private DoubleSetting delay = new DoubleSetting("Delay", this, 1, 0, 3, true);
+	private BooleanSetting blocksOnly = new BooleanSetting("Blocks Only", this, true);
 	public FastPlace() {
 		super("FastPlace", 0, Category.PLAYER);
-		Client.instance.settingsManager.addSetting(delay = new Setting("Delay", this, 1, 0, 3, true));
-		Client.instance.settingsManager.addSetting(blocksOnly = new Setting("Blocks Only", this, true));
+		this.addSetting(this.delay, this.blocksOnly);
 	}
 	
 	@Override

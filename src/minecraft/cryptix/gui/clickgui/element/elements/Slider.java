@@ -6,6 +6,7 @@ import org.lwjgl.opengl.GL11;
 
 import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.DoubleSetting;
 import cryptix.gui.clickgui.element.Element;
 import cryptix.gui.clickgui.element.ModuleButton;
 import cryptix.gui.clickgui.util.ColorUtil;
@@ -26,7 +27,7 @@ public class Slider extends Element {
 		parent = parent1;
 		setting = setting1;
 		dragging = false;
-		currentPercent = (float) ((setting.getValue() - setting.getMin()) / (setting.getMax() - setting.getMin()));
+		currentPercent = (float) ((((DoubleSetting)setting).getValue() - ((DoubleSetting)setting).getMin()) / (((DoubleSetting)setting).getMax() - ((DoubleSetting)setting).getMin()));
 		super.setup();
 	}
 
@@ -34,9 +35,9 @@ public class Slider extends Element {
 		if(this.y > parent.parent.y + parent.parent.height + parent.parent.currentHeight - parent.parent.currentScroll || this.y < parent.parent.y) return;
 		int color1 = ColorUtil.getClickGUIColor();
 	    int color2 = ColorUtil.getClickGUIColor2();
-		String displayval = "" + Math.round(setting.getValue() * 100D)/ 100D;
+		String displayval = "" + Math.round(((DoubleSetting)setting).getValue() * 100D)/ 100D;
 		boolean hoveredORdragged = isSliderHovered(mouseX, mouseY) || dragging;
-		float targetPercent = (float) ((setting.getValue() - setting.getMin()) / (setting.getMax() - setting.getMin()));
+		float targetPercent = (float) ((((DoubleSetting)setting).getValue() - ((DoubleSetting)setting).getMin()) / (((DoubleSetting)setting).getMax() - ((DoubleSetting)setting).getMin()));
 		long currentTime = System.currentTimeMillis();
 		float deltaTime = (currentTime - lastUpdateTime) / 1000.0f;
 		lastUpdateTime = currentTime;
@@ -44,7 +45,7 @@ public class Slider extends Element {
 		float lerpAlpha = 1.0f - (float)Math.exp(-deltaTime / smoothTime);
 		currentPercent = Utils.lerp(currentPercent, targetPercent, lerpAlpha);
 		
-		Gui.drawRect(x - 2, y, x + 88, y + height, 0xFF1A1A1A);
+		Gui.drawRect(x - 2, y, x + 88, y + height, 0x00000000);
 		
 		if(Client.instance.moduleManager.clickGUI.font.getBoolean()) {
 			Client.instance.sans12.drawString(settingName + ":", (x + 1), (float) (y + 3), -1);
@@ -64,10 +65,10 @@ public class Slider extends Element {
         RenderUtils.drawFilledCircle((float)x + (currentPercent * 85), (float) y + 13.5F, 1.85F, 0xff121212);
 
 		if (this.dragging) {
-		    double diff = setting.getMax() - setting.getMin();
+		    double diff = ((DoubleSetting)setting).getMax() - ((DoubleSetting)setting).getMin();
 		    float clamped = MathHelper.clamp_float((float) ((mouseX - x) / 84f), 0f, 1f);
-		    double val = setting.getMin() + clamped * diff;
-		    setting.setValue(val);
+		    double val = ((DoubleSetting)setting).getMin() + clamped * diff;
+		    ((DoubleSetting)setting).setValue(val);
 		}
 
 	}

@@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
 
 import cryptix.Client;
 import cryptix.module.visual.Animations;
+import cryptix.other.event.EventManager;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -1352,7 +1353,7 @@ public abstract class EntityLivingBase extends Entity
 
         if (this.isSprinting())
         {
-            float f = (Client.movefix ? this.fixedRotationYaw : this.rotationYaw) * 0.017453292F;
+            float f = EventManager.ROTATION_EVENT.getYaw() * 0.017453292F;
             this.motionX -= (double)(MathHelper.sin(f) * 0.2F);
             this.motionZ += (double)(MathHelper.cos(f) * 0.2F);
         }

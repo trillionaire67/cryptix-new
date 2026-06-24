@@ -24,6 +24,7 @@ import org.lwjgl.opengl.Display;
 import cryptix.altmanager.SessionChanger;
 import cryptix.font.CustomFontRenderer;
 import cryptix.gui.clickgui.ClickGUI;
+import cryptix.gui.clickgui.Setting;
 import cryptix.gui.clickgui.SettingsManager;
 import cryptix.module.Module;
 import cryptix.module.ModuleManager;
@@ -47,7 +48,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
  
 public class Client {
-	public static String name = "Cryptix", version = "5.7.4";
+	public static String name = "Cryptix", version = "5.8";
 	public static long frameTime;
 	public static String apikey = "";
 	public boolean altFinder = false;
@@ -82,6 +83,7 @@ public class Client {
         sans12 = new CustomFontRenderer(getFont("sans.ttf", 15), true, true);
         SessionChanger.username = mc.getSession().getUsername();
         Display.setTitle(name + " | " + version);
+        System.out.println("settings" + Setting.settings);
     }
  
     public void stop() {
@@ -175,7 +177,7 @@ public class Client {
     	if(movefix && type == 0) {
     		float forward = mc.thePlayer.movementInput.moveForward;
             float strafe = mc.thePlayer.movementInput.moveStrafe;
-            final double angle = MathHelper.wrapAngleTo180_double(Math.toDegrees(MovementUtils.getDirection(mc.thePlayer.fixedRotationYaw, forward, strafe)));
+            final double angle = MathHelper.wrapAngleTo180_double(Math.toDegrees(MovementUtils.getDirection(EventManager.ROTATION_EVENT.getYaw(), forward, strafe)));
 
             if (forward == 0 && strafe == 0) {
                 return;

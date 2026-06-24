@@ -5,6 +5,8 @@ import java.util.Arrays;
 import org.lwjgl.input.Keyboard;
 
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.DoubleSetting;
+import cryptix.gui.clickgui.settings.ModeSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
 import cryptix.other.event.Event;
@@ -15,8 +17,8 @@ import net.minecraft.network.play.client.C02PacketUseEntity;
 import net.minecraft.network.play.client.C0BPacketEntityAction;
 
 public class SprintReset extends Module{
-	private Setting mode = new Setting("Mode", this, "WTap/Legit", Arrays.asList("WTap/Legit", "Packet"));
-	private Setting delaySetting = new Setting("Delay", this, 5, 1, 10, true);
+	private ModeSetting mode = new ModeSetting("Mode", this, "WTap/Legit", Arrays.asList("WTap/Legit", "Packet"));
+	private DoubleSetting delaySetting = new DoubleSetting("Delay", this, 5, 1, 10, true);
 	private int tick, delay;
 	public SprintReset() {
 		super("SprintReset", 0, Category.COMBAT);

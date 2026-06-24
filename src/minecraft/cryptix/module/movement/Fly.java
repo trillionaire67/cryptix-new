@@ -7,6 +7,8 @@ import org.lwjgl.input.Keyboard;
 
 import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.BooleanSetting;
+import cryptix.gui.clickgui.settings.ModeSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
 import cryptix.other.event.Event;
@@ -38,8 +40,8 @@ public class Fly extends Module {
     private int chargeTicks = 0, lastSlot;
     private float silentPitch = 0.0f;
     
-    public Setting mode = new Setting("Mode", this, "Vanilla", Arrays.asList("Vanilla", "BlocksMC", "Experimental", "Verus", "Vulcan", "OldNCP"));
-    private Setting jump = new Setting("Jump on Edge", this, false);
+    public ModeSetting mode = new ModeSetting("Mode", this, "Vanilla", Arrays.asList("Vanilla", "BlocksMC", "Experimental", "Verus", "Vulcan", "OldNCP"));
+    private BooleanSetting jump = new BooleanSetting("Jump on Edge", this, false);
 
     public Fly() {
         super("Fly", 0, Category.MOVEMENT);

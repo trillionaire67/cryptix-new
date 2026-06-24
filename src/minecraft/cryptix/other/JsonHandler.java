@@ -25,6 +25,9 @@ import cryptix.altmanager.Alt;
 import cryptix.altmanager.AltManagerGui;
 import cryptix.altmanager.SessionChanger;
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.BooleanSetting;
+import cryptix.gui.clickgui.settings.DoubleSetting;
+import cryptix.gui.clickgui.settings.ModeSetting;
 import cryptix.module.Module;
 import cryptix.module.visual.ClickGUI;
 import cryptix.script.Script;
@@ -184,12 +187,12 @@ public class JsonHandler {
                     JsonObject jsonSettings = new JsonObject();
                     for (Setting setting : Client.instance.settingsManager.getSettingsByMod(mod)) {
                         if(setting == null) continue;
-                        if (setting.isModeBox()) {
-                            jsonSettings.addProperty(setting.getName(), Client.instance.settingsManager.getSettingByName(mod, setting.getName()).getString());
-                        } else if (setting.isCheckBox()) {
-                            jsonSettings.addProperty(setting.getName(), Client.instance.settingsManager.getSettingByName(mod, setting.getName()).getBoolean());
-                        } else if (setting.isSlider()) {
-                            jsonSettings.addProperty(setting.getName(), Client.instance.settingsManager.getSettingByName(mod, setting.getName()).getValue());
+                        if (setting instanceof ModeSetting) {
+                            jsonSettings.addProperty(setting.getName(), ((ModeSetting)Client.instance.settingsManager.getSettingByName(mod, setting.getName())).getString());
+                        } else if (setting instanceof BooleanSetting) {
+                            jsonSettings.addProperty(setting.getName(), ((BooleanSetting)Client.instance.settingsManager.getSettingByName(mod, setting.getName())).getBoolean());
+                        } else if (setting instanceof DoubleSetting) {
+                            jsonSettings.addProperty(setting.getName(), ((DoubleSetting)Client.instance.settingsManager.getSettingByName(mod, setting.getName())).getValue());
                         }
                     }
                     jsonMod.add("settings", jsonSettings);
@@ -229,15 +232,15 @@ public class JsonHandler {
                  if (jsonSettings != null && Client.instance.settingsManager.getSettings() != null) {
                      for (Setting setting : Client.instance.settingsManager.getSettingsByMod(mod)) {
                          if (jsonSettings.has(setting.getName())) {
-                        	 if (setting.isModeBox()) {
+                        	 if (setting instanceof ModeSetting) {
                                  String value = jsonSettings.get(setting.getName()).getAsString();
-                                 Client.instance.settingsManager.getSettingByName(mod, setting.getName()).setString(value);
-                             } else if (setting.isCheckBox()) {
+                                 ((ModeSetting)Client.instance.settingsManager.getSettingByName(mod, setting.getName())).setString(value);
+                             } else if (setting instanceof BooleanSetting) {
                                  boolean value = jsonSettings.get(setting.getName()).getAsBoolean();
-                                 Client.instance.settingsManager.getSettingByName(mod, setting.getName()).setBoolean(value);
-                             } else if (setting.isSlider()) {
+                                 ((BooleanSetting)Client.instance.settingsManager.getSettingByName(mod, setting.getName())).setBoolean(value);
+                             } else if (setting instanceof DoubleSetting) {
                                  double value = jsonSettings.get(setting.getName()).getAsDouble();
-                                 Client.instance.settingsManager.getSettingByName(mod, setting.getName()).setValue(value);
+                                 ((DoubleSetting)Client.instance.settingsManager.getSettingByName(mod, setting.getName())).setValue(value);
                              }
                          }
                      }

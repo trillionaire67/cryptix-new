@@ -6,6 +6,8 @@ import org.lwjgl.opengl.GL11;
 
 import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.BooleanSetting;
+import cryptix.gui.clickgui.settings.DoubleSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
 import cryptix.module.combat.AntiBot;
@@ -20,18 +22,17 @@ import net.minecraft.util.AxisAlignedBB;
 
 public class NameTags extends Module {
 
-    private Setting background, opacity, scale, showDistance, textShadow, round, font;
+	private DoubleSetting opacity = new DoubleSetting("Opacity", this, 100, 0, 255, true);
+	private DoubleSetting scale = new DoubleSetting("Scale", this, 1, 0.5, 5, false);
+    private BooleanSetting background = new BooleanSetting("Background", this, true);
+    private BooleanSetting showDistance = new BooleanSetting("Show Distance", this, false);
+    private BooleanSetting textShadow = new BooleanSetting("Text Shadow", this, false);
+    private BooleanSetting round = new BooleanSetting("Round", this, false);
+    private BooleanSetting font = new BooleanSetting("Font", this, false);
 
     public NameTags() {
         super("NameTags", 0, Category.VISUAL);
-
-        Client.instance.settingsManager.addSetting(opacity = new Setting("Opacity", this, 100, 0, 255, true));
-        Client.instance.settingsManager.addSetting(scale = new Setting("Scale", this, 1, 0.5, 5, false));
-        Client.instance.settingsManager.addSetting(background = new Setting("Background", this, true));
-        Client.instance.settingsManager.addSetting(showDistance = new Setting("Show Distance", this, false));
-        Client.instance.settingsManager.addSetting(textShadow = new Setting("Text Shadow", this, false));
-        Client.instance.settingsManager.addSetting(round = new Setting("Round", this, false));
-        Client.instance.settingsManager.addSetting(font = new Setting("Font", this, false));
+        this.addSetting(opacity, scale, background, showDistance, textShadow, round, font);
     }
 
     @Override

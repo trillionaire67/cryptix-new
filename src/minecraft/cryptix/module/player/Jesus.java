@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.ModeSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
 import cryptix.utils.MovementUtils;
@@ -13,9 +14,10 @@ import net.minecraft.util.BlockPos;
 
 public class Jesus extends Module{
 	private int waterTick;
-	private Setting mode = new Setting("Mode", this, "BlocksMC", Arrays.asList("BlocksMC", "Vulcan"));
+	private ModeSetting mode = new ModeSetting("Mode", this, "BlocksMC", Arrays.asList("BlocksMC", "Vulcan"));
 	public Jesus() {
 		super("Jesus", 0, Category.PLAYER);
+		this.addSetting(mode);
 	}
 	
 	@Override

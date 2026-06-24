@@ -10,7 +10,7 @@ import net.minecraft.client.gui.FontRenderer;
 
 public class Compare implements Comparator<Module> {
 
-    private final FontRenderer fr = Minecraft.getMinecraft().fontRendererObj;
+    private final FontRenderer fr = Client.mc.fontRendererObj;
 
     @Override
     public int compare(Module m1, Module m2) {

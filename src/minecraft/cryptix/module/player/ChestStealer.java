@@ -2,6 +2,8 @@ package cryptix.module.player;
 
 import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.BooleanSetting;
+import cryptix.gui.clickgui.settings.DoubleSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
 import net.minecraft.client.gui.inventory.GuiChest;
@@ -11,13 +13,13 @@ import net.minecraft.inventory.Slot;
 
 public class ChestStealer extends Module{
 	private int delay, startDelay;
-	private Setting startDelaySetting, delaySetting, closeChest, custom;
+	private DoubleSetting startDelaySetting = new DoubleSetting("Start Delay §aTicks", this, 2, 0, 10, true);
+	private DoubleSetting delaySetting = new DoubleSetting("Delay §aTicks", this, 2, 0, 10, true);
+	private BooleanSetting closeChest = new BooleanSetting("Auto Close", this, true);
+	private BooleanSetting custom = new BooleanSetting("Custom Chest", this, false);
 	public ChestStealer() {
 		super("ChestStealer", 0, Category.PLAYER);
-		Client.instance.settingsManager.addSetting(startDelaySetting = new Setting("Start Delay §aTicks", this, 2, 0, 10, true));
-		Client.instance.settingsManager.addSetting(delaySetting = new Setting("Delay §aTicks", this, 2, 0, 10, true));
-		Client.instance.settingsManager.addSetting(closeChest = new Setting("Auto Close", this, true));
-		Client.instance.settingsManager.addSetting(custom = new Setting("Custom Chest", this, false));
+		this.addSetting(startDelaySetting, delaySetting, closeChest, custom);
 	}
 	
 	@Override

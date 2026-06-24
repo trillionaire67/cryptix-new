@@ -8,6 +8,7 @@ import cryptix.Client;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.play.client.C01PacketChatMessage;
 import net.minecraft.network.play.client.C02PacketUseEntity;
+import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
 import net.minecraft.util.Vec3;
 
 public class Packets extends LuaTable {
@@ -15,9 +16,7 @@ public class Packets extends LuaTable {
 		set("sendC01", new OneArgFunction() {
             @Override
             public LuaValue call(LuaValue message) {
-                return LuaValue.userdataOf(
-                    new C01PacketChatMessage(message.checkjstring())
-                );
+                return LuaValue.userdataOf(new C01PacketChatMessage(message.checkjstring()));
             }
         });
 		set("sendC02", new TwoArgFunction() {
@@ -30,6 +29,17 @@ public class Packets extends LuaTable {
 		        net.minecraft.entity.Entity mcEntity = luaEntity.getEntity();
 		        C02PacketUseEntity.Action action = C02PacketUseEntity.Action.valueOf(actionValue.checkjstring().toUpperCase());
 		        Client.mc.thePlayer.sendQueue.addToSendQueue(new C02PacketUseEntity(mcEntity, action));
+		        return NIL;
+		    }
+		});
+		set("sendC08", new OneArgFunction() {
+		    @Override
+		    public LuaValue call(LuaValue value) {
+		        if (!(value instanceof cryptix.script.api.ItemStack)) {
+		            return LuaValue.error("Expected ItemStack");
+		        }
+		        net.minecraft.item.ItemStack stack = ((cryptix.script.api.ItemStack) value).getItemStack();
+		        Client.mc.thePlayer.sendQueue.addToSendQueue(new C08PacketPlayerBlockPlacement(stack));
 		        return NIL;
 		    }
 		});

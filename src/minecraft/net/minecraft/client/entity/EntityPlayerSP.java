@@ -5,6 +5,7 @@ import cryptix.module.Module;
 import cryptix.module.movement.NoSlow;
 import cryptix.other.event.EventManager;
 import cryptix.other.event.events.RotationEvent;
+import cryptix.utils.RotationUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.MovingSoundMinecartRiding;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -124,10 +125,10 @@ public class EntityPlayerSP extends AbstractClientPlayer
         		offGroundTicks++;
         		onGroundTicks = 0;
         	}
-        	this.mc.thePlayer.fixedRotationPitch = this.mc.thePlayer.rotationYawHead;
-        	this.mc.thePlayer.fixedRotationYaw = this.mc.thePlayer.rotationPitchHead;
         	Client.movefix = false;
         	Client.instance.onPreUpdate();
+        	EventManager.ROTATION_EVENT.innit(this.mc.thePlayer.rotationYaw, this.mc.thePlayer.rotationPitch);
+        	EventManager.ROTATION_EVENT.call();
             super.onUpdate();
 
             if (this.isRiding())
@@ -163,9 +164,12 @@ public class EntityPlayerSP extends AbstractClientPlayer
 
             this.serverSprintState = flag;
         }
+        float currentYaw = EventManager.ROTATION_EVENT.getYaw();
+        float currentPitch = EventManager.ROTATION_EVENT.getPitch();
         Client.onMotionEvent(2);
-        fakeYaw = this.rotationYawHead;
-    	fakePitch = this.rotationPitchHead;
+        fakeYaw = currentYaw;
+    	fakePitch = currentPitch;
+    	mc.thePlayer.renderYawOffset = RotationUtils.getBodyYaw(currentYaw, mc.thePlayer.renderYawOffset);
         boolean flag1 = this.isSneaking();
 
         if (flag1 != this.serverSneakState)
@@ -187,8 +191,6 @@ public class EntityPlayerSP extends AbstractClientPlayer
         	double d0 = this.posX - this.lastReportedPosX;
             double d1 = this.getEntityBoundingBox().minY - this.lastReportedPosY;
             double d2 = this.posZ - this.lastReportedPosZ;
-            float currentYaw = Client.movefix ? mc.thePlayer.fixedRotationYaw : mc.thePlayer.rotationYawHead;
-            float currentPitch =  mc.thePlayer.rotationPitchHead;
             double d3 = (double)(currentYaw - this.lastReportedYaw);
             double d4 = (double)(currentPitch - this.lastReportedPitch);
             boolean flag2 = d0 * d0 + d1 * d1 + d2 * d2 > 9.0E-4D || this.positionUpdateTicks >= 20;

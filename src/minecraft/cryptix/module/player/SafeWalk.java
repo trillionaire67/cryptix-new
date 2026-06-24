@@ -5,6 +5,9 @@ import java.util.Arrays;
 
 import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.BooleanSetting;
+import cryptix.gui.clickgui.settings.DoubleSetting;
+import cryptix.gui.clickgui.settings.ModeSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
 import cryptix.utils.Utils;
@@ -14,17 +17,15 @@ import net.minecraft.util.BlockPos;
 public class SafeWalk extends Module{
 	private boolean sneaked;
 	private int timer;
-	public Setting mode;
-	public Setting groundOnly, pitchCheck, directionCheck, delay, delay2;
-	private String[] modes = new String[] {"Normal", "Sneak"};
+	private ModeSetting mode = new ModeSetting("Mode", this, "Sneak", Arrays.asList("Normal", "Sneak"));
+	private DoubleSetting delay = new DoubleSetting("Min Sneak Delay", this, 100, 0, 1000, true);
+	private DoubleSetting delay2 = new DoubleSetting("Max Sneak Delay", this, 300, 0, 2000, true);
+	private BooleanSetting groundOnly = new BooleanSetting("Ground Only", this, true);
+	private BooleanSetting pitchCheck = new BooleanSetting("Pitch Check", this, false);
+	private BooleanSetting directionCheck = new BooleanSetting("Direction Check", this, false);
 	public SafeWalk() {
 		super("Safewalk", 0, Category.PLAYER);
-		Client.instance.settingsManager.addSetting(mode = new Setting("Mode", this, "Sneak", new ArrayList<String>(Arrays.asList(modes))));
-		Client.instance.settingsManager.addSetting(delay = new Setting("Min Sneak Delay", this, 100, 0, 1000, true));
-		Client.instance.settingsManager.addSetting(delay2 =new Setting("Max Sneak Delay", this, 300, 0, 2000, true));
-		Client.instance.settingsManager.addSetting(groundOnly = new Setting("Ground Only", this, true));
-		Client.instance.settingsManager.addSetting(pitchCheck = new Setting("Pitch Check", this, false));
-		Client.instance.settingsManager.addSetting(directionCheck = new Setting("Direction Check", this, false));
+		this.addSetting(this.mode, this.delay, this.delay2, this.groundOnly, this.pitchCheck, this.directionCheck);
 	}
 	
 	@Override

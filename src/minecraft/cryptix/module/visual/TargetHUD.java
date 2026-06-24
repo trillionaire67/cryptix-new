@@ -11,6 +11,8 @@ import org.lwjgl.opengl.GL11;
 import cryptix.Client;
 import cryptix.font.CustomFontRenderer;
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.DoubleSetting;
+import cryptix.gui.clickgui.settings.ModeSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
 import cryptix.utils.RenderCache;
@@ -42,7 +44,7 @@ public class TargetHUD extends Module{
 	private final ResourceLocation GLOW_TEXTURE3 = new ResourceLocation("cryptix/glow/targethud_3.png");
 	private EntityLivingBase target = null, lastTarget = null;
 	private float smoothBarWidth;
-	private Setting opacity, mode, font;
+	private DoubleSetting opacity = new DoubleSetting("Opacity", this, 100, 0, 155, true);
 	private int alpha;
 	private int offsetX, offsetY;
 	private boolean isDragging = false;
@@ -56,11 +58,11 @@ public class TargetHUD extends Module{
 	private int color5 = (200 << 24) | (1   << 16) | (1   << 8) | 1;
 	private int color6 = (200 << 24) | (199 << 16) | (19  << 8) | 19;
 	private int color7 = (255 << 24) | (182 << 16) | (182 << 8) | 84;
+	private ModeSetting mode = new ModeSetting("Mode", this, "Modern", Arrays.asList("Modern", "Old Modern", "Novoline", "Zeroday", "Raven"));
+	private ModeSetting font = new ModeSetting("Font", this, "Minecraft", Arrays.asList("Minecraft", "Apple", "Arial", "Product Sans"));
 	public TargetHUD() {
 		super("TargetHUD", 0, Category.VISUAL);
-		Client.instance.settingsManager.addSetting(opacity = new Setting("Opacity", this, 100, 0, 155, true));
-		Client.instance.settingsManager.addSetting(mode = new Setting("Mode", this, "Modern", Arrays.asList("Modern", "Old Modern", "Novoline", "Zeroday", "Raven")));
-		Client.instance.settingsManager.addSetting(font = new Setting("Font", this, "Minecraft", Arrays.asList("Minecraft", "Apple", "Arial", "Product Sans")));
+		this.addSetting(this.opacity, this.mode, this.font);
 	}
 	
 	@Override

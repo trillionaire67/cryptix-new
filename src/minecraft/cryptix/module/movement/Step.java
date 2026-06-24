@@ -5,16 +5,16 @@ import java.util.Arrays;
 
 import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.ModeSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
 
 public class Step extends Module{
-	private Setting mode;
+	private ModeSetting mode = new ModeSetting("Step Mode", this, "Packet", Arrays.asList("Normal", "BlocksMC"));
 	private boolean wasCollided;
 	public Step() {
 		super("Step", 0, Category.MOVEMENT);
-		ArrayList<String> modes = new ArrayList<String>(Arrays.asList("Normal", "BlocksMC"));
-		Client.instance.settingsManager.addSetting(mode = new Setting("Step Mode", this, "Packet", modes));
+		this.addSetting(mode);
 	}
 	
 	@Override

@@ -1,5 +1,6 @@
 package cryptix.gui.clickgui.util;
 
+import cryptix.Client;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.util.StringUtils;
@@ -8,7 +9,7 @@ public class FontUtil {
 	private static FontRenderer fontRenderer;
 
 	public static void setupFontUtils() {
-		fontRenderer = Minecraft.getMinecraft().fontRendererObj;
+		fontRenderer = Client.mc.fontRendererObj;
 	}
 
 	public static int getStringWidth(String text) {

@@ -333,4 +333,26 @@ public class RotationUtils {
 	public static float clampTo90(float n) {
         return MathHelper.clamp_float(n, -90.0f, 90.0f);
     }
+	
+	public static float getBodyYaw(float headYaw, float previousBodyYaw) {
+	    float bodyYaw = previousBodyYaw;
+	    double moveX = mc.thePlayer.posX - mc.thePlayer.prevPosX;
+	    double moveZ = mc.thePlayer.posZ - mc.thePlayer.prevPosZ;
+	    double movementSq = moveX * moveX + moveZ * moveZ;
+	    if (movementSq > 0.0025D) {
+	        bodyYaw = (float) Math.toDegrees(Math.atan2(moveZ, moveX)) - 90.0F;
+	    }
+	    if (mc.thePlayer.swingProgress > 0.0F) {
+	        bodyYaw = headYaw;
+	    }
+	    float bodyDelta = MathHelper.wrapAngleTo180_float(bodyYaw - previousBodyYaw);
+	    float smoothedBodyYaw = previousBodyYaw + bodyDelta * 0.3F;
+	    float headBodyDifference = MathHelper.wrapAngleTo180_float(headYaw - smoothedBodyYaw);
+	    headBodyDifference = MathHelper.clamp_float(headBodyDifference,-75.0F,75.0F);
+	    float finalBodyYaw = headYaw - headBodyDifference;
+	    if (headBodyDifference * headBodyDifference > 2500.0F) {
+	        finalBodyYaw += headBodyDifference * 0.2F;
+	    }
+	    return finalBodyYaw;
+	}
 }

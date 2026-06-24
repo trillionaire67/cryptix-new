@@ -2,6 +2,9 @@ package cryptix.gui.clickgui.element;
 
 import cryptix.gui.clickgui.ClickGUI;
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.BooleanSetting;
+import cryptix.gui.clickgui.settings.DoubleSetting;
+import cryptix.gui.clickgui.settings.ModeSetting;
 import cryptix.gui.clickgui.util.FontUtil;
 
 public class Element {
@@ -28,13 +31,13 @@ public class Element {
         
         settingName = setting.getName();
 
-        if (setting.isCheckBox()) {
+        if (setting instanceof BooleanSetting) {
             adjustWidth(FontUtil.getStringWidth(settingName), 13);
-        } else if (setting.isModeBox()) {
-            adjustWidth(getLongestStringWidth(setting.getOptions().toArray(new String[0])), 0);
-        } else if (setting.isSlider()) {
+        } else if (setting instanceof ModeSetting) {
+            adjustWidth(getLongestStringWidth(((ModeSetting)setting).getOptions().toArray(new String[0])), 0);
+        } else if (setting instanceof DoubleSetting) {
             height = 17;
-            String displayMax = formatDouble(setting.getMax());
+            String displayMax = formatDouble(((DoubleSetting)setting).getMax());
             adjustWidth(FontUtil.getStringWidth(settingName) + FontUtil.getStringWidth(displayMax) + 4, 0);
         }
     }

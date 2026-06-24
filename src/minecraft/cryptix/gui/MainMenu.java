@@ -16,7 +16,6 @@ import net.minecraft.util.ResourceLocation;
  
 public class MainMenu extends GuiScreen {
 	public static MainMenu instance = new MainMenu();
-    private static Minecraft mc = Minecraft.getMinecraft();
     private AltManagerGui altmanagergui= new AltManagerGui(this);
     private static final int TITLE_COLOR = (255 << 24) | (20 << 16) | (20 << 8) | 20;
     private static final ResourceLocation BG = new ResourceLocation("cryptix/main1.png");

@@ -7,6 +7,8 @@ import org.lwjgl.input.Mouse;
 
 import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.BooleanSetting;
+import cryptix.gui.clickgui.settings.DoubleSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
 import cryptix.other.event.Event;
@@ -19,7 +21,14 @@ import net.minecraft.network.play.server.S12PacketEntityVelocity;
 import net.minecraft.util.Vec3;
 
 public class AutoClicker extends Module{
-	private Setting minCPS, maxCPS, breakBlocks, rightClicker, blockHitChance, disableInv, jitter, pred;
+	private DoubleSetting minCPS = new DoubleSetting("MinCPS", this, 8.0, 1.0, 20.0, false);
+	private DoubleSetting maxCPS = new DoubleSetting("MaxCPS", this, 12.0, 1.0, 20.0, false);
+	private DoubleSetting blockHitChance = new DoubleSetting("Block Hit Chance", this, 0.0, 0.0, 100.0, false);
+	private BooleanSetting pred = new BooleanSetting("Predict Block Hit", this, false);
+	private DoubleSetting jitter = new DoubleSetting("Jitter", this, 0, 0, 5, 1);
+	private BooleanSetting breakBlocks = new BooleanSetting("Break Blocks", this, false);
+	private BooleanSetting rightClicker = new BooleanSetting("Right Clicker", this, false);
+	private BooleanSetting disableInv = new BooleanSetting("Disable in Inventory", this, true);
 	private long lastClick;
     private long hold;
     private double speed;
@@ -29,14 +38,7 @@ public class AutoClicker extends Module{
     private boolean block;
     public AutoClicker() {
         super("AutoClicker", 0, Category.COMBAT);
-        this.addSetting(minCPS = new Setting("MinCPS", this, 8.0, 1.0, 20.0, false));
-        this.addSetting(maxCPS = new Setting("MaxCPS", this, 12.0, 1.0, 20.0, false));
-        this.addSetting(blockHitChance = new Setting("Block Hit Chance", this, 0.0, 0.0, 100.0, false));
-        this.addSetting(pred = new Setting("Predict Block Hit", this, false));
-        this.addSetting(jitter = new Setting("Jitter", this, 0, 0, 5, 1));
-        this.addSetting(breakBlocks = new Setting("Break Blocks", this, false));
-        this.addSetting(rightClicker = new Setting("Right Clicker", this, false));
-        this.addSetting(disableInv = new Setting("Disable in Inventory", this, true));
+        this.addSetting(this.minCPS, this.maxCPS, this.blockHitChance, this.pred, this.jitter, this.breakBlocks, this.rightClicker, this.disableInv);
     }
 
     @Override

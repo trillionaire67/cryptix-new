@@ -1,11 +1,12 @@
 package cryptix.module.movement;
 
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.DoubleSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
 
 public class Timer extends Module{
-	private Setting speed = new Setting("Speed", this, 1, 0.05, 5, 2);
+	private DoubleSetting speed = new DoubleSetting("Speed", this, 1, 0.05, 5, 2);
 	public Timer() {
 		super("Timer", 0, Category.MOVEMENT);
 		this.addSetting(this.speed);

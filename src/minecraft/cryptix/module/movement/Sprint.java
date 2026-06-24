@@ -7,6 +7,7 @@ import org.lwjgl.input.Keyboard;
 
 import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.ModeSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
 import cryptix.utils.BlinkUtils;
@@ -15,12 +16,11 @@ import cryptix.utils.Utils;
 import net.minecraft.client.settings.KeyBinding;
 
 public class Sprint extends Module{
-	private Setting mode;
+	private ModeSetting mode = new ModeSetting("Mode", this, "Legit", new ArrayList<String>(Arrays.asList("Legit", "Omni", "Omni Hypixel")));
 	private boolean blinked;
 	public Sprint() {
 		super("Sprint", 0, Category.MOVEMENT);
-		ArrayList<String> modes = new ArrayList<String>();
-		Client.instance.settingsManager.addSetting(mode = new Setting("Mode", this, "Legit", new ArrayList<String>(Arrays.asList("Legit", "Omni", "Omni Hypixel"))));
+		this.addSetting(mode);
 	}
 	
 	@Override

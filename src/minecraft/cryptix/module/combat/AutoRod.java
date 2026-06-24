@@ -2,8 +2,12 @@ package cryptix.module.combat;
 
 import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.BooleanSetting;
+import cryptix.gui.clickgui.settings.DoubleSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
+import cryptix.other.event.Event;
+import cryptix.other.event.events.RotationEvent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemFishingRod;
@@ -14,8 +18,8 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 
 public class AutoRod extends Module{
-	private Setting movefix = new Setting("Movefix", this, false);
-	private Setting delay = new Setting("Delay", this, 5, 2, 10, true);
+	private BooleanSetting movefix = new BooleanSetting("Movefix", this, false);
+	private DoubleSetting delay = new DoubleSetting("Delay", this, 5, 2, 10, true);
 	private EntityPlayer target;
 	private int lastSlot = -1, delayTick;
 	public boolean blocking;
@@ -54,12 +58,18 @@ public class AutoRod extends Module{
 	}
 	
 	@Override
-	public void onPreMotion() {
-		if(target != null && lastSlot != -1) {
-			float[] rotations = getRotations(target);
-			mc.thePlayer.rotationYawHead = rotations[0];
-			mc.thePlayer.rotationPitchHead = rotations[1];
+	public void onEvent(Event e) {
+		if(e instanceof RotationEvent) {
+			if(target != null && lastSlot != -1) {
+				float[] rotations = getRotations(target);
+				((RotationEvent) e).setYaw(rotations[0]);
+				((RotationEvent) e).setPitch(rotations[1]);
+			}
 		}
+	}
+	
+	@Override
+	public void onPreMotion() {
 		if(blocking) {
 			lastSlot = -1;
 		}

@@ -7,6 +7,8 @@ import java.util.List;
 import org.lwjgl.opengl.GL11;
 
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.DoubleSetting;
+import cryptix.gui.clickgui.settings.ModeSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
 import cryptix.utils.FrustumUtils;
@@ -23,11 +25,11 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 
 public class ItemESP extends Module{
-	private Setting mode = new Setting("Mode", this, "Outline", Arrays.asList("Outline", "Box"));
-	private Setting expand = new Setting("Size", this, 0.2, 0.1, 0.5, 1);
-	private Setting r = new Setting("Red", this, 255, 0, 255, true);
-	private Setting g = new Setting("Green", this, 255, 0, 255, true);
-	private Setting b = new Setting("Blue", this, 255, 0, 255, true);
+	private ModeSetting mode = new ModeSetting("Mode", this, "Outline", Arrays.asList("Outline", "Box"));
+	private DoubleSetting expand = new DoubleSetting("Size", this, 0.2, 0.1, 0.5, 1);
+	private DoubleSetting r = new DoubleSetting("Red", this, 255, 0, 255, true);
+	private DoubleSetting g = new DoubleSetting("Green", this, 255, 0, 255, true);
+	private DoubleSetting b = new DoubleSetting("Blue", this, 255, 0, 255, true);
 	public ItemESP() {
 		super("ItemESP", 0, Category.VISUAL);
 		this.addSetting(mode,expand,r,g,b);

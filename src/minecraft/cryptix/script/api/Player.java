@@ -177,5 +177,15 @@ public class Player extends cryptix.script.api.Entity2 {
                 return NIL;
             }
         });
+        set("getHeldItem", new ZeroArgFunction() {
+            @Override
+            public LuaValue call() {
+                EntityPlayerSP p = getPlayer();
+                if (p == null || p.getHeldItem() == null) {
+                    return NIL;
+                }
+                return new cryptix.script.api.ItemStack(p.getHeldItem());
+            }
+        });
     }
 }

@@ -10,6 +10,9 @@ import java.util.Set;
 
 import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.BooleanSetting;
+import cryptix.gui.clickgui.settings.DoubleSetting;
+import cryptix.gui.clickgui.settings.ModeSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
 import cryptix.module.ModuleManager;
@@ -29,17 +32,17 @@ import net.optifine.BlockPosM;
 public class BedESP extends Module{
 	public List<BlockPos> beds = new ArrayList<>();
 	private List<BlockPos> obsidians = new ArrayList<>();
-	private Setting range, showObby, red, green, blue, bednuker, updateTime, mode;
+	private ModeSetting mode = new ModeSetting("Mode", this, "Outline", Arrays.asList("Outline", "Box"));
+	private BooleanSetting bednuker = new BooleanSetting("Only BedNuker", this, false);
+	private BooleanSetting showObby = new BooleanSetting("Show Obsidian", this, false);
+	private DoubleSetting range = new DoubleSetting("Range", this, 20.0, 10.0, 50.0, true);
+	private DoubleSetting red = new DoubleSetting("Red", this, 255, 0.0, 255.0, true);
+	private DoubleSetting green = new DoubleSetting("Green", this, 255, 0.0, 255.0, true);
+	private DoubleSetting blue = new DoubleSetting("Blue", this, 255, 0.0, 255.0, true);
+	private DoubleSetting updateTime = new DoubleSetting("Update Time", this, 10, 5.0, 20, true);
 	public BedESP() {
 		super("BedESP", 0, Category.VISUAL);
-		Client.instance.settingsManager.addSetting(mode = new Setting("Mode", this, "Outline", Arrays.asList("Outline", "Box")));
-		Client.instance.settingsManager.addSetting(bednuker = new Setting("Only BedNuker", this, false));
-		Client.instance.settingsManager.addSetting(showObby = new Setting("Show Obsidian", this, false));
-		Client.instance.settingsManager.addSetting(range = new Setting("Range", this, 20.0, 10.0, 50.0, true));
-		Client.instance.settingsManager.addSetting(red = new Setting("Red", this, 255, 0.0, 255.0, true));
-		Client.instance.settingsManager.addSetting(green = new Setting("Green", this, 255, 0.0, 255.0, true));
-		Client.instance.settingsManager.addSetting(blue = new Setting("Blue", this, 255, 0.0, 255.0, true));
-		Client.instance.settingsManager.addSetting(updateTime = new Setting("Update Time", this, 10, 5.0, 20, true));
+		this.addSetting(mode, bednuker, showObby, range, red, green, blue, updateTime);
 	}
 	
 	@Override

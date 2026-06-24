@@ -1,6 +1,8 @@
 package cryptix.module.player;
 
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.BooleanSetting;
+import cryptix.gui.clickgui.settings.DoubleSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
 import cryptix.other.event.Event;
@@ -17,11 +19,11 @@ import net.minecraft.util.BlockPos;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class AutoFish extends Module{
-	private Setting minStartDelay = new Setting("Min Start Delay", this, 10, 0, 30, true);
-	private Setting maxStartDelay = new Setting("Max Start Delay", this, 10, 0, 30, true);
-	private Setting minFishDelay = new Setting("Min Fish Delay", this, 2, 0, 5, 1);
-	private Setting maxFishDelay = new Setting("Max Fish Delay", this, 2, 0, 5, 1);
-	private Setting rotate = new Setting("Rotate", this, false);
+	private DoubleSetting minStartDelay = new DoubleSetting("Min Start Delay", this, 10, 0, 30, true);
+	private DoubleSetting maxStartDelay = new DoubleSetting("Max Start Delay", this, 10, 0, 30, true);
+	private DoubleSetting minFishDelay = new DoubleSetting("Min Fish Delay", this, 2, 0, 5, 1);
+	private DoubleSetting maxFishDelay = new DoubleSetting("Max Fish Delay", this, 2, 0, 5, 1);
+	private BooleanSetting rotate = new BooleanSetting("Rotate", this, false);
 	private boolean fish, active, rotating;
 	private int fishingTicks, catchTicks, nextCastDelay, nextFishDelay, rotationDelay;
 	public AutoFish() {
@@ -109,7 +111,7 @@ public class AutoFish extends Module{
 		rotationDelay = 0;
 	}
 	
-	private int fixValues(Setting minSetting, Setting maxSetting) {
+	private int fixValues(DoubleSetting minSetting, DoubleSetting maxSetting) {
 	    int min = (int) minSetting.getValue();
 	    int max = (int) maxSetting.getValue();
 	    if (max < min) {

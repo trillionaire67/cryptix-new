@@ -19,6 +19,9 @@ import org.lwjgl.opengl.GL11;
 import cryptix.Client;
 import cryptix.font.CustomFontRenderer;
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.BooleanSetting;
+import cryptix.gui.clickgui.settings.DoubleSetting;
+import cryptix.gui.clickgui.settings.ModeSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
 import cryptix.other.Compare;
@@ -53,9 +56,25 @@ public class HUD extends Module {
     private FontRenderer fr = mc.fontRendererObj;
     private CustomFontRenderer cachedFontRenderer;
     private String cachedFontName;
-    private Setting background,watermark, animation, removeVisuals, removeScripts, outline, dynamicIsland, xOffset, offset, removeIP;
-    public Setting color1red, color1green, color1blue, color2red, color2green, color2blue, hideBoss;
-    public Setting lowercase, font, tablistHeight;
+    public DoubleSetting color1red = new DoubleSetting("Color1 red", this, 255, 0, 255, false);
+    public DoubleSetting color1green = new DoubleSetting("Color1 green", this, 255, 0, 255, false);
+    public DoubleSetting color1blue = new DoubleSetting("Color1 blue", this, 255, 0, 255, false);
+    public DoubleSetting color2red = new DoubleSetting("Color2 red", this, 255, 0, 255, false);
+    public DoubleSetting color2green = new DoubleSetting("Color2 green", this, 255, 0, 255, false);
+    public DoubleSetting color2blue = new DoubleSetting("Color2 blue", this, 255, 0, 255, false);
+    private BooleanSetting dynamicIsland = new BooleanSetting("Dynamic Island", this, false);
+    private ModeSetting outline = new ModeSetting("Outline", this, "None", Arrays.asList("None", "Right", "Left"));
+    public ModeSetting font = new ModeSetting("Font", this, "Minecraft", Arrays.asList("Minecraft", "Apple", "Arial", "Product Sans"));
+    private BooleanSetting watermark = new BooleanSetting("Watermark", this, false);
+    private BooleanSetting animation = new BooleanSetting("Animation", this, true);
+    private BooleanSetting background = new BooleanSetting("Background", this, false);
+    public BooleanSetting lowercase = new BooleanSetting("Lowercase", this, false);
+    private BooleanSetting removeVisuals = new BooleanSetting("Remove Visuals", this, false);
+    private BooleanSetting removeScripts = new BooleanSetting("Remove Scripts", this, false);
+    private BooleanSetting removeIP = new BooleanSetting("Hide IP", this, false);
+    public BooleanSetting hideBoss = new BooleanSetting("Hide Boss", this, false);
+    private DoubleSetting xOffset = new DoubleSetting("X Offset", this, 10, 0, 10, 1);
+    private DoubleSetting offset = new DoubleSetting("Y Offset", this, 10, 0, 50, 1);
     private float islandWidth, islandHeight;
     private int cachedBlockCount = -1;
     private long blockCountCacheTime = 0;
@@ -67,31 +86,13 @@ public class HUD extends Module {
     private int color6 = 0x3C000000;
     public HUD() {
         super("HUD", 0, Category.VISUAL);
-        Client.instance.settingsManager.addSetting(color1red = new Setting("Color1 red", this, 255, 0, 255, false));
-        Client.instance.settingsManager.addSetting(color1green = new Setting("Color1 green", this, 255, 0, 255, false));
-        Client.instance.settingsManager.addSetting(color1blue = new Setting("Color1 blue", this, 255, 0, 255, false));
-        Client.instance.settingsManager.addSetting(color2red = new Setting("Color2 red", this, 255, 0, 255, false));
-        Client.instance.settingsManager.addSetting(color2green = new Setting("Color2 green", this, 255, 0, 255, false));
-        Client.instance.settingsManager.addSetting(color2blue = new Setting("Color2 blue", this, 255, 0, 255, false));
-        Client.instance.settingsManager.addSetting(dynamicIsland = new Setting("Dynamic Island", this, false));
-        Client.instance.settingsManager.addSetting(outline = new Setting("Outline", this, "None", Arrays.asList("None", "Right", "Left")));
-        Client.instance.settingsManager.addSetting(font = new Setting("Font", this, "Minecraft", Arrays.asList("Minecraft", "Apple", "Arial", "Product Sans")));
-        Client.instance.settingsManager.addSetting(watermark = new Setting("Watermark", this, false));
-        Client.instance.settingsManager.addSetting(animation = new Setting("Animation", this, true));
-        Client.instance.settingsManager.addSetting(background = new Setting("Background", this, false));
-        Client.instance.settingsManager.addSetting(lowercase = new Setting("Lowercase", this, false));
-        Client.instance.settingsManager.addSetting(removeVisuals = new Setting("Remove Visuals", this, false));
-        Client.instance.settingsManager.addSetting(removeScripts = new Setting("Remove Scripts", this, false));
-        Client.instance.settingsManager.addSetting(removeIP = new Setting("Hide IP", this, false));
-        Client.instance.settingsManager.addSetting(hideBoss = new Setting("Hide Boss", this, false));
-        Client.instance.settingsManager.addSetting(xOffset = new Setting("X Offset", this, 10, 0, 10, 1));
-        Client.instance.settingsManager.addSetting(offset = new Setting("Y Offset", this, 10, 0, 50, 1));
+        this.addSetting(color1red,color1green,color1blue,color2red,color2green,color2blue,dynamicIsland,outline,font,watermark,animation,background,lowercase,removeVisuals,removeScripts,removeIP,hideBoss,xOffset,offset);
         try {
             InputStream inputStream = getClass().getResourceAsStream("/assets/minecraft/cryptix/cryptixlogo.png");
             if (inputStream != null) {
                 BufferedImage image = ImageIO.read(inputStream);
                 DynamicTexture dynamicTexture = new DynamicTexture(image);
-                cryptixLogo = Minecraft.getMinecraft().getTextureManager().getDynamicTextureLocation("cryptixlogo", dynamicTexture);
+                cryptixLogo = mc.getTextureManager().getDynamicTextureLocation("cryptixlogo", dynamicTexture);
             }
         } catch (IOException e) {
             e.printStackTrace();

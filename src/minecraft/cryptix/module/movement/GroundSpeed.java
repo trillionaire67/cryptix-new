@@ -5,6 +5,7 @@ import java.util.Random;
 
 import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.ModeSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
 import cryptix.utils.MovementUtils;
@@ -19,7 +20,7 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 
 public class GroundSpeed extends Module{
-	private Setting mode = new Setting("Mode", this, "Hypixel", Arrays.asList("Hypixel", "BlocksMC", "Strafe", "Vulcan"));
+	private ModeSetting mode = new ModeSetting("Mode", this, "Hypixel", Arrays.asList("Hypixel", "BlocksMC", "Strafe", "Vulcan"));
 	private int offStairTick;
 	private boolean isCollided, grounded;
 	public GroundSpeed() {

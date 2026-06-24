@@ -3,6 +3,8 @@ package cryptix.module.player;
 import cryptix.Client;
 import cryptix.module.Category;
 import cryptix.module.Module;
+import cryptix.other.event.Event;
+import cryptix.other.event.events.RotationEvent;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemBlock;
@@ -21,8 +23,6 @@ public class AutoBlockIn extends Module {
 
     @Override
     public void onPreUpdate() {
-    	mc.thePlayer.rotationYawHead = rotations[0];
-    	mc.thePlayer.rotationPitchHead = rotations[1];
         BlockPos base = new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ);
         Client.movefix = true;
         // 1
@@ -42,9 +42,11 @@ public class AutoBlockIn extends Module {
     }
     
     @Override
-    public void onPreMotion() {
-    	mc.thePlayer.rotationYawHead = rotations[0];
-    	mc.thePlayer.rotationPitchHead = rotations[1];
+    public void onEvent(Event e) {
+    	if(e instanceof RotationEvent) {
+    		((RotationEvent) e).setYaw(rotations[0]);
+            ((RotationEvent) e).setPitch(rotations[1]);
+    	}
     }
 
     private boolean place(BlockPos pos) {

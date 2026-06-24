@@ -9,6 +9,8 @@ import com.mojang.authlib.GameProfile;
 
 import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.BooleanSetting;
+import cryptix.gui.clickgui.settings.DoubleSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
 import net.minecraft.client.network.NetworkPlayerInfo;
@@ -16,14 +18,13 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 
 public class AntiBot extends Module {
-    private Setting tab;
-    private Setting delay;
+    private BooleanSetting tab = new BooleanSetting("Tablist", this, false);
+    private DoubleSetting delay = new DoubleSetting("Delay", this, 20, 1, 100, true);
     private Map<String, Integer> playerTimers = new HashMap<>();
 
     public AntiBot() {
         super("AntiBot", 0, Category.COMBAT);
-        this.addSetting(tab = new Setting("Tablist", this, false));
-        this.addSetting(delay = new Setting("Delay", this, 20, 1, 100, true));
+        this.addSetting(tab, delay);
     }
 
     @Override

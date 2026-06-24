@@ -7,6 +7,9 @@ import org.lwjgl.opengl.GL11;
 
 import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.BooleanSetting;
+import cryptix.gui.clickgui.settings.DoubleSetting;
+import cryptix.gui.clickgui.settings.ModeSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
 import cryptix.module.combat.AntiBot;
@@ -26,18 +29,18 @@ import net.minecraft.scoreboard.ScorePlayerTeam;
 import net.minecraft.util.EnumChatFormatting;
 
 public class PlayerESP extends Module{
-	private Setting colorred, colorgreen, colorblue, teamColor, d3d, d2d, bar, box, alan;
+	private DoubleSetting colorred = new DoubleSetting("Red", this, 255, 0, 255, false);
+	private DoubleSetting colorgreen = new DoubleSetting("Green", this, 255, 0, 255, false);
+	private DoubleSetting colorblue = new DoubleSetting("Blue", this, 255, 0, 255, false);
+	private BooleanSetting teamColor = new BooleanSetting("Theme Color", this, false);
+	private BooleanSetting d3d = new BooleanSetting("3D", this, false);
+	private BooleanSetting d2d = new BooleanSetting("2D", this, false);
+	private BooleanSetting box = new BooleanSetting("Box", this, false);
+	private BooleanSetting alan = new BooleanSetting("Alan WOOD", this, false);
+	private ModeSetting bar = new ModeSetting("Health bar", this, "Normal", Arrays.asList("Disabled", "Normal", "Myau"));
 	public PlayerESP() {
 		super("PlayerESP", 0, Category.VISUAL);
-		Client.instance.settingsManager.addSetting(colorred = new Setting("Red", this, 255, 0, 255, false));
-		Client.instance.settingsManager.addSetting(colorgreen = new Setting("Green", this, 255, 0, 255, false));
-		Client.instance.settingsManager.addSetting(colorblue = new Setting("Blue", this, 255, 0, 255, false));
-		Client.instance.settingsManager.addSetting(teamColor = new Setting("Theme Color", this, false));
-		Client.instance.settingsManager.addSetting(d3d = new Setting("3D", this, false));
-		Client.instance.settingsManager.addSetting(d2d = new Setting("2D", this, false));
-		Client.instance.settingsManager.addSetting(bar = new Setting("Health bar", this, "Normal", Arrays.asList("Disabled", "Normal", "Myau")));
-		Client.instance.settingsManager.addSetting(box = new Setting("Box", this, false));
-		Client.instance.settingsManager.addSetting(alan = new Setting("Alan WOOD", this, false));
+		this.addSetting(this.colorred, this.colorgreen, this.colorblue, this.teamColor, this.d3d, this.d2d, this.bar, this.box, this.alan);
 	}
 	
 	@Override

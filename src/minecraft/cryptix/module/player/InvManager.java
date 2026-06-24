@@ -2,6 +2,8 @@ package cryptix.module.player;
 
 import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.BooleanSetting;
+import cryptix.gui.clickgui.settings.DoubleSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
 import net.minecraft.block.Block;
@@ -22,19 +24,19 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 
 public class InvManager extends Module{
-	private Setting swordSlot, blockSlot, delay, startDelay, gappleSlot, dropTrash, dropTools, randomDelay, swor;
+	private DoubleSetting startDelay = new DoubleSetting("Start Delay", this, 1, 0, 10, true);
+	private DoubleSetting delay = new DoubleSetting("Delay", this, 1, 0, 10, true);
+	private BooleanSetting randomDelay = new BooleanSetting("Random Delay", this, true);
+	private DoubleSetting swordSlot = new DoubleSetting("Sword Slot", this, 1, 1, 9, true);
+	private DoubleSetting blockSlot = new DoubleSetting("Block Slot", this, 2, 1, 9, true);
+	private DoubleSetting gappleSlot = new DoubleSetting("Gapple Slot", this, 3, 1, 9, true);
+	private BooleanSetting dropTrash = new BooleanSetting("Drop Trash", this, true);
+	private BooleanSetting dropTools = new BooleanSetting("Drop Tools", this, false);
+	private BooleanSetting swor = new BooleanSetting("Ignore Low Durability Sword", this, false);
 	private int ticks, startTicks;
 	public InvManager() {
 		super("InvManager", 0, Category.PLAYER);
-		Client.instance.settingsManager.addSetting(startDelay = new Setting("Start Delay", this, 1, 0, 10, true)); 
-		Client.instance.settingsManager.addSetting(delay = new Setting("Delay", this, 1, 0, 10, true)); 
-		Client.instance.settingsManager.addSetting(randomDelay = new Setting("Random Delay", this, true)); 
-		Client.instance.settingsManager.addSetting(swordSlot = new Setting("Sword Slot", this, 1, 1, 9, true)); 
-		Client.instance.settingsManager.addSetting(blockSlot = new Setting("Block Slot", this, 2, 1, 9, true)); 
-		Client.instance.settingsManager.addSetting(gappleSlot = new Setting("Gapple Slot", this, 3, 1, 9, true)); 
-		Client.instance.settingsManager.addSetting(dropTrash = new Setting("Drop Trash", this, true));
-		Client.instance.settingsManager.addSetting(dropTools = new Setting("Drop Tools", this, false));
-		Client.instance.settingsManager.addSetting(swor = new Setting("Ignore Low Durability Sword", this, false));
+		this.addSetting(startDelay, delay, randomDelay, swordSlot, blockSlot, gappleSlot, dropTrash, dropTools, swor); 
 	}
 	
 	

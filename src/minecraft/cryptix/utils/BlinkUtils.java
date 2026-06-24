@@ -5,17 +5,17 @@ import java.util.Deque;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
+import cryptix.Client;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.C03PacketPlayer;
 
 public class BlinkUtils {
-	private static final Minecraft mc = Minecraft.getMinecraft();
 	public static Deque<Packet<?>> packets = new ConcurrentLinkedDeque<>();
 	public static boolean blinking = false;
 	
 	public static void startBlink() {
-		if(mc.getCurrentServerData() == null) return;
+		if(Client.mc.getCurrentServerData() == null) return;
 		blinking = true;
 	}
 	
@@ -25,20 +25,20 @@ public class BlinkUtils {
 	
 	public static void stopBlink() {
 	    blinking = false;
-	    if(mc.theWorld == null) return;
+	    if(Client.mc.theWorld == null) return;
 	    for (Packet<?> packet : packets) {
-	    	mc.getNetHandler().getNetworkManager().sendPacket(packet, null);
+	    	Client.mc.getNetHandler().getNetworkManager().sendPacket(packet, null);
 	    }
 	    packets.clear();
 	}
 	
 	public static void releaseOne() {
-	    if(mc.theWorld == null) return;
+	    if(Client.mc.theWorld == null) return;
 	    
 	    blinking = false;
 	    for (Packet<?> packet : packets) {
 	    	packets.remove(packet);
-            mc.getNetHandler().getNetworkManager().sendPacket(packet, null);
+	    	Client.mc.getNetHandler().getNetworkManager().sendPacket(packet, null);
 	        if (packet instanceof C03PacketPlayer || packet instanceof C03PacketPlayer.C04PacketPlayerPosition || packet instanceof C03PacketPlayer.C05PacketPlayerLook || packet instanceof C03PacketPlayer.C06PacketPlayerPosLook) {
 	            break;
 	        }
@@ -48,10 +48,10 @@ public class BlinkUtils {
 	
 	public static void stopBlinkNoC03() {
 	    blinking = false;
-	    if(mc.theWorld == null) return;
+	    if(Client.mc.theWorld == null) return;
 	    for (Packet<?> packet : packets) {
 	    	if(packet instanceof C03PacketPlayer) continue;
-	        mc.thePlayer.sendQueue.addToSendQueue(packet);
+	    	Client.mc.thePlayer.sendQueue.addToSendQueue(packet);
 	    }
 	    packets.clear();
 	}

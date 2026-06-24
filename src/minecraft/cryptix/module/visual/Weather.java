@@ -3,6 +3,8 @@ package cryptix.module.visual;
 import java.util.Arrays;
 
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.DoubleSetting;
+import cryptix.gui.clickgui.settings.ModeSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
 import cryptix.other.event.Event;
@@ -12,8 +14,8 @@ import net.minecraft.network.play.server.S03PacketTimeUpdate;
 import net.minecraft.world.storage.WorldInfo;
 
 public class Weather extends Module{
-	private Setting weather = new Setting("Weather", this, "Clear", Arrays.asList("Clear", "Rain"));
-	private Setting time = new Setting("Time", this, 1000, 1, 24000, 1);
+	private ModeSetting weather = new ModeSetting("Weather", this, "Clear", Arrays.asList("Clear", "Rain"));
+	private DoubleSetting time = new DoubleSetting("Time", this, 1000, 1, 24000, 1);
 	public Weather() {
 		super("Weather", 0, Category.VISUAL);
 		this.addSetting(weather, time);

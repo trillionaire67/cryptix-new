@@ -22,6 +22,7 @@ import cryptix.gui.clickgui.Setting;
 import cryptix.gui.clickgui.element.elements.CheckBox;
 import cryptix.gui.clickgui.element.elements.ModeBox;
 import cryptix.gui.clickgui.element.elements.Slider;
+import cryptix.gui.clickgui.settings.*;
 import cryptix.gui.clickgui.util.ColorUtil;
 import cryptix.gui.clickgui.util.FontUtil;
 import cryptix.module.Module;
@@ -45,16 +46,16 @@ public class ModuleButton {
 	private long lastUpd;
 	public ModuleButton(Module imod, Panel pl) {
 		mod = imod;
-		height = Minecraft.getMinecraft().fontRendererObj.FONT_HEIGHT + 2;
+		height = Client.mc.fontRendererObj.FONT_HEIGHT + 2;
 		parent = pl;
 		menuelements = new ArrayList<>();
 		if (Client.instance.settingsManager.getSettingsByMod(imod) != null)
 			for (Setting s : Client.instance.settingsManager.getSettingsByMod(imod)) {
-				if (s.isCheckBox()) {
+				if (s instanceof BooleanSetting) {
 					menuelements.add(new CheckBox(this, s));
-				} else if (s.isSlider()) {
+				} else if (s instanceof DoubleSetting) {
 					menuelements.add(new Slider(this, s));
-				} else if (s.isModeBox()) {
+				} else if (s instanceof ModeSetting) {
 					menuelements.add(new ModeBox(this, s));
 				}
 			}
@@ -122,11 +123,11 @@ public class ModuleButton {
 		this.allSettHeight = 0;
 		if (Client.instance.settingsManager.getSettingsByMod(mod) != null) {
 			for (Setting s : Client.instance.settingsManager.getSettingsByMod(mod)) {
-				if (s.isSlider()) {
+				if (s instanceof DoubleSetting) {
 					allSettHeight += 17;
-				} else if (s.isCheckBox()) {
+				} else if (s instanceof BooleanSetting) {
 					allSettHeight += 15;
-				} else if (s.isModeBox()) {
+				} else if (s instanceof ModeSetting) {
 					allSettHeight += 15;
 				}
 			}

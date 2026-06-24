@@ -47,6 +47,13 @@ public class MicrosoftOAuthTranslation {
     private static Consumer<String> callback;
 
     static void browse(String url) {
+    	System.out.println(System.getProperty("java.version"));
+    	System.out.println(System.getProperty("java.vendor"));
+    	System.out.println(System.getProperty("os.name"));
+    	System.out.println(System.getProperty("os.version"));
+    	if (!url.startsWith("http://") && !url.startsWith("https://")) {
+    	    url = "https://" + url;
+    	}
         try {
             System.out.println("Opening browser to: " + url);
             Desktop.getDesktop().browse(new URI(url));

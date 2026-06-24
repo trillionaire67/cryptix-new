@@ -8,6 +8,9 @@ import org.lwjgl.opengl.GL11;
 
 import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.BooleanSetting;
+import cryptix.gui.clickgui.settings.DoubleSetting;
+import cryptix.gui.clickgui.settings.ModeSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
 import cryptix.utils.FrustumUtils;
@@ -31,11 +34,11 @@ import net.minecraft.util.EnumFacing;
 public class ChestESP extends Module {
 	private BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
 	private final EnumFacing[] FACINGS = EnumFacing.values();
-	private Setting mode = new Setting("Mode", this, "Outline", Arrays.asList("Outline", "Box", "2D"));
-	private Setting enderchest = new Setting("Ender Chest", this, false);
-	private Setting r = new Setting("Red", this, 255, 0, 255, true);
-	private Setting g = new Setting("Green", this, 255, 0, 255, true);
-	private Setting b = new Setting("Blue", this, 255, 0, 255, true);
+	private ModeSetting mode = new ModeSetting("Mode", this, "Outline", Arrays.asList("Outline", "Box", "2D"));
+	private BooleanSetting enderchest = new BooleanSetting("Ender Chest", this, false);
+	private DoubleSetting r = new DoubleSetting("Red", this, 255, 0, 255, true);
+	private DoubleSetting g = new DoubleSetting("Green", this, 255, 0, 255, true);
+	private DoubleSetting b = new DoubleSetting("Blue", this, 255, 0, 255, true);
 	private Block[] blockArray = new Block[6];
     public ChestESP() {
         super("ChestESP", 0, Category.VISUAL);

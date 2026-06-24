@@ -5,8 +5,11 @@ import java.util.List;
 
 import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.ModeSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
+import cryptix.other.event.Event;
+import cryptix.other.event.events.RotationEvent;
 import cryptix.utils.BlinkUtils;
 import cryptix.utils.MovementUtils;
 import cryptix.utils.RotationUtils;
@@ -19,20 +22,18 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 
 public class NoSlow extends Module {
-    public Setting mode;
+    public ModeSetting mode = new ModeSetting("Mode", this, "Vanilla", Arrays.asList("Vanilla", "Post", "Alpha", "Beta", "Gamma", "NoGround"));
     private int tick;
     private boolean blinking, rotated;
 
     public NoSlow() {
         super("NoSlow", 0, Category.MOVEMENT);
-        List<String> modes = Arrays.asList("Vanilla", "Post", "Alpha", "Beta", "Gamma", "NoGround");
-        Client.instance.settingsManager.addSetting(mode = new Setting("Mode", this, "Vanilla", modes));
+        this.addSetting(mode);
     }
 
     @Override
     public void onPreMotion() {
         this.setDisplayName(this.getName() + this.getUppercaseSuffix(mode.getString()));
-        rotated = false;
         if (!mc.thePlayer.isUsingItem()) {
             tick = 0;
             if(blinking){
@@ -59,11 +60,6 @@ public class NoSlow extends Module {
             case "alpha":
                 break;
             case "beta":
-            	mc.thePlayer.rotationYawHead = RotationUtils.getMovementYaw() + 180;
-            	if(!(mc.gameSettings.keyBindJump.isKeyDown() && mc.thePlayer.onGround)) {
-            		mc.thePlayer.rotationYawHead -= 45;
-            		rotated = true;
-            	}
                 break;
 
             case "noground":
@@ -71,6 +67,23 @@ public class NoSlow extends Module {
                 break;
         }
         tick++;
+    }
+    
+    @Override
+    public void onEvent(Event e) {
+    	if(e instanceof RotationEvent) {
+    		rotated = false;
+    		if (!mc.thePlayer.isUsingItem()) {
+    			return;
+    		}
+    		if(mode.getString().equalsIgnoreCase("Beta")) {
+    			((RotationEvent) e).setYaw(RotationUtils.getMovementYaw() + 180);
+            	if(!(mc.gameSettings.keyBindJump.isKeyDown() && mc.thePlayer.onGround)) {
+            		((RotationEvent) e).setYaw(((RotationEvent) e).getYaw() - 45);
+            		rotated = true;
+            	}
+    		}
+    	}
     }
     
     @Override

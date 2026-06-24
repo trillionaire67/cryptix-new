@@ -23,8 +23,6 @@ public abstract class Module {
 	private boolean toggled;
 	private long toggleTimeStamp;
 	private String cachedSuffix;
-	public boolean markedForRemoval = false;
-	public boolean markedForAdd = false;
 	public Module(String name, int key, Category category) {
 		this.name = name;
 		this.key = key;

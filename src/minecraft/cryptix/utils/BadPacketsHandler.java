@@ -27,6 +27,9 @@ public class BadPacketsHandler {
 		if(packet instanceof C07PacketPlayerDigging) {
 			C07PacketPlayerDigging ev = (C07PacketPlayerDigging) packet;
 			if(ev.getStatus() == C07PacketPlayerDigging.Action.RELEASE_USE_ITEM) {
+				if(!blocking) {
+					Utils.sendClientChatMessage("Bad Unblock");
+				}
 				blocking = false;
 			}
 		}

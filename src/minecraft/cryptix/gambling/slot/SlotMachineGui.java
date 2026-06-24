@@ -86,8 +86,6 @@ public class SlotMachineGui extends GuiScreen {
                 break;
         }
 
-        Minecraft mc = Minecraft.getMinecraft();
-
         GlStateManager.pushMatrix();
         GlStateManager.enableBlend();
 

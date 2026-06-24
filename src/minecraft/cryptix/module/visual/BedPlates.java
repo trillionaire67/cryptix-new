@@ -5,6 +5,7 @@ import java.util.List;
 
 import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.DoubleSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
 import cryptix.utils.render.EspUtils;
@@ -19,8 +20,8 @@ public class BedPlates extends Module {
 
     public final List<BlockPos> beds = new ArrayList<>(128);
 
-    private final Setting range = new Setting("Range", this, 20.0, 10.0, 50.0, true);
-    private final Setting updateTime = new Setting("Update Time", this, 10, 5.0, 20, true);
+    private final DoubleSetting range = new DoubleSetting("Range", this, 20.0, 10.0, 50.0, true);
+    private final DoubleSetting updateTime = new DoubleSetting("Update Time", this, 10, 5.0, 20, true);
 
     public BedPlates() {
         super("BedPlates", 0, Category.VISUAL);

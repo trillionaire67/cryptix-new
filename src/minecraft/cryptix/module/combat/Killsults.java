@@ -4,13 +4,15 @@ import java.util.Arrays;
 
 import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.DoubleSetting;
+import cryptix.gui.clickgui.settings.ModeSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
 import cryptix.utils.Utils;
 
 public class Killsults extends Module{
-	private Setting mode = new Setting("Mode", this, "Normal", Arrays.asList("Normal", "Islam"));
-	private Setting delay = new Setting("Delay", this, 5, 1, 10, true);
+	private ModeSetting mode = new ModeSetting("Mode", this, "Normal", Arrays.asList("Normal", "Islam"));
+	private DoubleSetting delay = new DoubleSetting("Delay", this, 5, 1, 10, true);
 	private final String[] insultsIslam = {"muhammad was a caravan robber", "muhammad married a 9 year old",
             "muhammad is a fucking pædo", "fun fact: aisha used to scrape sæmen stains off the prophets clothes!",
             "fuck your moon god!",

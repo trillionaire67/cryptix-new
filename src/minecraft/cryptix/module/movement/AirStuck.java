@@ -1,6 +1,7 @@
 package cryptix.module.movement;
 
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.BooleanSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
 import cryptix.other.event.Event;
@@ -8,7 +9,7 @@ import cryptix.other.event.events.PacketSendEvent;
 import net.minecraft.network.play.client.C03PacketPlayer;
 
 public class AirStuck extends Module{
-	private Setting rotate = new Setting("Allow Rotating", this, false);
+	private BooleanSetting rotate = new BooleanSetting("Allow Rotating", this, false);
 	private int ticks;
 	private double x,y,z;
 	private float yaw, pitch;

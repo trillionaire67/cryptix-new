@@ -4,11 +4,16 @@ package cryptix.module.combat;
 
 import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.BooleanSetting;
+import cryptix.gui.clickgui.settings.DoubleSetting;
+import cryptix.gui.clickgui.settings.ModeSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
 import cryptix.module.combat.AntiBot;
 import cryptix.other.event.Event;
+import cryptix.other.event.EventManager;
 import cryptix.other.event.events.PacketReceiveEvent;
+import cryptix.other.event.events.RotationEvent;
 import cryptix.utils.BlinkUtils;
 import cryptix.utils.RotationUtils;
 import cryptix.utils.Utils;
@@ -54,65 +59,29 @@ extends Module {
     public int asw;
     public int attack;
     public int nextTick;
-    private final Setting switchDelay;
-    private final Setting rotationRange;
-    private final Setting blockRange;
-    private final Setting attackRange;
-    private final Setting minCPS;
-    private final Setting maxCPS;
-    public final Setting autoblock;
-    private final Setting team;
-    private final Setting movefix;
-    private final Setting rotateBody;
-    private final Setting targetESP;
-    private final Setting swordOnly;
-    private final Setting delay;
-    private final Setting raycast;
-    private final Setting reach;
-    private final Setting reach2, switchAttack;
-    public Setting rotation;
+    private final DoubleSetting switchDelay = new DoubleSetting("Switch Delay", (Module)this, 150.0, 0.0, 1000.0, true);
+    private final DoubleSetting rotationRange = new DoubleSetting("Rotation Range", (Module)this, 3.0, 3.0, 10.0, false);;
+    private final DoubleSetting blockRange = new DoubleSetting("Block Range", (Module)this, 3.0, 3.0, 10.0, false);
+    private final DoubleSetting attackRange = new DoubleSetting("Attack Range", (Module)this, 3.0, 3.0, 10.0, false);
+    private final DoubleSetting minCPS = new DoubleSetting("Min CPS", (Module)this, 10.0, 1.0, 20.0, true);
+    private final DoubleSetting maxCPS = new DoubleSetting("Max CPS", (Module)this, 10.0, 1.0, 20.0, true);
+    public final ModeSetting autoblock = new ModeSetting("Autoblock", (Module)this, "None", new ArrayList<String>(Arrays.asList("None", "Fake", "Vanilla", "BlocksMC", "Hypixel", "Hypixel2", "Hypixel3", "NCP", "Vulcan", "Legit")));
+    private final BooleanSetting team = new BooleanSetting("Teams", this, true);
+    private final BooleanSetting movefix = new BooleanSetting("Movefix", this, false);
+    private final BooleanSetting targetESP = new BooleanSetting("TargetESP", this, false);
+    private final BooleanSetting swordOnly = new BooleanSetting("Sword Only", this, false);
+    private final BooleanSetting delay = new BooleanSetting("Delay While Attacking", this, false);
+    private final BooleanSetting raycast = new BooleanSetting("Raycast", this, false);
+    private final BooleanSetting reach = new BooleanSetting("Hypixel Reach Bypass", this, false);
+    private final BooleanSetting switchAttack = new BooleanSetting("Switch On Attack", this, false);
+    private final DoubleSetting reach2 = new DoubleSetting("Hypixel Reach", (Module)this, 3.1, 3.1, 3.5, 1);
+    public ModeSetting rotation = new ModeSetting("Rotations", (Module)this, "Normal", new ArrayList<String>(Arrays.asList("None", "Normal", "Hypixel", "Grim", "Vulcan")));
     private int reached, reduce;
 
     public KillAura() {
         super("KillAura", 0, Category.COMBAT);
-        ArrayList<String> autoblocks = new ArrayList<String>(Arrays.asList("None", "Fake", "Vanilla", "BlocksMC", "Hypixel", "Hypixel2", "Hypixel3", "NCP", "Vulcan", "Legit"));
-        ArrayList<String> rotations = new ArrayList<String>(Arrays.asList("None", "Normal", "Hypixel", "Grim", "Vulcan"));
-        this.minCPS = new Setting("Min CPS", (Module)this, 10.0, 1.0, 20.0, true);
-        Client.instance.settingsManager.addSetting(this.minCPS);
-        this.maxCPS = new Setting("Max CPS", (Module)this, 10.0, 1.0, 20.0, true);
-        Client.instance.settingsManager.addSetting(this.maxCPS);
-        this.autoblock = new Setting("Autoblock", (Module)this, "None", autoblocks);
-        Client.instance.settingsManager.addSetting(this.autoblock);
-        this.rotation = new Setting("Rotations", (Module)this, "Normal", rotations);
-        Client.instance.settingsManager.addSetting(this.rotation);
-        this.attackRange = new Setting("Attack Range", (Module)this, 3.0, 3.0, 10.0, false);
-        Client.instance.settingsManager.addSetting(this.attackRange);
-        this.blockRange = new Setting("Block Range", (Module)this, 3.0, 3.0, 10.0, false);
-        Client.instance.settingsManager.addSetting(this.blockRange);
-        this.rotationRange = new Setting("Rotation Range", (Module)this, 3.0, 3.0, 10.0, false);
-        Client.instance.settingsManager.addSetting(this.rotationRange);
-        this.switchDelay = new Setting("Switch Delay", (Module)this, 150.0, 0.0, 1000.0, true);
-        Client.instance.settingsManager.addSetting(this.switchDelay);
-        this.rotateBody = new Setting("Rotate Body", this, false);
-        Client.instance.settingsManager.addSetting(this.rotateBody);
-        this.targetESP = new Setting("TargetESP", this, false);
-        Client.instance.settingsManager.addSetting(this.targetESP);
-        this.swordOnly = new Setting("Sword Only", this, false);
-        Client.instance.settingsManager.addSetting(this.swordOnly);
-        this.team = new Setting("Teams", this, true);
-        Client.instance.settingsManager.addSetting(this.team);
-        this.movefix = new Setting("Movefix", this, false);
-        Client.instance.settingsManager.addSetting(this.movefix);
-        this.delay = new Setting("Delay While Attacking", this, false);
-        Client.instance.settingsManager.addSetting(this.delay);
-        this.raycast = new Setting("Raycast", this, false);
-        Client.instance.settingsManager.addSetting(this.raycast);
-        this.switchAttack = new Setting("Switch On Attack", this, false);
-        Client.instance.settingsManager.addSetting(this.switchAttack);
-        this.reach = new Setting("Hypixel Reach Bypass", this, false);
-        Client.instance.settingsManager.addSetting(this.reach);
-        this.reach2 = new Setting("Hypixel Reach", (Module)this, 3.1, 3.1, 3.5, 1);
-        Client.instance.settingsManager.addSetting(this.reach2);
+        this.addSetting(this.minCPS, this.maxCPS, this.autoblock, this.rotation, this.attackRange, this.blockRange, this.rotationRange, this.switchDelay,
+        		this.targetESP, this.swordOnly, this.team, this.movefix, this.delay, this.raycast, this.switchAttack, this.reach, this.reach2);
     }
 
     @Override
@@ -126,21 +95,7 @@ extends Module {
 
     @Override
     public void onPreMotion() {
-        if (this.target != null && this.isTargetInRange(this.target, this.rotationRange.getValue()) && !Client.instance.moduleManager.bedNuker.rotating) {
-            ++this.rotTick;
-            if (this.rotation.getString().equalsIgnoreCase("None")) {
-                return;
-            }
-            float[] rotations = RotationUtils.getRotations(this.target, true);
-            this.mc.thePlayer.rotationYawHead = rotations[0];
-            if (this.rotateBody.getBoolean()) {
-                this.mc.thePlayer.renderYawOffset = this.mc.thePlayer.rotationYawHead - MathHelper.clamp_float(MathHelper.wrapAngleTo180_float(this.mc.thePlayer.rotationYawHead - this.mc.thePlayer.renderYawOffset), -75.0f, 75.0f);
-                this.mc.thePlayer.renderYawOffset += MathHelper.wrapAngleTo180_float(this.mc.thePlayer.rotationYawHead - this.mc.thePlayer.renderYawOffset) * 0.3f;
-            }
-            this.mc.thePlayer.rotationPitchHead = rotations[1];
-            RotationUtils.currentYaw = rotations[0];
-            RotationUtils.currentPitch = rotations[1];
-        }
+    	
     }
 
     @Override
@@ -174,6 +129,19 @@ extends Module {
     				reduce = 3;
     			}
         	}
+    	}
+    	if(e instanceof RotationEvent) {
+    		if (this.target != null && this.isTargetInRange(this.target, this.rotationRange.getValue()) && !Client.instance.moduleManager.bedNuker.rotating) {
+                ++this.rotTick;
+                if (this.rotation.getString().equalsIgnoreCase("None")) {
+                    return;
+                }
+                float[] rotations = RotationUtils.getRotations(this.target, true);
+                ((RotationEvent) e).setYaw(rotations[0]);
+                ((RotationEvent) e).setPitch(rotations[1]);
+                RotationUtils.currentYaw = rotations[0];
+                RotationUtils.currentPitch = rotations[1];
+            }
     	}
     }
 
@@ -491,7 +459,7 @@ extends Module {
         if (Client.instance.moduleManager.bedNuker.bedPos != null) {
             return;
         }
-        MovingObjectPosition mop = RotationUtils.rayCastEntity(8.0, this.mc.thePlayer.rotationYawHead, this.mc.thePlayer.rotationPitchHead);
+        MovingObjectPosition mop = RotationUtils.rayCastEntity(8.0, EventManager.ROTATION_EVENT.getYaw(), EventManager.ROTATION_EVENT.getPitch());
         if (!this.raycast.getBoolean() || mop != null && mop.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY) {
             this.mc.thePlayer.swingItem();
             this.mc.playerController.attackEntity(this.mc.thePlayer, e);
@@ -501,7 +469,10 @@ extends Module {
             }
         }
         long currentTime = System.currentTimeMillis();
-        if(this.switchAttack.getBoolean()) {
+        if(this.validTargets.isEmpty()) {
+        	return;
+        }
+        if (this.lastTarget == null || (double)(currentTime - this.lastSwitchTime) > this.switchDelay.getValue() && this.switchAttack.getBoolean() || !this.validTargets.contains(this.lastTarget) || this.lastTarget.isDead) {
         	EntityLivingBase newTarget;
             if (this.validTargets.size() > 1 && this.lastTarget != null) {
                 this.validTargets.remove(this.lastTarget);

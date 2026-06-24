@@ -7,8 +7,12 @@ import org.lwjgl.input.Keyboard;
 
 import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.BooleanSetting;
+import cryptix.gui.clickgui.settings.ModeSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
+import cryptix.other.event.Event;
+import cryptix.other.event.events.RotationEvent;
 import cryptix.utils.BlinkUtils;
 import cryptix.utils.MovementUtils;
 import cryptix.utils.RotationUtils;
@@ -24,8 +28,9 @@ import net.minecraft.util.EnumFacing;
 
 public class Speed extends Module{
 	private float groundY;
-	private Setting mode = new Setting("Mode", this, "Vanilla", Arrays.asList("Vanilla", "NCP", "OldNCP", "Vulcan", "Vulcan New", "Timer"));
-	private Setting rotate = new Setting("Rotate", this, false);
+	private ModeSetting mode = new ModeSetting("Mode", this, "Vanilla", Arrays.asList("Vanilla", "NCP", "OldNCP", "Vulcan", "Vulcan New", "Timer"));
+	private BooleanSetting rotate = new BooleanSetting("Rotate", this, false);
+	private double multiplier = 0.5;
 	public Speed() {
 		super("Speed", 0, Category.MOVEMENT);
 		this.addSetting(mode, rotate);
@@ -36,7 +41,21 @@ public class Speed extends Module{
 		mc.gameSettings.keyBindJump.pressed = Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode());
 		groundY = 0;
 		mc.timer.timerSpeed = 1.0f;
+		multiplier = 0.5;
 		BlinkUtils.stopBlink();
+	}
+	
+	@Override
+	public void onEvent(Event e) {
+		if(e instanceof RotationEvent) {
+			if(rotate.getBoolean() && Client.instance.moduleManager.killAura.target == null) {
+				if(!mc.thePlayer.onGround) {
+					((RotationEvent)e).setYaw(RotationUtils.getMovementYaw() + 225);
+				}else {
+					((RotationEvent)e).setYaw(RotationUtils.getMovementYaw() + 180);
+				}
+			}
+		}
 	}
 	
 	@Override
@@ -112,8 +131,8 @@ public class Speed extends Module{
 							break;
 					}
 				}
-				if(MovementUtils.getSpeed() < 0.222) {
-					MovementUtils.strafe(0.222 + Math.random() * 0.001);
+				if(MovementUtils.getSpeed() < 0.2) {
+					MovementUtils.strafe(0.2 + Math.random() * 0.001);
 				}
 				break;
 			case "vulcan new":
@@ -152,14 +171,28 @@ public class Speed extends Module{
 				}
 				break;
 			case "oldncp":
-				if(mc.thePlayer.onGround) {
-					mc.thePlayer.motionY = 0.42F;
-					MovementUtils.strafe(0.85);
-				}else {
-					mc.thePlayer.motionY = -0.5F;
-					MovementUtils.strafe(0.4353);
+				if(MovementUtils.getSpeed() < 0.15) {
+					multiplier = 0.5;
+				}
+				multiplier = Math.min(1.0, multiplier + 0.02);
+				double speedMultiplier = multiplier;
+				if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
+				    int amplifier = mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).getAmplifier();
+				    speedMultiplier += (amplifier + 1) * 0.2;
+				}
+				if (mc.thePlayer.onGround) {
+				    mc.thePlayer.motionY = 0.42F;
+				    if(!mc.thePlayer.isCollidedHorizontally) {
+				    	MovementUtils.strafe(0.85 * speedMultiplier);
+				    }
+				} else if (mc.thePlayer.offGroundTicks < 2 && !mc.thePlayer.isCollidedHorizontally) {
+				    mc.thePlayer.motionY = -0.5F;
+				    MovementUtils.strafe(0.4353 * speedMultiplier);
+				} else {
+				    MovementUtils.strafe(MovementUtils.getSpeed() * speedMultiplier);
 				}
 				mc.timer.timerSpeed = 1.05f;
+				mc.thePlayer.setSprinting(true);
 				break;
 				
 		}

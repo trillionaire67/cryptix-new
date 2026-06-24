@@ -34,7 +34,7 @@ public class ScriptButton {
 	public boolean listening = false;
 	public ScriptButton(Script imod, Panel pl) {
 		script = imod;
-		height = Minecraft.getMinecraft().fontRendererObj.FONT_HEIGHT + 2;
+		height = Client.mc.fontRendererObj.FONT_HEIGHT + 2;
 		parent = pl;
 	}
 	

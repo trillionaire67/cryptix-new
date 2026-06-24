@@ -2,6 +2,9 @@ package cryptix.module.player;
 
 import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.BooleanSetting;
+import cryptix.gui.clickgui.settings.DoubleSetting;
+import cryptix.gui.clickgui.settings.ModeSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
 import cryptix.other.event.Event;
@@ -41,17 +44,19 @@ extends Module {
 	private AxisAlignedBB box = new AxisAlignedBB(0,0,0,0,0,0);
     private MovingObjectPosition placeBlock;
     private BlockPos placePos;
-    private Setting rotations = new Setting("Rotations", (Module)this, "Simple", Arrays.asList("None", "Simple", "Strict", "Lazy", "Offset"));
-    private Setting rotationsFake = new Setting("Rotations (fake)", (Module)this, "None", Arrays.asList("None", "Simple", "Strict"));
-    private Setting sprint;
-    private Setting silentSwing;
-    private Setting tower;
-    private Setting multiPlace;
-    private Setting blockOutline;
-    private Setting movefix;
-    private Setting rotationSpeed, delayRot, extraBlock;
-    public Setting count;
-    public Setting spoof;
+    private ModeSetting rotations = new ModeSetting("Rotations", (Module)this, "Simple", Arrays.asList("None", "Simple", "Strict", "Lazy", "Offset"));
+    private ModeSetting rotationsFake = new ModeSetting("Rotations (fake)", (Module)this, "None", Arrays.asList("None", "Simple", "Strict"));
+    private ModeSetting sprint = new ModeSetting("Sprint", (Module)this, "None", Arrays.asList("None", "Vanilla", "BlocksMC", "Hypixel", "Hypixel2", "Hypixel3", "BlocksD", "Vulcan"));
+    private BooleanSetting silentSwing = new BooleanSetting("Silent Swing", this, false);
+    private ModeSetting tower = new ModeSetting("Tower", (Module)this, "None", Arrays.asList("None", "Old", "NCP", "Hypixel"));
+    private BooleanSetting multiPlace = new BooleanSetting("Multi Place", this, true);
+    private BooleanSetting blockOutline = new BooleanSetting("Block Outline", this, true);
+    private BooleanSetting movefix = new BooleanSetting("Movefix", this, false);
+    private DoubleSetting rotationSpeed = new DoubleSetting("Rotation Speed", this, 3, 1, 15, true);
+    public ModeSetting count = new ModeSetting("Block Count", (Module)this, "None", Arrays.asList("None", "Simple", "Rise", "Adjust"));
+    public BooleanSetting spoof = new BooleanSetting("Spoof Item", this, false);
+    private BooleanSetting delayRot = new BooleanSetting("Delay Telly Rotation", this, false);
+    private BooleanSetting extraBlock = new BooleanSetting("Extra Block Telly", this, false);
     private float strictYaw;
     private float strictPitch;
     private float preYaw;
@@ -83,35 +88,13 @@ extends Module {
     private PlaceData extraPlaceData;
     public Scaffold() {
         super("Scaffold", 0, Category.PLAYER);
-        this.addSetting(this.rotations, this.rotationsFake);
-        this.sprint = new Setting("Sprint", (Module)this, "None", Arrays.asList("None", "Vanilla", "BlocksMC", "Hypixel", "Hypixel2", "BlocksD", "Vulcan"));
-        Client.instance.settingsManager.addSetting(this.sprint);
-        this.tower = new Setting("Tower", (Module)this, "None", Arrays.asList("None", "Old", "NCP", "Hypixel"));
-        Client.instance.settingsManager.addSetting(this.tower);
-        this.multiPlace = new Setting("Multi Place", this, true);
-        Client.instance.settingsManager.addSetting(this.multiPlace);
-        this.silentSwing = new Setting("Silent Swing", this, false);
-        Client.instance.settingsManager.addSetting(this.silentSwing);
-        this.count = new Setting("Block Count", (Module)this, "None", Arrays.asList("None", "Simple", "Rise", "Adjust"));
-        Client.instance.settingsManager.addSetting(this.count);
-        this.blockOutline = new Setting("Block Outline", this, true);
-        Client.instance.settingsManager.addSetting(this.blockOutline);
-        this.spoof = new Setting("Spoof Item", this, false);
-        Client.instance.settingsManager.addSetting(this.spoof);
-        this.movefix = new Setting("Movefix", this, false);
-        Client.instance.settingsManager.addSetting(this.movefix);
-        this.rotationSpeed = new Setting("Rotation Speed", this, 3, 1, 15, true);
-        Client.instance.settingsManager.addSetting(this.rotationSpeed);
-        this.delayRot = new Setting("Delay Telly Rotation", this, false);
-        Client.instance.settingsManager.addSetting(this.delayRot);
-        this.extraBlock = new Setting("Extra Block Telly", this, false);
-        Client.instance.settingsManager.addSetting(this.extraBlock);
+        this.addSetting(this.rotations, this.rotationsFake, this.sprint, this.tower, this.multiPlace, this.silentSwing, this.count, this.blockOutline, this.spoof, this.movefix, this.rotationSpeed, this.delayRot, this.extraBlock);
         extraPlaceData = new PlaceData(EnumFacing.UP, new BlockPos(0,0,0));
     }
 
     @Override
     public void onEnable() {
-        this.enable = 5;
+        this.enable = 4;
         this.preYaw = this.mc.thePlayer.rotationYaw % 360.0f;
         this.keepy_y = (int) (mc.thePlayer.onGround ? mc.thePlayer.posY : mc.thePlayer.posY - 1);
         this.lastSlot = this.mc.thePlayer.inventory.currentItem;
@@ -137,6 +120,9 @@ extends Module {
     @Override
     public void onPreMotion() {
     	if(Client.instance.moduleManager.killAura.blocking || Client.instance.moduleManager.killAura.swapped || Client.instance.moduleManager.killAura.b3 || Client.instance.moduleManager.killAura.target != null) return;
+    	if(forceStrict) {
+    		return;
+    	}
     	if(mc.currentScreen != null && mc.currentScreen instanceof GuiInventory) return;
     	this.sprint();
         if (this.mc.gameSettings.keyBindJump.isKeyDown()) {
@@ -147,18 +133,20 @@ extends Module {
         } else {
             this.towerTick = 1;
         }
-        this.rotation = this.getRotations();
-        if (this.rotation != null) {
-            this.mc.thePlayer.rotationYawHead = (this.rotation[0] % 360.0f + 360.0f) % 360.0f;
-            this.mc.thePlayer.renderYawOffset = this.rotation[2] == 45.0f ? this.mc.thePlayer.rotationYawHead + 45.0f : this.rotation[2];
-            this.mc.thePlayer.rotationPitchHead = this.rotation[1];
-        }
     }
     
     @Override
     public void onEvent(Event e) {
+    	if(Client.instance.moduleManager.killAura.blocking || Client.instance.moduleManager.killAura.swapped || Client.instance.moduleManager.killAura.b3 || Client.instance.moduleManager.killAura.target != null) {
+    		return;
+    	}
+    	if(forceStrict) {
+    		return;
+    	}
+    	if(mc.currentScreen != null && mc.currentScreen instanceof GuiInventory) return;
     	if(e instanceof RotationEvent) {
     		RotationEvent event = (RotationEvent) e;
+    		this.rotation = this.getRotations();
     		if (this.rotation != null) {
     			event.setYaw(rotation[0]);
     			event.setPitch(rotation[1]);
@@ -189,6 +177,10 @@ extends Module {
     		blink = false;
     		BlinkUtils.stopBlink();
     		BlinkUtils.startBlink();
+    	}
+    	if(sprint.getString().equalsIgnoreCase("Hypixel3")) {
+    		mc.thePlayer.fakeYaw = RotationUtils.getMovementYaw() + (floatTick == 8 ? 90 : 0);
+    		mc.thePlayer.fakePitch = 70;
     	}
     }
 
@@ -249,7 +241,7 @@ extends Module {
         	boolean snapY = Math.round((yMod = this.mc.thePlayer.posY % 1.0) * 100.0) == 0L || yMod < 0.1 && !this.mc.thePlayer.onGround;
         	if(mc.thePlayer.onGround) {
         		this.mc.thePlayer.motionY = 0.42f;
-        		MovementUtils.strafe(0.35);
+        		MovementUtils.strafe(0.5);
         		this.mc.thePlayer.setPosition(this.mc.thePlayer.posX, Math.floor(this.mc.thePlayer.posY), this.mc.thePlayer.posZ);
         		if(towerTick > 3) {
         			towerTick = 0;
@@ -335,6 +327,10 @@ extends Module {
                 KeyBinding.setKeyBindState(this.mc.gameSettings.keyBindSprint.getKeyCode(), true);
                 break;
             }
+            case "hypixel3": {
+                KeyBinding.setKeyBindState(this.mc.gameSettings.keyBindSprint.getKeyCode(), true);
+                break;
+            }
             case "vulcan":
             	KeyBinding.setKeyBindState(this.mc.gameSettings.keyBindSprint.getKeyCode(), false);
             	mc.thePlayer.setSprinting(false);
@@ -398,7 +394,7 @@ extends Module {
             this.preYaw = yaw = RotationUtils.getMovementYaw() + 180.0f;
             this.changeYaw = yaw;
             enable = 1;
-            this.mc.gameSettings.keyBindJump.pressed = this.mc.thePlayer.onGround ? true : Keyboard.isKeyDown((int)this.mc.gameSettings.keyBindJump.getKeyCode());
+            this.mc.gameSettings.keyBindJump.pressed = this.mc.thePlayer.onGround && MovementUtils.isMoving() ? true : Keyboard.isKeyDown((int)this.mc.gameSettings.keyBindJump.getKeyCode());
         }else if(this.sprint.getString().equalsIgnoreCase("Blocksmc")){
         	this.mc.gameSettings.keyBindJump.pressed = false;
         }
@@ -416,7 +412,6 @@ extends Module {
 		            	}else {
 		            		diag = 0;
 		            	}
-		                forceStrict = !forceStrict;
 	            	}else {
 	            		yaw = this.hypixelRots[0];
 	 	                pitch = this.hypixelRots[1];
@@ -436,7 +431,7 @@ extends Module {
     private BlockPos getTargetBlockPos() {
     	boolean diagonal = RotationUtils.getMovementYaw() % 90.0f > 10.0f && RotationUtils.getMovementYaw() % 90.0f < 80.0f;
         BlockPos bp;
-        if (this.sprint.getString().equalsIgnoreCase("keepy a") || this.sprint.getString().equalsIgnoreCase("keepy b") || this.sprint.getString().equalsIgnoreCase("blocksmc") || this.sprint.getString().equalsIgnoreCase("hypixel") || this.sprint.getString().equalsIgnoreCase("hypixel2")) {
+        if (this.sprint.getString().equalsIgnoreCase("keepy a") || this.sprint.getString().equalsIgnoreCase("keepy b") || this.sprint.getString().equalsIgnoreCase("blocksmc") || this.sprint.getString().equalsIgnoreCase("hypixel") || this.sprint.getString().equalsIgnoreCase("hypixel2") || this.sprint.getString().equalsIgnoreCase("hypixel3")) {
             bp = new BlockPos(this.mc.thePlayer.posX, this.keepy_y - 1.0, this.mc.thePlayer.posZ);
             if(this.sprint.getString().equalsIgnoreCase("hypixel") && this.extraBlock.getBoolean() && !mc.thePlayer.onGround && mc.thePlayer.motionY < 0 && !(mc.theWorld.getBlockState(new BlockPos(this.mc.thePlayer.posX, this.mc.thePlayer.posY - 2, this.mc.thePlayer.posZ)).getBlock() instanceof BlockAir) && !(mc.thePlayer.posY > (double)(keepy_y + 2)) && mc.thePlayer.posY > (double)(keepy_y + 1)) {
             	bp = new BlockPos(jumpX, this.mc.thePlayer.posY - 1.0, jumpZ);
@@ -456,7 +451,14 @@ extends Module {
 
     @Override
     public void onPreUpdate() {
-    	if(Client.instance.moduleManager.killAura.blocking || Client.instance.moduleManager.killAura.swapped || Client.instance.moduleManager.killAura.b3 || Client.instance.moduleManager.killAura.target != null) return;
+    	if(Client.instance.moduleManager.killAura.blocking || Client.instance.moduleManager.killAura.swapped || Client.instance.moduleManager.killAura.b3 || Client.instance.moduleManager.killAura.target != null) {
+    		forceStrict = true;
+    		return;
+    	}
+    	if(forceStrict) {
+    		forceStrict = false;
+    		return;
+    	}
     	if(mc.currentScreen != null && mc.currentScreen instanceof GuiInventory) return;
     	if (this.movefix.getBoolean()) {
             Client.movefix = true;
@@ -498,6 +500,7 @@ extends Module {
         if (rayCasted == null) {
             return;
         }
+        if((this.sprint.getString().equalsIgnoreCase("blocksmc") || this.sprint.getString().equalsIgnoreCase("hypixel")) && mc.thePlayer.onGround && MovementUtils.isMoving()) return;
         this.placeBlock = rayCasted;
         place(this.placeBlock, false);
         if(!multiPlace.getBoolean()) return;
@@ -531,7 +534,7 @@ extends Module {
         if (offset && !lazy) {
             float offsetYaw = playerYaw + (45.0f);
             float diff = MathHelper.wrapAngleTo180_float(offsetYaw - strictYaw);
-            diff = MathHelper.clamp_float(diff, -20.0f, 20.0f);
+            diff = MathHelper.clamp_float(diff, -40.0f, 40.0f);
             baseYaw = strictYaw + diff;
         }
         final float fakeYaw = mc.thePlayer.fakeYaw;
@@ -757,7 +760,7 @@ extends Module {
             float targetYaw = yaw;
             yaw = MathHelper.wrapAngleTo180_float(yaw);
             float speed = (float) MovementUtils.getSpeed();
-            float pitch = RotationUtils.clampTo90(this.strictPitch - 5);
+            float pitch = RotationUtils.clampTo90(this.strictPitch);
             float limit = 39.9f;
             if (blinkTick == 0) {
             	if(!delayRot.getBoolean()) {
@@ -776,27 +779,20 @@ extends Module {
             blinkTick++;
             float diffToTarget = MathHelper.wrapAngleTo180_float(targetYaw - changeYaw);
             float diffToTarget2 = MathHelper.wrapAngleTo180_float(pitch - prePitch);
-            if (Math.abs(diffToTarget) < 20f && Math.abs(diffToTarget2) < 20f && !mc.thePlayer.onGround && !this.rotations.getString().equalsIgnoreCase("Strict")) {
-            	float diff = MathHelper.wrapAngleTo180_float(yaw - changeYaw);
-                diff = MathHelper.clamp_float(diff, -5, 5);
-                changeYaw = MathHelper.wrapAngleTo180_float(changeYaw + diff);
-                this.changeYaw = changeYaw;
-            	return new float[]{changeYaw, prePitch};
-            }
             float diff = MathHelper.wrapAngleTo180_float(yaw - changeYaw);
             diff = MathHelper.clamp_float(diff, -limit, limit);
             changeYaw = MathHelper.wrapAngleTo180_float(changeYaw + diff);
             this.changeYaw = changeYaw;
             this.prePitch = pitch;
             float yawError = MathHelper.wrapAngleTo180_float(changeYaw - targetYaw);
-            if ((Math.abs(yawError) > (blinkTick > 6 ? 20 : 0)) && !mc.thePlayer.onGround) {
-                enable = 2;
+            if (Math.abs(yawError) > 0.1 && !mc.thePlayer.onGround) {
+                enable = 1;
             }
             return new float[]{changeYaw, pitch};
         }else if (sprintMode.equalsIgnoreCase("blocksmc")) {
             float yaw = strictYaw;
             float diff = MathHelper.wrapAngleTo180_float(yaw - changeYaw);
-            if (Math.abs(diff) > 20f) {
+            if (Math.abs(diff) > 90f) {
                 enable = 1;
             }
             this.prePitch = this.strictPitch;
@@ -829,12 +825,42 @@ extends Module {
             }
             this.changeYaw = changeYaw;
             return new float[]{changeYaw, this.strictPitch};
+        }else if (sprintMode.equalsIgnoreCase("hypixel3")) {
+            float baseYaw = !mc.thePlayer.onGround ? strictYaw : RotationUtils.getMovementYaw();
+            baseYaw = MathHelper.wrapAngleTo180_float(baseYaw);
+            float mod = Math.abs(!mc.thePlayer.onGround ? strictYaw : RotationUtils.getMovementYaw() % 90f);
+            if (wrongDirectionTick > 10) {
+                direction = (mod >= 45f) ? 1 : 0;
+                wrongDirectionTick = 0;
+            }
+            wrongDirectionTick++;
+            float yaw = baseYaw;
+            if(mc.thePlayer.onGround) {
+            	yaw = baseYaw + (direction == 0 ? 45f : -45f);
+            	if(!shouldPlaceBlock() && (floatTick == 8)) {
+            		yaw = baseYaw + (direction == 0 ? 135f : -135f);
+            	}
+            }
+            yaw = MathHelper.wrapAngleTo180_float(yaw + ((float) Math.random() - 0.5f) * 0.2f);
+            float targetYaw = yaw;
+            float diff = MathHelper.wrapAngleTo180_float(yaw - changeYaw);
+            float maxJump = 90f;
+            diff = MathHelper.clamp_float(diff, -maxJump, maxJump);
+            float limit = (float) (rotationSpeed.getValue() * 10f);
+            diff = MathHelper.clamp_float(diff, -limit, limit);
+            changeYaw = MathHelper.wrapAngleTo180_float(changeYaw + diff);
+            float err = MathHelper.wrapAngleTo180_float(changeYaw - targetYaw);
+            if (Math.abs(err) > 45f) {
+                enable = 2;
+            }
+            this.changeYaw = changeYaw;
+            return new float[]{changeYaw, this.strictPitch};
         }else {
             float moveYaw = RotationUtils.getMovementYaw();
             float yaw = simple ? moveYaw : strictYaw;
             yaw = MathHelper.wrapAngleTo180_float(yaw);
             float diff = MathHelper.wrapAngleTo180_float(yaw - changeYaw);
-            float limit = (float) (rotationSpeed.getValue() * 10f);
+            float limit = (float) (rotationSpeed.getValue() * 10f + Math.random());
             diff = MathHelper.clamp_float(diff, -limit, limit);
             changeYaw = MathHelper.wrapAngleTo180_float(changeYaw + diff);
             float err = MathHelper.wrapAngleTo180_float(changeYaw - yaw);

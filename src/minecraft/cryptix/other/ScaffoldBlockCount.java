@@ -10,8 +10,6 @@ import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.item.ItemStack;
 
 public class ScaffoldBlockCount {
-
-    private final Minecraft mc = Minecraft.getMinecraft();
     private final Scaffold scaffold;
     private long alphaTimer;
     private int alpha;
@@ -46,26 +44,26 @@ public class ScaffoldBlockCount {
         int alpha255 = alpha;
         int colorWhite = (alpha255 << 24) | 0x00FFFFFF;
         int colorHud = (alpha255 << 24) | (hudColor & 0x00FFFFFF);
-        int x = mc.displayWidth / 4 + 10;
-        int y = mc.displayHeight / 4 + 10;
+        int x = Client.mc.displayWidth / 4 + 10;
+        int y = Client.mc.displayHeight / 4 + 10;
         String prefix = "Blocks: ";
         if (scaffold.count.getString().equalsIgnoreCase("Simple")) {
             if (hotbarCount < 10) {
-                mc.fontRendererObj.drawStringWithShadow(prefix + "§c" + hotbarCount,x, y,alpha > 150 ? -1 : colorWhite);
+            	Client.mc.fontRendererObj.drawStringWithShadow(prefix + "§c" + hotbarCount,x, y,alpha > 150 ? -1 : colorWhite);
             } else {
-                mc.fontRendererObj.drawStringWithShadow(prefix + hotbarCount,x, y,alpha > 150 ? -1 : colorWhite);
+            	Client.mc.fontRendererObj.drawStringWithShadow(prefix + hotbarCount,x, y,alpha > 150 ? -1 : colorWhite);
             }
         } else if (scaffold.count.getString().equalsIgnoreCase("Rise")) {
-            ItemStack heldItem = mc.thePlayer.inventory.getStackInSlot(mc.thePlayer.inventory.currentItem);
-            int rx = mc.displayWidth / 4 - 18;
-            int ry = mc.displayHeight / 2 - 80;
+            ItemStack heldItem = Client.mc.thePlayer.inventory.getStackInSlot(Client.mc.thePlayer.inventory.currentItem);
+            int rx = Client.mc.displayWidth / 4 - 18;
+            int ry = Client.mc.displayHeight / 2 - 80;
             if (heldItem != null) {
                 GlStateManager.pushMatrix();
                 GlStateManager.rotate(-30.0F, 0.0F, 1.0F, 0.0F);
                 GlStateManager.rotate(165.0F, 1.0F, 0.0F, 0.0F);
                 RenderHelper.enableStandardItemLighting();
                 GlStateManager.popMatrix();
-                mc.getRenderItem().renderItemIntoGUI(heldItem, rx - 20, ry - 3);
+                Client.mc.getRenderItem().renderItemIntoGUI(heldItem, rx - 20, ry - 3);
                 RenderHelper.disableStandardItemLighting();
             }
             int bgAlpha = alpha / 2;
@@ -75,13 +73,13 @@ public class ScaffoldBlockCount {
             Client.instance.sans.drawString("Amount: ",rx - 2,ry + 1,alpha > 150 ? -1 : colorWhite);
             Client.instance.sans.drawString(String.valueOf(hotbarCount),rx + Client.instance.sans.getStringWidth("Amount: ") - 2,ry + 1,colorHud);
         } else if (scaffold.count.getString().equalsIgnoreCase("Adjust")) {
-            int rx = mc.displayWidth / 4 - 18;
-            int ry = mc.displayHeight / 2 - 80;
+            int rx = Client.mc.displayWidth / 4 - 18;
+            int ry = Client.mc.displayHeight / 2 - 80;
             int bgAlpha = alpha / 2;
             int bgColor = (bgAlpha << 24);
             GlStateManager.disableBlend();
-            Client.instance.sans.drawString(hotbarCount + "", mc.displayWidth / 4 - (Client.instance.sans.getStringWidth(hotbarCount + " blocks") / 2), y, colorHud);
-            Client.instance.sans.drawString(" blocks",mc.displayWidth / 4 + Client.instance.sans.getStringWidth(hotbarCount + "") - (Client.instance.sans.getStringWidth(hotbarCount + " blocks") / 2), y,alpha > 150 ? -1 : colorWhite);
+            Client.instance.sans.drawString(hotbarCount + "", Client.mc.displayWidth / 4 - (Client.instance.sans.getStringWidth(hotbarCount + " blocks") / 2), y, colorHud);
+            Client.instance.sans.drawString(" blocks",Client.mc.displayWidth / 4 + Client.instance.sans.getStringWidth(hotbarCount + "") - (Client.instance.sans.getStringWidth(hotbarCount + " blocks") / 2), y,alpha > 150 ? -1 : colorWhite);
         }
     }
 

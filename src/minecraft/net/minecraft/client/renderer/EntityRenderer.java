@@ -1245,9 +1245,6 @@ public class EntityRenderer implements IResourceManagerReloadListener
                 this.mc.thePlayer.setAngles(f2, f3 * (float)i);
             }
         }
-        if (this.mc.inGameHasFocus && flag) {
-        	
-        }
 
         this.mc.mcProfiler.endSection();
 

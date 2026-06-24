@@ -34,7 +34,9 @@ import org.lwjgl.opengl.GL11;
 
 import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.ModeSetting;
 import cryptix.module.Module;
+import cryptix.module.combat.KillAura;
 import cryptix.module.visual.Animations;
 import cryptix.utils.Utils;
 
@@ -331,11 +333,11 @@ public class ItemRenderer
             this.rotateWithPlayerRotations((EntityPlayerSP)abstractclientplayer, partialTicks);
             GlStateManager.enableRescaleNormal();
             GlStateManager.pushMatrix();
-            Module anim = Client.instance.moduleManager.getModuleByName("Animations");
-            Module ka = Client.instance.moduleManager.getModuleByName("KillAura");
-            Setting mode = null;
+            Animations anim = Client.instance.moduleManager.aminations;
+            KillAura ka = Client.instance.moduleManager.killAura;
+            ModeSetting mode = null;
             if(anim != null) {
-            	mode = Client.instance.settingsManager.getSettingByName(anim, "Mode");
+            	mode = anim.mode;
             }
             if (this.itemToRender != null)
             {
@@ -385,7 +387,7 @@ public class ItemRenderer
                 }
                 else
                 {
-                	if(ka.isToggled() && Client.instance.moduleManager.killAura.target != null && !Client.instance.settingsManager.getSettingByName(ka, "Autoblock").getString().equalsIgnoreCase("None") && Utils.holdingSword()) {
+                	if(ka.isToggled() && Client.instance.moduleManager.killAura.target != null && !ka.autoblock.getString().equalsIgnoreCase("None") && Utils.holdingSword()) {
 	                	if(anim != null && anim.isToggled()) {
 	                		doBlockAnim(mode.getString(), f, f1);
 	                    }else {

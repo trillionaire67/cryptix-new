@@ -155,9 +155,11 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
 
     protected void channelRead0(ChannelHandlerContext p_channelRead0_1_, Packet p_channelRead0_2_) throws Exception
     {
-    	PacketReceiveEvent event = EventManager.PACKET_RECEIVE_EVENT.innit(p_channelRead0_2_);
-    	event.call();
-    	if (event.isCancelled()) return;
+    	if(p_channelRead0_2_.getClass().getSimpleName().startsWith("S")) {
+	    	PacketReceiveEvent event = EventManager.PACKET_RECEIVE_EVENT.innit(p_channelRead0_2_);
+	    	event.call();
+	    	if (event.isCancelled()) return;
+    	}
     	if(p_channelRead0_2_ instanceof S02PacketChat && Client.instance.moduleManager.phase.isToggled()) {
             S02PacketChat packet = (S02PacketChat) p_channelRead0_2_;
             String message = packet.getChatComponent().getFormattedText().toLowerCase().replaceAll("(?i)�[0-9A-FK-OR]", "");
@@ -206,7 +208,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
     			Client.instance.moduleManager.noRotate.pitch = Client.mc.thePlayer.rotationPitch;
     			Client.instance.moduleManager.noRotate.received = true;
     		}
-    		if(disabler.isToggled() && Client.instance.settingsManager.getSettingByName(disabler, "Hypixel").getBoolean()) {
+    		if(disabler.isToggled() && disabler.hypixel.getBoolean()) {
     			Client.instance.moduleManager.disabler.flagged++;
                 if (Client.instance.moduleManager.disabler.flagged == 20) {
                 	Client.instance.moduleManager.disabler.finished = true;

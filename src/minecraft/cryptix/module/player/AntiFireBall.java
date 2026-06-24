@@ -2,8 +2,12 @@ package cryptix.module.player;
 
 import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.BooleanSetting;
+import cryptix.gui.clickgui.settings.DoubleSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
+import cryptix.other.event.Event;
+import cryptix.other.event.events.RotationEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.projectile.EntityFireball;
@@ -11,11 +15,10 @@ import net.minecraft.network.play.client.C02PacketUseEntity;
 import net.minecraft.util.MathHelper;
 
 public class AntiFireBall extends Module {
-	private Setting movefix = new Setting("Movefix", this, false);
-	private Setting scaffold = new Setting("Disable while Scaffolding", this, false);
-	private Setting rotationRange = new Setting("Rotation Range", this, 10, 3, 10, 1);
-	private Setting attackRange = new Setting("Attack Range", this, 4.5, 3, 10, 1);
-    private final Minecraft mc = Minecraft.getMinecraft();
+	private BooleanSetting movefix = new BooleanSetting("Movefix", this, false);
+	private BooleanSetting scaffold = new BooleanSetting("Disable while Scaffolding", this, false);
+	private DoubleSetting rotationRange = new DoubleSetting("Rotation Range", this, 10, 3, 10, 1);
+	private DoubleSetting attackRange = new DoubleSetting("Attack Range", this, 4.5, 3, 10, 1);
     private EntityFireball targetFireball = null;
     private EntityFireball nextTickTarget = null;
     private boolean rotating = false;
@@ -25,37 +28,37 @@ public class AntiFireBall extends Module {
     }
 
     @Override
-    public void onPreMotion() {
-        if (mc.thePlayer == null || mc.theWorld == null) return;
-
-        rotating = false;
-        if(scaffold.getBoolean() && Client.instance.moduleManager.scaffold.isToggled() || Client.instance.moduleManager.killAura.target != null) {
-        	return;
-        }
-        EntityFireball closest = null;
-        double range = rotationRange.getValue();
-
-        for (Entity entity : mc.theWorld.loadedEntityList) {
-            if (entity instanceof EntityFireball) {
-            	EntityFireball fireball = (EntityFireball) entity;
-                if (fireball.shootingEntity == mc.thePlayer) {
-                    continue;
-                }
-                double dist = mc.thePlayer.getDistanceToEntity(entity);
-                if (dist <= range) {
-                    range = dist;
-                    closest = (EntityFireball) entity;
-                }
-            }
-        }
-
-        if (closest != null) {
-            float[] rotations = getRotations(closest);
-            mc.thePlayer.rotationYawHead = rotations[0];
-            mc.thePlayer.rotationPitchHead = rotations[1];
-            rotating = true;
-            nextTickTarget = closest;
-        }
+    public void onEvent(Event e) {
+    	if(e instanceof RotationEvent) {
+	        rotating = false;
+	        if(scaffold.getBoolean() && Client.instance.moduleManager.scaffold.isToggled() || Client.instance.moduleManager.killAura.target != null) {
+	        	return;
+	        }
+	        EntityFireball closest = null;
+	        double range = rotationRange.getValue();
+	
+	        for (Entity entity : mc.theWorld.loadedEntityList) {
+	            if (entity instanceof EntityFireball) {
+	            	EntityFireball fireball = (EntityFireball) entity;
+	                if (fireball.shootingEntity == mc.thePlayer) {
+	                    continue;
+	                }
+	                double dist = mc.thePlayer.getDistanceToEntity(entity);
+	                if (dist <= range) {
+	                    range = dist;
+	                    closest = (EntityFireball) entity;
+	                }
+	            }
+	        }
+	
+	        if (closest != null) {
+	            float[] rotations = getRotations(closest);
+	            ((RotationEvent) e).setYaw(rotations[0]);
+	            ((RotationEvent) e).setPitch(rotations[1]);
+	            rotating = true;
+	            nextTickTarget = closest;
+	        }
+    	}
     }
 
     @Override

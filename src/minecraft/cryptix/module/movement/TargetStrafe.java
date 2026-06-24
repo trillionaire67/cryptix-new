@@ -5,6 +5,8 @@ import org.lwjgl.opengl.GL11;
 
 import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.BooleanSetting;
+import cryptix.gui.clickgui.settings.DoubleSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
 import cryptix.utils.MovementUtils;
@@ -16,9 +18,9 @@ import net.minecraft.util.Vec3;
 
 public class TargetStrafe extends Module{
 	public float angle;
-	private Setting requireSpace = new Setting("Require Space", this, false);
-	private Setting drawCircle = new Setting("Draw Circle", this, true);
-	public Setting range = new Setting("Range", this, 2, 1, 5, 1);
+	private BooleanSetting requireSpace = new BooleanSetting("Require Space", this, false);
+	private BooleanSetting drawCircle = new BooleanSetting("Draw Circle", this, true);
+	public DoubleSetting range = new DoubleSetting("Range", this, 2, 1, 5, 1);
 	private int direction = 1;
 	public TargetStrafe() {
 		super("TargetStrafe", 0, Category.MOVEMENT);

@@ -12,6 +12,7 @@ import org.apache.http.util.EntityUtils;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import cryptix.Client;
 import cryptix.altmanager.microsoft.MicrosoftOAuthTranslation;
 import cryptix.other.JsonHandler;
 import net.minecraft.client.Minecraft;
@@ -20,12 +21,11 @@ import net.minecraft.util.Session;
 public class SessionChanger {
 	public static String username = null;
 	private static SessionChanger instance;
-	private final Minecraft mc = Minecraft.getMinecraft();
 	public long timeSinceFail;
 	
 	public void loginCracked(String name) {
 	    java.util.UUID uuid = java.util.UUID.nameUUIDFromBytes((name).getBytes(java.nio.charset.StandardCharsets.UTF_8));
-	    mc.setSession(new Session(
+	    Client.mc.setSession(new Session(
 	        name,
 	        uuid.toString(),
 	        "0",
@@ -50,7 +50,7 @@ public class SessionChanger {
 	}
 	
 	public void setSessionWithData(MicrosoftOAuthTranslation.LoginData loginData) {
-	    mc.setSession(new Session(loginData.username, loginData.uuid, loginData.mcToken, "mojang"));
+		Client.mc.setSession(new Session(loginData.username, loginData.uuid, loginData.mcToken, "mojang"));
 	    username = loginData.username;
 	    System.out.println("OAuth login successful: " + loginData.username);
 	}
@@ -60,19 +60,19 @@ public class SessionChanger {
             try {
                 String[] playerInfo = getProfileInfo(token);
                 Session newSession = new Session(playerInfo[0], playerInfo[1], token, "mojang");
-                mc.setSession(newSession);
+                Client.mc.setSession(newSession);
                 AltManagerGui.status = "§aLogged in as " + newSession.getUsername();
                 if(add) {
 	                Alt alt = new Alt(null,null,playerInfo[0],false);
 	                alt.setToken(token);
 	                AltManagerGui.alts.add(alt);
                 }
-                this.mc.displayGuiScreen(parent);
+                Client.mc.displayGuiScreen(parent);
                 JsonHandler.saveAlts();
             }catch (Exception e) {
             	timeSinceFail = System.currentTimeMillis();
             	AltManagerGui.status = "§cFailed login";
-            	this.mc.displayGuiScreen(parent);
+            	Client.mc.displayGuiScreen(parent);
                 e.printStackTrace();
             }
         }).start();

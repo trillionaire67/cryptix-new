@@ -6,6 +6,8 @@ import org.lwjgl.input.Mouse;
 
 import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.DoubleSetting;
+import cryptix.gui.clickgui.settings.ModeSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
 import cryptix.utils.BlinkUtils;
@@ -16,12 +18,12 @@ import net.minecraft.util.Vec3;
 
 public class AntiVoid extends Module{
 	public BlockPos lastSafePos;
-	private Setting mode, distance;
+	private ModeSetting mode = new ModeSetting("Mode", this, "Normal", Arrays.asList("Normal", "BlocksMC", "Hypixel"));
+	private DoubleSetting distance = new DoubleSetting("Distance", this, 5.0, 1.0, 10.0, true);
 	public boolean blink, b1, lastInVoid;
 	public AntiVoid() {
 		super("AntiVoid", 0, Category.PLAYER);
-        Client.instance.settingsManager.addSetting(mode = new Setting("Mode", this, "Normal", Arrays.asList("Normal", "BlocksMC", "Hypixel")));
-        Client.instance.settingsManager.addSetting(distance = new Setting("Distance", this, 5.0, 1.0, 10.0, true));
+        this.addSetting(this.mode, this.distance);
 	}
 	
 	@Override

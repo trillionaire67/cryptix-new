@@ -9,9 +9,14 @@ import org.lwjgl.opengl.GL11;
 
 import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.BooleanSetting;
+import cryptix.gui.clickgui.settings.DoubleSetting;
+import cryptix.gui.clickgui.settings.ModeSetting;
 import cryptix.module.Category;
 import cryptix.module.Module;
 import cryptix.module.combat.KillAura;
+import cryptix.other.event.Event;
+import cryptix.other.event.events.RotationEvent;
 import cryptix.utils.BlinkUtils;
 import cryptix.utils.RotationUtils;
 import cryptix.utils.Utils;
@@ -35,26 +40,27 @@ import net.minecraft.util.Vec3i;
 public class BedNuker extends Module{
 	public BlockPos bedPos, lastPos, surroundingPos, surroundingLastPos, spawnPos;
 	private IBlockState bedBlock;
-	private Setting range, delay, rotate, render, surrounding, whitelist, speed, dig, movefix, ka, bmc;
+	private ModeSetting mode = new ModeSetting("Mode", this, "Standard", Arrays.asList("Standard", "Hypixel"));
+	private BooleanSetting surrounding = new BooleanSetting("Surroundings", this, false);
+	private BooleanSetting rotate = new BooleanSetting("Only S/S Rotate", this, false);
+	private BooleanSetting whitelist = new BooleanSetting("Whitelist", this, true);
+	private BooleanSetting dig = new BooleanSetting("Ignore Slowdown", this, true);
+	private BooleanSetting movefix = new BooleanSetting("Movefix", this, true);
+	private BooleanSetting ka = new BooleanSetting("Allow KillAura", this, true);
+	private BooleanSetting bmc = new BooleanSetting("BlocksMC", this, true);
+	private ModeSetting render = new ModeSetting("Render Progress", this, "Bar", Arrays.asList("None", "Bar", "Block", "Adjust"));
+	private DoubleSetting range = new DoubleSetting("Range", this, 3, 3, 8, false);
+	private DoubleSetting delay = new DoubleSetting("Break Delay", this, 100, 0, 500, true);
+	private DoubleSetting speed = new DoubleSetting("Break Speed", this, 1, 1, 2, 1);
 	public double breakProgress, smoothProgress;
 	private int delayTick, alpha, backAlpha, progTick, lastSlot, tick;
-	private boolean start, surroundingBroken, rotation;
+	private boolean start, surroundingBroken, rotation, canbreak;
 	public boolean rotating, check, swapped, teleport;
 	private long offsetTime;
 	private float[] rotations;
 	public BedNuker() {
 		super("BedNuker", 0, Category.PLAYER);
-		Client.instance.settingsManager.addSetting(range = new Setting("Range", this, 3, 3, 8, false));
-		Client.instance.settingsManager.addSetting(delay = new Setting("Break Delay", this, 100, 0, 500, true));
-		Client.instance.settingsManager.addSetting(speed = new Setting("Break Speed", this, 1, 1, 2, 1));
-		Client.instance.settingsManager.addSetting(surrounding = new Setting("Surroundings", this, false));
-		Client.instance.settingsManager.addSetting(rotate = new Setting("Only S/S Rotate", this, false));
-		Client.instance.settingsManager.addSetting(render = new Setting("Render Progress", this, "Bar", Arrays.asList("None", "Bar", "Block", "Adjust")));
-		Client.instance.settingsManager.addSetting(whitelist = new Setting("Whitelist", this, true));
-		Client.instance.settingsManager.addSetting(dig = new Setting("Ignore Slowdown", this, true));
-		Client.instance.settingsManager.addSetting(movefix = new Setting("Movefix", this, true));
-		Client.instance.settingsManager.addSetting(ka = new Setting("Allow KillAura", this, true));
-		Client.instance.settingsManager.addSetting(bmc = new Setting("BlocksMC", this, true));
+		this.addSetting(mode, range, delay, speed, surrounding, rotate, render, whitelist, dig, movefix, ka, bmc);
 	}
 	
 	@Override
@@ -87,14 +93,20 @@ public class BedNuker extends Module{
 	public void onEnable() {
 		reset();
 	}
+	
+	@Override
+	public void onEvent(Event e) {
+		if(e instanceof RotationEvent) {
+			if(rotations != null && rotating) {
+				((RotationEvent) e).setYaw(rotations[0]);
+				((RotationEvent) e).setPitch(rotations[1]);
+				rotations = null;
+				rotating = false;
+			}
+		}
+	}
 	@Override
 	public void onPreMotion() {
-		if(rotations != null && rotating) {
-			mc.thePlayer.rotationYawHead = rotations[0];
-			mc.thePlayer.rotationPitchHead = rotations[1];
-			rotations = null;
-			rotating = false;
-		}
 		if((bedPos != null || surroundingPos != null)&& smoothProgress > 0.1) {
 			alpha = (int) Utils.lerp(alpha, 255, 0.5f);
 			backAlpha = (int) Utils.lerp(backAlpha, 100, 0.5f);
@@ -115,9 +127,17 @@ public class BedNuker extends Module{
 		if(!ka.getBoolean()) {
 			KillAura aura = Client.instance.moduleManager.killAura;
 			if(aura.blocking || aura.swapped || aura.b3 || aura.target != null) {
+				canbreak = true;
 				reset();
 				return;
+			}else {
+				
 			}
+		}
+		if(canbreak) {
+			canbreak = false;
+			reset();
+			return;
 		}
 		if(tick < 10) {
 			if(tick == 1 && lastPos != null && !rotate.getBoolean()) {
@@ -184,8 +204,8 @@ public class BedNuker extends Module{
 		}
 		if(render.getString().equalsIgnoreCase("Bar") && (bedPos != null || surroundingPos != null || alpha > 0 || backAlpha > 0)) {
 			Module hud = Client.instance.moduleManager.hud;
-			Setting c1r = Client.instance.moduleManager.hud.color1red, c1g = Client.instance.moduleManager.hud.color1green, c1b = Client.instance.moduleManager.hud.color1blue;
-			Setting c2r = Client.instance.moduleManager.hud.color2red, c2g = Client.instance.moduleManager.hud.color2green, c2b = Client.instance.moduleManager.hud.color2blue;
+			DoubleSetting c1r = Client.instance.moduleManager.hud.color1red, c1g = Client.instance.moduleManager.hud.color1green, c1b = Client.instance.moduleManager.hud.color1blue;
+			DoubleSetting c2r = Client.instance.moduleManager.hud.color2red, c2g = Client.instance.moduleManager.hud.color2green, c2b = Client.instance.moduleManager.hud.color2blue;
 			int color1 = (alpha << 24) | ((int)c1r.getValue() << 16) | ((int)c1g.getValue() << 8) | (int)c1b.getValue();
 		    int color2 = (alpha << 24) | ((int)c2r.getValue() << 16) | ((int)c2g.getValue() << 8) | (int)c2b.getValue();
 		    int bg     = (backAlpha << 24);
@@ -254,6 +274,11 @@ public class BedNuker extends Module{
 			mc.thePlayer.inventory.currentItem = tool;
 		}
 		double prog = mc.theWorld.getBlockState(pos).getBlock().getPlayerRelativeBlockHardness(mc.thePlayer, mc.theWorld, pos, dig.getBoolean()) * speed.getValue();
+		if(mode.getString().equalsIgnoreCase("Hypixel") && pos == bedPos && mc.thePlayer.onGroundTicks > 1) {
+			prog = 0.5;
+		}else if(mc.thePlayer.onGround){
+			prog *= 1.5;
+		}
 		if(rotate.getBoolean() && breakProgress == 0 || !rotate.getBoolean()) {
 			rotate(pos);
 		}

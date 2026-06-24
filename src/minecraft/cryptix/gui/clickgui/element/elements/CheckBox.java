@@ -4,6 +4,7 @@ import java.awt.Color;
 
 import cryptix.Client;
 import cryptix.gui.clickgui.Setting;
+import cryptix.gui.clickgui.settings.BooleanSetting;
 import cryptix.gui.clickgui.element.Element;
 import cryptix.gui.clickgui.element.ModuleButton;
 import cryptix.gui.clickgui.util.ColorUtil;
@@ -31,10 +32,10 @@ public class CheckBox extends Element {
 
 		float smoothTime = 0.1f;
 		float lerpAlpha = 1.0f - (float)Math.exp(-deltaTime / smoothTime);
-		alpha = (int) Utils.lerp(alpha, setting.getBoolean() ? 255 : 0, lerpAlpha);
+		alpha = (int) Utils.lerp(alpha, ((BooleanSetting)setting).getBoolean() ? 255 : 0, lerpAlpha);
 		int color = ColorUtil.getClickGUIColor();
 		
-		Gui.drawRect(x - 2, y, x + 88, y + height, 0xFF1A1A1A);
+		Gui.drawRect(x - 2, y, x + 88, y + height, 0x00000000);
 		if(Client.instance.moduleManager.clickGUI.font.getBoolean()) {
 			Client.instance.sans12.drawString(settingName, x + 14, (float) (y + 5.5), 0xffffffff);
 			GlStateManager.disableBlend();
@@ -42,18 +43,18 @@ public class CheckBox extends Element {
 			FontUtil.drawString(settingName, x + 14, y + FontUtil.getFontHeight() / 2 - 0.5, 0xffffffff);
 		}
 		RenderUtils.drawRoundedRectangle((float) x + 1,(float) y + 2, (float)x + 12, (float)y + 13, 4, 0xff101010);
-		if(this.setting.getBoolean()) {
+		if(((BooleanSetting)setting).getBoolean()) {
 			RenderUtils.drawRoundedRectangle((float) x + 1,(float) y + 2, (float)x + 12, (float)y + 13, 4, color);
 		}
 		if (isCheckHovered(mouseX, mouseY)) {
-			RenderUtils.drawRoundedRectangle((float)x + 1, (float)y + 2, (float)x + 12, (float)y + 13,4,setting.getBoolean() ? 0x35111111 : 0x20232323);
+			RenderUtils.drawRoundedRectangle((float)x + 1, (float)y + 2, (float)x + 12, (float)y + 13,4,((BooleanSetting)setting).getBoolean() ? 0x35111111 : 0x20232323);
 		}
 		RenderUtils.drawCheckmark((int)x + 4, (int) y + 4, 7, 0xff101010);
 	}
 
 	public boolean mouseClicked(int mouseX, int mouseY, int mouseButton) {
 		if (mouseButton == 0 && isCheckHovered(mouseX, mouseY)) {
-			setting.setBoolean(!setting.getBoolean());
+			((BooleanSetting)setting).setBoolean(!((BooleanSetting)setting).getBoolean());
 			return true;
 		}
 		
